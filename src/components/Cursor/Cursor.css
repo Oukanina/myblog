@@ -1,0 +1,8 @@
+.cursor {
+  display: inline-block;
+  position: relative;
+  width: 8px;
+  height: 1em;
+  top: 2px;
+  background-color: #fff;
+}

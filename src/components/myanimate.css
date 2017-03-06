@@ -1,0 +1,18 @@
+
+.blink {
+  animation-iteration-count: infinite;
+  animation-duration: 1.8s;
+  animation-name: blink;
+}
+
+@keyframes blink {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0.1;
+    transform: scale(0.9);
+  }
+}

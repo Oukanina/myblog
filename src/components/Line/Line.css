@@ -1,0 +1,58 @@
+@import '../variables.css';
+
+.line {
+  position: relative;
+  text-shadow: 0 0 1px;
+  display: block;
+  margin: 1px 0;
+  padding: 0 3px;
+  width: 100%;
+  word-break: break-all;
+  color: #fafafa;
+
+  &:focus {
+    border: 0;
+    outline: 0;
+  }
+
+  &.green {
+    color: green;
+  }
+
+  &.red {
+    color: red;
+  }
+}
+
+.lineContent {
+  display: inline;
+  position: relative;
+}
+
+.lineHead {
+  display: inline;
+  position: relative;
+  margin-right: 5px;
+  text-shadow: 0 0 1px;
+  color: inherit;
+}
+
+.e {
+  position: relative;
+  color: inherit;
+}
+
+.oncursor {
+  color: #333;
+  background: #fafafa;
+}
+
+.cursor {
+  display: inline-block;
+  position: relative;
+  top: 1px;
+  margin: 0 1px;
+  width: 8px;
+  height: 13px;
+  background: #fafafa;
+}

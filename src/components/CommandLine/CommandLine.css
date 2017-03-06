@@ -1,0 +1,9 @@
+@import '../variables.css';
+
+.commandLine {
+  position: relative;
+  height: auto;
+  color: #fafafa;
+  font-size: 14px;
+  z-index: var(--z-index-2);
+}
