@@ -79,8 +79,12 @@ export function off(element, event, handler) {
   }
 }
 
+export function isBrowser() {
+  return global && global.toString() === '[object Window]';
+}
+
 export function onBrowser(func) {
-  if (global && global.toString() === '[object Window]') {
+  if (isBrowser()) {
     if (is.function(func)) func();
   }
 }

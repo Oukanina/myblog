@@ -13,12 +13,47 @@ import appState from '../../core/state';
 
 
 class Home extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      login: false,
+    };
+
+    this.listenHandler = this.listenHandler.bind(this);
+  }
+
   componentDidMount() {
+    this.listen();
     appState.fetchData();
+    // initial state
+    this.listenHandler(appState.get('login'));
+  }
+
+  componentWillUnmount() {
+    this.unlisten();
+  }
+
+  listen() {
+    appState.listen('login', this.listenHandler);
+  }
+
+  unlisten() {
+    appState.unlisten('login', this.listenHandler);
+  }
+
+  listenHandler(login) {
+    this.setState({ login });
   }
 
   render() {
-    return (<CommandLine />);
+    const { login } = this.state;
+
+    return (
+      <div>
+        { login ? <CommandLine /> : null }
+      </div>
+    );
   }
 }
 

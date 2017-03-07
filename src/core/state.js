@@ -36,7 +36,7 @@ class State {
           this.update(p, json[p]);
         }
       }
-
+      this.update('login', true);
       this.set('fetchData', 'done');
     } catch (err) {
       this.set('fetchData', '');

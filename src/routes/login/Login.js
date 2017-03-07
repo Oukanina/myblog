@@ -15,7 +15,7 @@ import Lockr from 'lockr';
 import s from './Login.css';
 import Cursor from '../../components/Cursor';
 import { CHARACTERREX, SPECIALKEY } from '../../constants';
-import { debounce, on, off, onBrowser } from '../../core/utils';
+import { debounce, on, off, delayUpdate } from '../../core/utils';
 import { isToken, token } from '../../core/api';
 import history from '../../core/history';
 import appState from '../../core/state';
@@ -32,10 +32,16 @@ const ArrowRight = 'ArrowRight';
 
 async function checkToken() {
   try {
-    if (!Lockr.get('token')) return;
-    const res = await isToken();
-    const json = await res.json();
-    if (json.status === 'ok') history.push('/');
+    if (Lockr.get('token')) {
+      const res = await isToken();
+      const json = await res.json();
+      if (json.status === 'ok') {
+        appState.update('login', true);
+        history.push('/');
+        return;
+      }
+    }
+    appState.update('login', false);
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
   }
@@ -63,23 +69,45 @@ class Login extends React.Component {
       emailFocus: true,
       passwordFocus: false,
       cursorPosition: 1,
+      // if component render from server, then set login true
+      login: true,
     };
 
+    this.listenHandler = this.listenHandler.bind(this);
     this.keydownHandler = this.keydownHandler.bind(this);
-  }
 
-  componentWillMount() {
-    onBrowser(() => {
-      checkToken();
-    });
+    // use shouldUpdate limit
+    this.lastUpdateTime = 0;
+    this.updateTimeout = null;
+    this.nextState = {};
   }
 
   componentDidMount() {
     on(window, 'keydown', this.keydownHandler());
+    this.listen();
+    checkToken();
+  }
+
+  shouldComponentUpdate() {
+    return delayUpdate.call(this,
+      arguments[0], arguments[1], 200); // eslint-disable-line prefer-rest-params
   }
 
   componentWillUnmount() {
     off(window, 'keydown', this.keydownHandler());
+    this.unlisten();
+  }
+
+  listen() {
+    appState.listen('login', this.listenHandler);
+  }
+
+  unlisten() {
+    appState.unlisten('login', this.listenHandler);
+  }
+
+  listenHandler(login) {
+    this.setState({ login });
   }
 
   keydownHandler() {
@@ -166,6 +194,7 @@ class Login extends React.Component {
       if (json.stauts === 'vaild') return; //
       if (!json.token) throw new Error('no token!');
       Lockr.set('token', json.token || '');
+      appState.set('login', true);
       appState.fetchData();
       history.push('/');
     } catch (err) {
@@ -257,6 +286,9 @@ class Login extends React.Component {
   }
 
   render() {
+    const { login } = this.state;
+    if (login) return null;
+
     return (
       <div className={s.root}>
         <div className={s.container}>

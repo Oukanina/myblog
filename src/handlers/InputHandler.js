@@ -2,21 +2,57 @@ import is from 'is_js';
 import { debounce, on, off, log } from '../core/utils';
 import { CHARACTERREX, KEYMAP } from '../constants';
 
-function isCharacter(key) {
+export function isCharacter(key) {
   return CHARACTERREX.test(key);
 }
 
-function isSpecialKey(keyCode) {
+export function isSpecialKey(keyCode) {
   for (const k in KEYMAP) { // eslint-disable-line no-restricted-syntax
     if (KEYMAP[k] === keyCode) return true;
   }
   return false;
 }
 
+const defaultOptions = {
+  deplay: 50,
+};
+
 export default class InputHandler {
-  constructor(handlers) {
+  constructor(handlers, options = defaultOptions) {
+    this.state = {
+      pause: false,
+      running: false,
+    };
+
+    this.event = {};
+    this.delay = options.delay;
+    this.stopCharacterHandler = false;
+    this.stopSpecialKeyHandler = false;
+
     this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.initialHandlers(handlers);
+  }
+
+  initialHandlers(handlers) {
     this.handlers = handlers;
+  }
+
+  start() {
+    this.state.running = true;
+    this.on();
+  }
+
+  stop() {
+    this.state.running = false;
+    this.destory();
+  }
+
+  pause() {
+    this.state.pause = true;
+  }
+
+  resume() {
+    this.state.pause = false;
   }
 
   on() {
@@ -28,6 +64,14 @@ export default class InputHandler {
     off(window, 'keydown', this.keyDownHandler());
   }
 
+  destory() {
+    off(window, 'keydown', this.keyDownHandler());
+    this.keyDownHandler = null;
+    this.handlers = null;
+    this.state.running = false;
+    this.state.pause = false;
+  }
+
   runHandler(handlerName) {
     if (!this.handlers[handlerName]) return;
     if (is.not.function(this.handlers[handlerName])) return;
@@ -37,13 +81,15 @@ export default class InputHandler {
 
   keyDownHandler() {
     return debounce((event) => {
+      if (this.state.pause) return;
       this.event = event;
-      this.characterHandler(event.key);
-      this.specialKeyHandler(event.keyCode);
+      if (!this.stopCharacterHandler) this.characterHandler(event.key);
+      if (!this.stopSpecialKeyHandler) this.specialKeyHandler(event.keyCode);
     }, {
       prefunc: (event) => {
         event.preventDefault();
       },
+      timespan: this.deplay,
     });
   }
 
@@ -103,4 +149,3 @@ export default class InputHandler {
     }
   }
 }
-

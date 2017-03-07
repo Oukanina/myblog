@@ -12,7 +12,8 @@ import Cursor from '../Cursor';
 import { delayUpdate } from '../../core/utils';
 
 
-const states = ['username', 'hostname', 'path', 'cursorPosition', 'currentCommand'];
+const states = ['username', 'hostname', 'path',
+  'cursorPosition', 'currentCommand'];
 
 class LastLine extends Line {
   static propTypes = {
@@ -30,6 +31,7 @@ class LastLine extends Line {
       cursorPosition: 1,
     };
 
+    this.updateLimit = 25;
     this.stateHandler = this.stateHandler.bind(this);
     this.inputHandler = new InputHandler({
       characterHandler: this.characterHandler.bind(this),
@@ -37,8 +39,11 @@ class LastLine extends Line {
       backspaceHandler: this.backspaceHandler.bind(this),
       leftHandler: this.leftHandler.bind(this),
       rightHandler: this.rightHandler.bind(this),
+    }, {
+      deplay: this.updateLimit,
     });
 
+    // use shouldUpdate limit
     this.lastUpdateTime = 0;
     this.updateTimeout = null;
     this.nextState = {};
@@ -97,8 +102,8 @@ class LastLine extends Line {
   }
 
   shouldComponentUpdate() {
-    return delayUpdate
-    .call(this, arguments[0], arguments[1], 50); // eslint-disable-line prefer-rest-params
+    return delayUpdate.call(this,
+      arguments[0], arguments[1], this.updateLimit); // eslint-disable-line prefer-rest-params
   }
 
   componentDidUpdate() {

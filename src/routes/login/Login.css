@@ -52,6 +52,8 @@
 
 .e {
   display: inline-block;
+  position: relative;
+  color: inherit;
   min-width: 6px;
   text-align: center;
 }

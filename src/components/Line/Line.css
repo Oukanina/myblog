@@ -4,11 +4,12 @@
   position: relative;
   text-shadow: 0 0 1px;
   display: block;
-  margin: 1px 0;
   padding: 0 3px;
   width: 100%;
   word-break: break-all;
   color: #fafafa;
+  font-size: 1em;
+  letter-spacing: 0.5px;
 
   &:focus {
     border: 0;
@@ -27,6 +28,8 @@
 .lineContent {
   display: inline;
   position: relative;
+  font-size: 1em;
+  color: inherit;
 }
 
 .lineHead {
@@ -35,16 +38,21 @@
   margin-right: 5px;
   text-shadow: 0 0 1px;
   color: inherit;
+  font-size: 1em;
 }
 
 .e {
+  display: inline-block;
   position: relative;
+  font-size: 1em;
   color: inherit;
+  min-width: 6px;
+  text-align: center;
 }
 
 .oncursor {
-  color: #333;
-  background: #fafafa;
+  background: #fff;
+  color: #343434;
 }
 
 .cursor {
