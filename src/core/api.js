@@ -1,6 +1,7 @@
 import Lockr from 'lockr';
 import fetch from './fetch';
 import history from './history';
+import appState from './state';
 
 
 const defaultOptions = {
@@ -15,6 +16,7 @@ function api(url, options = {}, checkToken = true) {
   const authToken = Lockr.get('token');
   if (checkToken && !authToken) {
     history.push('/login');
+    appState.update('login', false);
     throw new Error(`no token ${url}`);
   }
   const headers = Object.assign({}, defaultOptions.headers, options.headers, {
@@ -31,6 +33,7 @@ function api(url, options = {}, checkToken = true) {
         throw new Error('400');
       case 401:
         history.push('/login');
+        appState.update('login', false);
         throw new Error('401');
       case 404:
         // history.push('/404');
