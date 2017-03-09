@@ -11,9 +11,7 @@ import path from 'path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-// import expressJwt from 'express-jwt';
 import expressGraphQL from 'express-graphql';
-import jwt from 'jsonwebtoken';
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import UniversalRouter from 'universal-router';
@@ -23,11 +21,12 @@ import Html from './components/Html';
 import { ErrorPageWithoutStyle } from './routes/error/ErrorPage';
 import errorPageStyle from './routes/error/ErrorPage.css';
 import passport from './core/passport';
-import models, { User } from './data/models';
+import models from './data/models';
 import schema from './data/schema';
 import routes from './routes';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
-import { port, auth } from './config';
+import { port } from './config';
+import fetchApi from './fetchApi';
 
 const app = express();
 
@@ -70,72 +69,10 @@ app.use('/graphql', expressGraphQL(req => ({
   pretty: __DEV__,
 })));
 
-function createToken(email) {
-  return jwt.sign({ email }, auth.jwt.secret, {
-    expiresIn: '12h',
-  });
-}
-
-app.get('/me',
-  passport.authenticate('bearer', { session: false }),
-  (req, res) => {
-    res.json(req.user);
-  });
-
-app.get('/istoken',
-  passport.authenticate('bearer', { session: false }),
-  (req, res) => {
-    res.json({ status: 'ok' });
-  });
-
-app.post('/token',
-  async (req, res, next) => {
-    try {
-      const { email, password } = req.body;
-      const name = 'local:token';
-
-      if (!email || !password) {
-        res.json({ status: 'no parameters! email or password' });
-        return next();
-      }
-
-      let status;
-      let user = await User.findOne({
-        where: { email },
-      });
-
-      if (!user) {
-        user = await User.create({ email, password });
-        status = 'created';
-      } else if (user.dataValues.password !== password) {
-        status = 'vaild';
-        res.json({ status });
-        return next();
-      } else {
-        status = 'login';
-        const logins = await user.getLogins({
-          where: {
-            name,
-          },
-        });
-        for (let i = 0; i < logins.length; i += 1) {
-          logins[i].destroy();
-        }
-      }
-
-      const token = createToken(email);
-      await user.createLogin({
-        name,
-        key: token,
-      });
-      res.json({ status, token });
-      return next();
-    } catch (err) {
-      console.error(err); // eslint-disable-line no-console
-      res.json({ err });
-      return next();
-    }
-  });
+//
+// Register fetch api
+//
+fetchApi.initial().register(app);
 
 //
 // Register server-side rendering middleware

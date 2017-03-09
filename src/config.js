@@ -25,7 +25,10 @@ export const analytics = {
 
 export const auth = {
 
-  jwt: { secret: process.env.JWT_SECRET || 'THE WORLD!!!' },
+  jwt: {
+    secret: process.env.JWT_SECRET || 'THE WORLD!!!',
+    expires: '24h',
+  },
 
   // https://developers.facebook.com/
   facebook: {
