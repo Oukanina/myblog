@@ -20,7 +20,8 @@ class State {
     this.set('login', false);
     this.set('fetchData', '');
     this.set('test', 'test');
-    // this.fetchData();
+
+    this.set('screenElement', {});
   }
 
   async fetchData() {
