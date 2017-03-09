@@ -1,5 +1,5 @@
 ---
-title: Privacy Policy
+title: My Article
 ---
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean consequat
 tortor fermentum mi fermentum dignissim. Nullam vel ipsum ut ligula elementum
@@ -9,6 +9,8 @@ ligula, et facilisis metus bibendum interdum. Mauris at mauris sit amet sem
 pharetra commodo a eu leo. Nam at est non risus cursus maximus. Nam feugiat
 augue libero, id consectetur tortor bibendum non. Quisque nec fringilla lorem.
 Nullam efficitur vulputate mauris, nec maximus leo dignissim id.
+
+![](http://i2.pixiv.net/c/480x960/img-master/img/2017/03/07/00/03/46/61784497_p0_master1200.jpg)
 
 In hac habitasse platea dictumst. Duis sagittis dui ac ex suscipit maximus.
 Morbi pellentesque venenatis felis sed convallis. Nulla varius, nibh vitae

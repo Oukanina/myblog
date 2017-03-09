@@ -8,20 +8,24 @@
  */
 
 import React from 'react';
-import Layout from '../../components/Layout';
+import Screen from '../../components/Screen';
 import Page from '../../components/Page';
 
 export default {
 
-  path: '/privacy',
+  path: '/article/:articleId',
 
-  async action() {
-    const data = await require.ensure([], require => require('./privacy.md'), 'privacy');
+  async action({ params }) {
+    const { articleId } = params;
+    if (!articleId) return { redirct: './notFound' };
+
+    const data = await require.ensure([],
+      require => require('./privacy.md'), 'privacy');
 
     return {
       title: data.title,
       chunk: 'privacy',
-      component: <Layout><Page {...data} /></Layout>,
+      component: <Screen><Page {...data} /></Screen>,
     };
   },
 
