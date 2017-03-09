@@ -8,7 +8,7 @@
  */
 
 import DataType from 'sequelize';
-import Model from '../sequelize';
+import Model from '../../sequelize';
 
 const User = Model.define('User', {
 

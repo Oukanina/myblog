@@ -8,18 +8,20 @@
  */
 
 import DataType from 'sequelize';
-import Model from '../sequelize';
+import Model from '../../sequelize';
 
-const UserClaim = Model.define('UserClaim', {
+const UserLogin = Model.define('UserLogin', {
 
-  type: {
-    type: DataType.STRING,
+  name: {
+    type: DataType.STRING(50),
+    primaryKey: true,
   },
 
-  value: {
-    type: DataType.STRING,
+  key: {
+    type: DataType.STRING(100),
+    primaryKey: true,
   },
 
 });
 
-export default UserClaim;
+export default UserLogin;

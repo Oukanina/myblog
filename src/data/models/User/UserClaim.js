@@ -8,22 +8,18 @@
  */
 
 import DataType from 'sequelize';
-import Model from '../sequelize';
-// import jwt from 'jsonwebtoken';
-// import { auth } from '../../config';
+import Model from '../../sequelize';
 
-const UserLogin = Model.define('UserLogin', {
+const UserClaim = Model.define('UserClaim', {
 
-  name: {
-    type: DataType.STRING(50),
-    primaryKey: true,
+  type: {
+    type: DataType.STRING,
   },
 
-  key: {
-    type: DataType.STRING(100),
-    primaryKey: true,
+  value: {
+    type: DataType.STRING,
   },
 
 });
 
-export default UserLogin;
+export default UserClaim;
