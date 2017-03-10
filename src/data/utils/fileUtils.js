@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 
-import { File, FILETYPE, ROOTID } from '../data/models';
+import { File, FILETYPE, ROOTID } from '../models';
 
 // export const ERR_PARENT_NOT_FOUND = new Error(`parent file not found!`);
 export const ERR_FILE_ALREADY_EXIST = new Error('file already exist!');
@@ -32,8 +32,9 @@ export function findFileById(id) {
 }
 
 export function createFile({ name, type, parentId, mode,
-  linkTo, createIfNotExist, force }) {
+  linkTo, createIfNotExist, force, userId }) {
   return new Promise(async (resolve, reject) => {
+    let newFile;
     try {
       if (parentId === ROOTID) {
         // if parentId is 0 ( in root )
@@ -42,8 +43,9 @@ export function createFile({ name, type, parentId, mode,
         });
         if (file && !force) throw ERR_FILE_ALREADY_EXIST;
         if (file) file.destroy();
-        const newFile = await File.create({
+        newFile = await File.create({
           underRoot: true,
+          userId,
           name,
           type,
           mode,
@@ -70,7 +72,8 @@ export function createFile({ name, type, parentId, mode,
         subFiles[0].destroy();
       }
 
-      const newFile = await parentFile.createSubFile({
+      newFile = await parentFile.createSubFile({
+        userId,
         name,
         type,
         mode,
@@ -79,6 +82,7 @@ export function createFile({ name, type, parentId, mode,
       });
       resolve(newFile);
     } catch (err) {
+      if (newFile) newFile.destroy();
       reject(err);
     }
   });
