@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, no-restricted-syntax */
 import is from 'is_js';
 import _fetch from './fetch';
 
@@ -101,4 +101,14 @@ export function delayUpdate(nextProps, nextState, wait = 100) {
     return false;
   }
   return true;
+}
+
+export function fliterObject(object) {
+  const newObject = {};
+  for (const p in object) {
+    if (object[p] !== undefined) {
+      newObject[p] = object[p];
+    }
+  }
+  return newObject;
 }
