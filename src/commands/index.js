@@ -19,6 +19,7 @@ function createNewLine() {
     text: currentCommand,
   });
   appState.update('currentCommand', []);
+  appState.update('cursorPosition', 1);
   appState.update('historyCommands', historyCommands);
 }
 
