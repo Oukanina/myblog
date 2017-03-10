@@ -9,10 +9,6 @@ const Article = Model.define('Article', {
     primaryKey: true,
   },
 
-  fileId: {
-    type: DataType.UUID,
-  },
-
   content: {
     type: DataType.TEXT,
     allowNull: false,
