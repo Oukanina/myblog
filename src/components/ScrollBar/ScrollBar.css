@@ -2,10 +2,11 @@
 
 .scrollBar {
   position: fixed;
+  top: 0;
   right: 0;
   width: 10px;
   height: 100%;
-  z-index: 200;
+  z-index: var(--z-index-4);
 }
 
 .bar {
@@ -13,13 +14,8 @@
   right: 0;
   min-height: 50px;
   width: 80%;
-  background-color: #000;
+  background-color: #424242;
   border-radius: 3%;
   box-shadow: 1px 1px 5px 1px #000;
-
-  &:hover {
-    width: 60px;
-    right: 50px;
-    cursor: move;
-  }
+  cursor: move;
 }

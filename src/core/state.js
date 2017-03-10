@@ -22,6 +22,10 @@ class State {
     this.set('test', 'test');
 
     this.set('screenElement', {});
+    this.set('containerElement', {});
+
+    this.set('toBottom');
+    this.set('wheel');
   }
 
   async fetchData() {
@@ -78,7 +82,8 @@ class State {
 
   unListenOne(state, listener) {
     const listeners = this.listenerMap.get(state);
-    if (!listeners) throw new Error(`no listeners on ${state}`);
+    // if (!listeners) throw new Error(`no listeners on ${state}`);
+    if (!listeners) return;
     for (let i = 0; i < listeners.length; i += 1) {
       if (listeners[i] === listener) {
         listeners.splice(i, 1);
@@ -99,17 +104,20 @@ class State {
     this.stateMap.remove(stateName);
   }
 
-  update(stateName, newState) {
-    this.stateMap.set(stateName, newState);
+  trigger(stateName) {
     const listeners = this.listenerMap.get(stateName);
-
     if (!listeners) {
       log(`no listeners on ${stateName}`);
       // todo
       return;
     }
+    listeners.map(listener => listener(this.stateMap.get(stateName),
+      stateName, this.stateMap));
+  }
 
-    listeners.map(listener => listener(newState, stateName, this.stateMap));
+  update(stateName, newState) {
+    this.stateMap.set(stateName, newState);
+    this.trigger(stateName);
   }
 
   updateAll() {

@@ -13,13 +13,13 @@ class Screen extends React.Component {
   }
 
   componentDidMount() {
-    appState.set('screenElement', this.screenElement);
+    appState.update('screenElement', this.screenElement);
   }
 
   render() {
     return (
-      <div className={s.root}>
-        <div className={s.screen} ref={(e) => { this.screenElement = e; }}>
+      <div className={s.root} ref={(e) => { this.screenElement = e; }}>
+        <div className={s.screen}>
           <div className={s.screenCover} />
           <Container>
             { this.props.children }

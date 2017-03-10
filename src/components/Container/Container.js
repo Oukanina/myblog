@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Container.css';
 import appState from '../../core/state';
-import { log } from '../../core/utils';
+import { log, on, off } from '../../core/utils';
 
 
 class Container extends React.Component {
@@ -10,14 +10,48 @@ class Container extends React.Component {
     children: PropTypes.node,
   }
 
+  constructor(props) {
+    super(props);
+
+    this.imageLoadHandler = this.imageLoadHandler.bind(this);
+  }
+
   componentDidMount() {
-    appState.set('contentElement', this.contentElement);
+    appState.update('containerElement', this.containerElement);
+
+    const images = this.getImagElement(this.containerElement);
+    for (let i = 0; i < images.length; i += 1) {
+      on(images[i], 'load', this.imageLoadHandler);
+    }
+  }
+
+  getImagElement(node) {
+    let output = [];
+    if (node.hasChildNodes()) {
+      const children = node.childNodes;
+      for (let i = 0; i < children.length; i += 1) {
+        if (children[i].nodeName === 'IMG') {
+          output.push(children[i]);
+        }
+        output = output.concat(this.getImagElement(children[i]));
+      }
+    }
+    return output;
+  }
+
+  imageLoadHandler(event) {
+    appState.update('containerElement', this.containerElement);
+    off(event.target, 'load', this.imageLoadHandler);
   }
 
   render() {
     log(`render ${Date.now()}`);
     return (
-      <div className={s.container} ref={(e) => { this.contentElement = e; }}>
+      <div
+        className={s.container}
+
+        ref={(e) => { this.containerElement = e; }}
+      >
         { this.props.children }
       </div>);
   }

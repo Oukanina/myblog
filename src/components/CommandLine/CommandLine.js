@@ -21,6 +21,10 @@ class CommandLine extends React.Component {
     this.listen();
   }
 
+  componentDidUpdate() {
+    appState.trigger('toBottom');
+  }
+
   componentWillUnmount() {
     this.unlisten();
   }
