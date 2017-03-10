@@ -18,7 +18,7 @@ import { verify } from 'jsonwebtoken';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import { User, UserLogin, UserClaim, UserProfile } from '../data/models';
-import { auth as config, host } from '../config';
+import { auth as config, host, machineName } from '../config';
 
 /**
  * Sign in with Facebook.
@@ -125,38 +125,48 @@ passport.use(new FacebookStrategy({
   fooBar().catch(done);
 }));
 
-passport.use(new BearerStrategy(
-  async (token, done) => {
-    const name = 'local:token';
-    try {
-      const users = await User.findAll({
-        attributes: ['email'],
-        where: {
-          '$logins.name$': name,
-          '$logins.key$': token,
-        },
-        include: [{
-          attributes: ['name', 'key'],
-          model: UserLogin,
-          as: 'logins',
-          required: true,
-        }],
-      });
-      if (!users.length) return done(null, false);
-      verify(token, config.jwt.secret);
-      return done(null, {
-        email: users[0].get('email'),
-        hostname: host,
-        username: users[0].get('username') || users[0].get('email').split('@')[0],
-        path: users[0].get('path'),
-      }, { scope: 'read' });
-    } catch (err) {
-      if (err.name === 'JsonWebTokenError') return done(null, false);
-      if (err.name === 'TokenExpiredError') return done(null, false);
-      console.log(err); // eslint-disable-line no-console
-      return done(null, err);
-    }
-  },
+passport.use(new BearerStrategy({
+  passReqToCallback: true,
+}, async (req, token, done) => {
+  const name = 'local:token';
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'email', 'profile.displayName'],
+      where: {
+        '$logins.name$': name,
+        '$logins.key$': token,
+      },
+      include: [{
+        attributes: ['name', 'key'],
+        model: UserLogin,
+        as: 'logins',
+        required: true,
+      }, {
+        attributes: ['displayName'],
+        model: UserProfile,
+        as: 'profile',
+      }],
+    });
+    if (!users.length) return done(null, false);
+    verify(token, config.jwt.secret);
+    const lastLoginIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    users[0].update({
+      lastLoginIp,
+      lastLoginTime: `${new Date()}`,
+    });
+    return done(null, {
+      email: users[0].get('email'),
+      hostname: machineName || host,
+      username: users[0].get('displayName') || users[0].get('email').split('@')[0],
+      path: users[0].get('path'),
+    }, { scope: 'read' });
+  } catch (err) {
+    if (err.name === 'JsonWebTokenError') return done(null, false);
+    if (err.name === 'TokenExpiredError') return done(null, false);
+    console.log(err); // eslint-disable-line no-console
+    return done(null, err);
+  }
+},
 ));
 
 export default passport;
