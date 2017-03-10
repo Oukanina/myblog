@@ -1,5 +1,6 @@
 {
   "rules": {
-    "new-cap": 0
+    "new-cap": 0,
+    "import/prefer-default-export": 0
   }
 }
