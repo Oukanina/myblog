@@ -48,7 +48,7 @@ export default function token(app) {
         name,
         key: newToken,
       });
-      res.json({ status, newToken });
+      res.json({ status, token: newToken });
       return next();
     } catch (err) {
       console.error(err); // eslint-disable-line no-console
