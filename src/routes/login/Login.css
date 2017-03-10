@@ -9,12 +9,13 @@
 @import '../../components/variables.css';
 
 .root {
-  position: relative;
-  padding-left: 20px;
-  padding-right: 20px;
-  z-index: var(--z-index-4);
+  position: absolute;
+  width: 360px;
+  left: 50%;
   top: 50%;
-  margin-top: -50px;
+  margin-left: -180px;
+  margin-top: -32px;
+  z-index: var(--z-index-4);
 }
 
 .container {
@@ -29,7 +30,7 @@
 .label {
   display: inline-block;
   margin-bottom: 5px;
-  max-width: 20%;
+  max-width: 25%;
   font-weight: 700;
   color: #fcfcfc;
 }
@@ -38,7 +39,7 @@
   display: inline-block;
   box-sizing: border-box;
   padding: 0 10px;
-  width: 80%;
+  width: 75%;
   outline: 0;
   border: 0;
   border-radius: 0;

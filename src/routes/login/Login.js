@@ -16,7 +16,7 @@ import s from './Login.css';
 import Cursor from '../../components/Cursor';
 import { CHARACTERREX, SPECIALKEY } from '../../constants';
 import { debounce, on, off, delayUpdate } from '../../core/utils';
-import { isToken, token } from '../../core/api';
+import { isToken, token, ERR_401 } from '../../core/api';
 import history from '../../core/history';
 import appState from '../../core/state';
 
@@ -30,20 +30,28 @@ const ArrowDown = 'ArrowDown';
 const ArrowLeft = 'ArrowLeft';
 const ArrowRight = 'ArrowRight';
 
+const ERR_RETURN_TOKEN = new Error('not return token!');
+
 async function checkToken() {
   try {
-    if (Lockr.get('token')) {
-      const res = await isToken();
-      const json = await res.json();
-      if (json.status === 'ok') {
-        appState.update('login', true);
-        history.push('/');
-        return;
-      }
+    const userToken = Lockr.get('token');
+    if (!userToken) {
+      appState.update('login', false);
+      return;
     }
-    appState.update('login', false);
+
+    const res = await isToken();
+    const json = await res.json();
+    if (json.status !== 'ok') {
+      appState.update('login', false);
+      return;
+    }
+    appState.update('login', true);
+    history.push('/');
   } catch (err) {
-    console.error(err); // eslint-disable-line no-console
+    if (err === ERR_401) {
+      appState.update('login', false);
+    }
   }
 }
 
@@ -66,6 +74,7 @@ class Login extends React.Component {
     this.state = {
       email: [],
       password: [],
+      username: [],
       emailFocus: true,
       passwordFocus: false,
       cursorPosition: 1,
@@ -83,8 +92,8 @@ class Login extends React.Component {
   }
 
   componentDidMount() {
-    on(window, 'keydown', this.keydownHandler());
     this.listen();
+    on(window, 'keydown', this.keydownHandler());
     checkToken();
   }
 
@@ -192,7 +201,7 @@ class Login extends React.Component {
       });
       const json = await resp.json();
       if (json.stauts === 'vaild') return; //
-      if (!json.token) throw new Error('no token!');
+      if (!json.token) throw ERR_RETURN_TOKEN;
       Lockr.set('token', json.token || '');
       appState.set('login', true);
       appState.fetchData();
@@ -256,13 +265,14 @@ class Login extends React.Component {
     const { cursorPosition } = this.state;
     return (<span>
       {
-        ishide ? null : textArray.map((value, index) => (<e
-          className={focus && cursorPosition - 1 === index ?
+        ishide ? null : textArray.map((value, index) => (
+          <e
+            className={focus && cursorPosition - 1 === index ?
               cx(s.oncursor, s.e) : s.e}
-          key={index.toString()}
-        >
-          {value}
-        </e>))
+            key={index.toString()}
+          >
+            {value}
+          </e>))
       }
       {
         focus && textArray.length < cursorPosition ?
@@ -284,6 +294,14 @@ class Login extends React.Component {
       {this.renderText(password, passwordFocus, true)}
     </div>);
   }
+
+  // renderInputUsername() {
+  //   const { username } = this.state;
+  //   return (
+  //     <div>
+  //       { this.renderText(username, truem) }
+  //     </div>)
+  // }
 
   render() {
     const { login } = this.state;
