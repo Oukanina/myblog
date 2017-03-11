@@ -13,5 +13,5 @@ addons:
 script:
   - yarn lint
   - yarn build -- --release --production
-  - yarn serve
+  - yarn render
   - yarn test:all
