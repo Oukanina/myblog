@@ -22,7 +22,7 @@ function api(url, options = {}, checkToken = true) {
     try {
       const authToken = Lockr.get('token');
       if (checkToken && !authToken) {
-        history.push('/login');
+        history.replace('/login');
         appState.update('login', false);
         throw ERR_NO_TOKEN;
       }
@@ -42,13 +42,13 @@ function api(url, options = {}, checkToken = true) {
         case 400:
           throw ERR_400;
         case 401:
-          history.push('/login');
+          history.replace('/login');
           appState.update('login', false);
           throw ERR_401;
         case 404:
           throw ERR_404;
         case 500:
-          history.push('/500');
+          history.replace('/500');
           throw ERR_500;
         default:
           break;
