@@ -3,17 +3,17 @@
 import React, { PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { Line } from './Line';
-import s from './Line.css';
+import s from './InputLine.css';
 import appState from '../../core/state';
 import { AT, TILDE, COLON, DOLLAR } from '../../constants';
 import InputHandler from '../../handlers/InputHandler';
+import InputLine from './InputLine';
 import runCommand from '../../commands';
-import Cursor from '../Cursor';
 import { delayUpdate } from '../../core/utils';
 
 
 const states = ['username', 'hostname', 'path',
-  'cursorPosition', 'currentCommand'];
+  'cursorPosition', 'currentCommand', 'lastLineHead'];
 
 class LastLine extends Line {
   static propTypes = {
@@ -28,10 +28,11 @@ class LastLine extends Line {
       username: '...',
       hostname: '...',
       path: TILDE,
+      lastLineHead: '',
       cursorPosition: 1,
     };
 
-    this.updateLimit = 50;
+    this.updateLimit = 10;
     this.stateHandler = this.stateHandler.bind(this);
     this.inputHandler = new InputHandler({
       characterHandler: this.characterHandler.bind(this),
@@ -88,9 +89,9 @@ class LastLine extends Line {
   }
 
   stateHandler(newState, stateName) {
-    const n = {};
-    n[stateName] = newState;
-    this.setState(Object.assign({}, this.state, n));
+    this.setState(Object.assign({}, this.state, {
+      [stateName]: newState,
+    }));
   }
 
   listenState() {
@@ -124,17 +125,18 @@ class LastLine extends Line {
 
   render() {
     const { hide } = this.props;
-    const { hostname, username, path, currentCommand, cursorPosition } = this.state;
+    const { lastLineHead, currentCommand,
+      hostname, username, path, cursorPosition } = this.state;
 
     return this.renderLine(
       <span>
         {
-          hide ? null : <div className={s.lineHead}>
-            { `${username}${AT}${hostname}${COLON}${path}${DOLLAR}` }
+          hide ? null :
+          <div className={s.lineHead}>
+            { lastLineHead || `${username}${AT}${hostname}${COLON}${path}${DOLLAR}` }
           </div>
         }
-        { this.print(currentCommand, cursorPosition) }
-        { cursorPosition <= currentCommand.length ? null : <Cursor /> }
+        <InputLine text={currentCommand.join('')} cursorPosition={cursorPosition} />
       </span>,
     );
   }

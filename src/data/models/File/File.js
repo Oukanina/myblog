@@ -10,9 +10,10 @@ export const LINKTO = {
   article: 'article',
   music: 'music',
   video: 'video',
+  none: 'none',
 };
 
-export const ROOTID = 0;
+export const ROOTID = '0b2ec450-2cb0-11e7-84bc-b71a5a037f88';
 
 const File = Model.define('File', {
 
@@ -38,15 +39,20 @@ const File = Model.define('File', {
   },
 
   linkTo: {
-    type: DataType.ENUM(LINKTO.article, LINKTO.music, LINKTO.video),
+    type: DataType.ENUM(LINKTO.article, LINKTO.music, LINKTO.video, LINKTO.none),
     allowNull: false,
   },
 
-  underRoot: {
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-    allowNull: false,
+  onCreate: {
+    type: DataType.DATE,
+    defaultValue: DataType.NOW,
   },
+
+  // underRoot: {
+  //   type: DataType.BOOLEAN,
+  //   defaultValue: false,
+  //   allowNull: false,
+  // },
 
   path: {
     type: DataType.STRING(255 * 25),

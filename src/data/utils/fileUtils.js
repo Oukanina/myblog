@@ -5,7 +5,9 @@ import { File, FILETYPE, ROOTID } from '../models';
 // export const ERR_PARENT_NOT_FOUND = new Error(`parent file not found!`);
 export const ERR_FILE_ALREADY_EXIST = new Error('file already exist!');
 export const ERR_FILE_NOT_EXIST = new Error('file not exist!');
-export const ERR_PARENT_SHOULD_BE_A_FOLDER = new Error('parent should be a folder');
+export const ERR_PARENT_SHOULD_BE_A_FOLDER = new Error('parent should be a folder!');
+export const ERR_CAN_NOT_GET_HOME_FOLDER = new Error('can not find home folder!');
+export const ERR_NO_PARAMETER = new Error('no parameter!');
 
 export function fliterObject(object) {
   const newObject = {};
@@ -31,55 +33,63 @@ export function findFileById(id) {
   });
 }
 
-export function createFile({ name, type, parentId, mode,
-  linkTo, createIfNotExist, force, userId }) {
+export function fileExists({ parent, name, type }) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      resolve(await parent.getSubFile({
+        where: { name, type },
+      }));
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function createFile({ id, name, type, parentId, parentFolder, mode,
+  linkTo, createIfNotExist, force, userId, user }) {
   return new Promise(async (resolve, reject) => {
     let newFile;
     try {
-      if (parentId === ROOTID) {
-        // if parentId is 0 ( in root )
-        const file = await File.findOne({
-          where: { name, type, underRoot: true },
-        });
-        if (file && !force) throw ERR_FILE_ALREADY_EXIST;
-        if (file) file.destroy();
-        newFile = await File.create({
-          underRoot: true,
-          userId,
-          name,
-          type,
-          mode,
-          linkTo,
-          path: `/${name}`,
-        });
-        resolve(newFile);
-        return;
+      if (!userId) {
+        if (user) {
+          userId = user.get('id'); // eslint-disable-line no-param-reassign
+        } else {
+          throw ERR_NO_PARAMETER;
+        }
       }
 
-      const parentFile = await findFileById(parentId);
-      if (parentFile.get('type') === FILETYPE.f) throw ERR_PARENT_SHOULD_BE_A_FOLDER;
+      let parent;
+      if (parentFolder) {
+        parent = parentFolder;
+      } else if (parentId) {
+        parent = await findFileById(parentId);
+      } else {
+        throw ERR_NO_PARAMETER;
+      }
+      if (parent.get('type') === FILETYPE.f) throw ERR_PARENT_SHOULD_BE_A_FOLDER;
 
-      const subFiles = await parentFile.getSubFile({
+      const subFiles = await parent.getSubFile({
         where: { name, type },
       });
       // file exist
       if (subFiles.length) {
         if (createIfNotExist) {
-          resolve();
+          resolve(subFiles[0]);
           return;
         }
         if (!force) throw ERR_FILE_ALREADY_EXIST;
         subFiles[0].destroy();
       }
-
-      newFile = await parentFile.createSubFile({
+      const parentaPath = parent.get('path');
+      newFile = await parent.createSubFile(fliterObject({
+        id,
         userId,
         name,
         type,
         mode,
         linkTo,
-        path: `${parentFile.get('path')}/${name}}`,
-      });
+        path: `${parentaPath === '/' ? '' : parentaPath}/${name}`,
+      }));
       resolve(newFile);
     } catch (err) {
       if (newFile) newFile.destroy();
@@ -88,35 +98,57 @@ export function createFile({ name, type, parentId, mode,
   });
 }
 
-export function findOneFile({ name, type, parentId = ROOTID,
+export function findFileByPath(path) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      resolve(await File.findOne({
+        where: { path },
+      }));
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function createFolder({ id, name, parentId, mode,
+  linkTo, createIfNotExist, force, userId }) {
+  return new Promise(async (resolve, reject) => {
+    let newFolder;
+    try {
+      newFolder = await createFile(fliterObject({
+        id,
+        name,
+        type: FILETYPE.d,
+        parentId,
+        mode,
+        linkTo,
+        createIfNotExist,
+        force,
+        userId }));
+      resolve(newFolder);
+    } catch (err) {
+      if (newFolder) newFolder.destroy();
+      reject(err);
+    }
+  });
+}
+
+export function findOneFile({ id, name, type, parentId = ROOTID,
   createdAt, updatedAt, mode, linkTo }) {
   return new Promise(async (resolve, reject) => {
     try {
-      if (parentId === ROOTID) {
-        const file = await File.findOne({
-          where: fliterObject({ underRoot: true,
-            name,
-            type,
-            mode,
-            linkTo,
-            createdAt,
-            updatedAt }),
-        });
-        if (!file) throw ERR_FILE_NOT_EXIST;
-        resolve(file);
-        return;
-      }
-
       const parentFile = await findFileById(parentId);
-      const subfiles = parentFile.getSubFile({
-        where: fliterObject({ name,
-          type,
+      const subfiles = await parentFile.getSubFile({
+        where: fliterObject({
+          id,
           mode,
+          name,
+          type,
           linkTo,
           createdAt,
           updatedAt }),
       });
-      if (subfiles.length) throw ERR_FILE_NOT_EXIST;
+      if (subfiles.length === 0) throw ERR_FILE_NOT_EXIST;
       resolve(subfiles[0]);
       return;
     } catch (err) {
@@ -146,13 +178,6 @@ export function findOneRegularFileByName(name, parentId = ROOTID) {
 export function getFileChildren(id) {
   return new Promise(async (resolve, reject) => {
     try {
-      if (id === ROOTID) {
-        resolve(await File.findAll({
-          where: { underRoot: true },
-        }));
-        return;
-      }
-
       const file = await File.findOne({
         where: { id },
       });
@@ -171,14 +196,6 @@ export function isFolder(file) {
 export function searchFilesByName(name, parentId = ROOTID) {
   return new Promise(async (resolve, reject) => {
     try {
-      if (parentId === ROOTID) {
-        const files = await File.findAll({
-          where: { name },
-        });
-        resolve(files);
-        return;
-      }
-
       const parentFile = await findFileById(parentId);
       if (!isFolder(parentFile)) throw ERR_PARENT_SHOULD_BE_A_FOLDER;
       const files = await File.findOne({
@@ -189,6 +206,32 @@ export function searchFilesByName(name, parentId = ROOTID) {
         },
       });
       resolve(files);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function getUserHomeFolder(user) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const homeFolder = await File.findOne({
+        where: { path: `/home/${user.get('email')}` },
+      });
+      if (!homeFolder) throw ERR_CAN_NOT_GET_HOME_FOLDER;
+      resolve(homeFolder);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function getFolderByPath(path) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      resolve(await File.findOne({
+        where: { path },
+      }));
     } catch (err) {
       reject(err);
     }

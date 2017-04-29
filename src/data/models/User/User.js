@@ -12,8 +12,6 @@ import Model from '../../sequelize';
 
 const User = Model.define('User', {
 
-  paranoid: true,
-
   id: {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV1,
@@ -35,14 +33,9 @@ const User = Model.define('User', {
     defaultValue: false,
   },
 
-  lastLoginTime: {
-    type: DataType.DATE,
-    defaultValue: DataType.NOW,
-  },
-
-  lastLoginIp: {
-    type: DataType.STRING(40),
-    allowNull: true,
+  onDelete: {
+    type: DataType.BOOLEAN,
+    defaultValue: false,
   },
 
 }, {

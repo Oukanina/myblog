@@ -10,6 +10,15 @@ html {
   line-height: 1.375; /* ~22px */
 }
 
+a {
+  color: #fff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
 .root {
   position: fixed;
   width: 100%;

@@ -1,12 +1,16 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../data/models';
+import { User, UserGroup } from '../data/models';
 import { auth } from '../config';
+import { createUser } from '../data/utils/userUtils';
+import { setUserGroup } from '../data/utils/groupUtils';
 
-function createToken(email) {
+
+export function createToken(email) {
   return jwt.sign({ email }, auth.jwt.secret, {
     expiresIn: auth.jwt.expires,
   });
 }
+
 
 export default function token(app) {
   app.post('/token', async (req, res, next) => {
@@ -15,17 +19,29 @@ export default function token(app) {
       const name = 'local:token';
 
       if (!email || !password) {
-        res.json({ status: 'no parameters! email or password' });
+        res.json({ status: 'no parameters email, password!' });
         return next();
       }
 
       let status;
       let user = await User.findOne({
-        where: { email },
+        where: { email, onDelete: false },
       });
 
       if (!user) {
-        user = await User.create({ email, password });
+        const userCount = await User.count({
+          onDelete: false,
+        });
+        user = await createUser({ email, password });
+        if (userCount === 0) {
+          await setUserGroup(user, await UserGroup.findOne({
+            where: { name: 'root' },
+          }));
+        } else {
+          await setUserGroup(user, await UserGroup.findOne({
+            where: { name: 'user' },
+          }));
+        }
         status = 'created';
       } else if (user.dataValues.password !== password) {
         status = 'vaild';
@@ -34,9 +50,7 @@ export default function token(app) {
       } else {
         status = 'login';
         const logins = await user.getLogins({
-          where: {
-            name,
-          },
+          where: { name },
         });
         for (let i = 0; i < logins.length; i += 1) {
           logins[i].destroy();
@@ -45,8 +59,7 @@ export default function token(app) {
 
       const newToken = createToken(email);
       await user.createLogin({
-        name,
-        key: newToken,
+        name, key: newToken,
       });
       res.json({ status, token: newToken });
       return next();

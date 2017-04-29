@@ -11,10 +11,13 @@
 
 export const port = process.env.PORT || 3000;
 export const host = process.env.WEBSITE_HOSTNAME || `localhost:${port}`;
-
 export const databaseUrl = process.env.DATABASE_URL || 'sqlite:database.sqlite';
-
 export const machineName = 'blog';
+export const dataDir = `${__dirname}/data`;
+export const initialFile = `${__dirname}/.initial`;
+
+export const username = 'root@localhost.com';
+export const password = 'root';
 
 export const analytics = {
 

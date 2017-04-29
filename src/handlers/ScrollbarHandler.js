@@ -45,14 +45,14 @@ class ScrollbarHandler {
       this.event = event;
       if (this.status !== STAGNANT) {
         if (this.shouldDown() && this.status === DOWN) {
-          this.speed += this.getDefaultSpeed();
+          this.speed += getDefaultSpeed();
           return;
         }
         if (!this.shouldDown() && this.status === UP) {
-          this.speed += this.getDefaultSpeed();
+          this.speed += getDefaultSpeed();
           return;
         }
-        this.speed -= this.getDefaultSpeed();
+        this.speed -= getDefaultSpeed();
       } else {
         this.run();
       }

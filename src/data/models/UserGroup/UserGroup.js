@@ -1,7 +1,7 @@
 import DataType from 'sequelize';
 import Model from '../../sequelize';
 
-const Group = Model.define('Group', {
+const UserGroup = Model.define('UserGroup', {
 
   id: {
     type: DataType.UUID,
@@ -16,4 +16,4 @@ const Group = Model.define('Group', {
 
 });
 
-export default Group;
+export default UserGroup;

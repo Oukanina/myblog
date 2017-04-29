@@ -15,150 +15,76 @@
 
 import passport from 'passport';
 import { verify } from 'jsonwebtoken';
-import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
-import { User, UserLogin, UserClaim, UserProfile } from '../data/models';
-import { auth as config, host, machineName } from '../config';
+import { auth as config, host, machineName } from '../config.js';
+import { getUserByToken } from '../data/utils/userUtils.js';
+// import { Strategy as FacebookStrategy } from 'passport-facebook';
+// import { User, UserLogin, UserProfile } from '../data/models';
 
-/**
- * Sign in with Facebook.
- */
-passport.use(new FacebookStrategy({
-  clientID: config.facebook.id,
-  clientSecret: config.facebook.secret,
-  callbackURL: '/login/facebook/return',
-  profileFields: ['name', 'email', 'link', 'locale', 'timezone'],
-  passReqToCallback: true,
-}, (req, accessToken, refreshToken, profile, done) => {
-  /* eslint-disable no-underscore-dangle */
-  const loginName = 'facebook';
-  const claimType = 'urn:facebook:access_token';
-  const fooBar = async () => {
-    if (req.user) {
-      const userLogin = await UserLogin.findOne({
-        attributes: ['name', 'key'],
-        where: { name: loginName, key: profile.id },
-      });
-      if (userLogin) {
-        // There is already a Facebook account that belongs to you.
-        // Sign in with that account or delete it, then link it with your current account.
-        done();
-      } else {
-        const user = await User.create({
-          id: req.user.id,
-          email: profile._json.email,
-          logins: [
-            { name: loginName, key: profile.id },
-          ],
-          claims: [
-            { type: claimType, value: profile.id },
-          ],
-          profile: {
-            displayName: profile.displayName,
-            gender: profile._json.gender,
-            picture: `https://graph.facebook.com/${profile.id}/picture?type=large`,
-          },
-        }, {
-          include: [
-            { model: UserLogin, as: 'logins' },
-            { model: UserClaim, as: 'claims' },
-            { model: UserProfile, as: 'profile' },
-          ],
-        });
-        done(null, {
-          id: user.id,
-          email: user.email,
-        });
-      }
-    } else {
-      const users = await User.findAll({
-        attributes: ['id', 'email'],
-        where: { '$logins.name$': loginName, '$logins.key$': profile.id },
-        include: [
-          {
-            attributes: ['name', 'key'],
-            model: UserLogin,
-            as: 'logins',
-            required: true,
-          },
-        ],
-      });
-      if (users.length) {
-        done(null, users[0]);
-      } else {
-        let user = await User.findOne({ where: { email: profile._json.email } });
-        if (user) {
-          // There is already an account using this email address. Sign in to
-          // that account and link it with Facebook manually from Account Settings.
-          done(null);
-        } else {
-          user = await User.create({
-            email: profile._json.email,
-            emailConfirmed: true,
-            logins: [
-              { name: loginName, key: profile.id },
-            ],
-            claims: [
-              { type: claimType, value: accessToken },
-            ],
-            profile: {
-              displayName: profile.displayName,
-              gender: profile._json.gender,
-              picture: `https://graph.facebook.com/${profile.id}/picture?type=large`,
-            },
-          }, {
-            include: [
-              { model: UserLogin, as: 'logins' },
-              { model: UserClaim, as: 'claims' },
-              { model: UserProfile, as: 'profile' },
-            ],
-          });
-          done(null, {
-            id: user.id,
-            email: user.email,
-          });
-        }
-      }
-    }
-  };
-
-  fooBar().catch(done);
-}));
+// export function getUsersByToken(token) {
+//   const name = 'local:token';
+//   return User.findAll({
+//     attributes: ['id', 'email', 'profile.displayName'],
+//     where: {
+//       '$logins.name$': name,
+//       '$logins.key$': token,
+//       onDelete: false,
+//     },
+//     include: [{
+//       attributes: ['name', 'key'],
+//       model: UserLogin,
+//       as: 'logins',
+//       required: true,
+//     }, {
+//       attributes: ['displayName'],
+//       model: UserProfile,
+//       as: 'profile',
+//     }],
+//   });
+// }
 
 passport.use(new BearerStrategy({
   passReqToCallback: true,
 }, async (req, token, done) => {
-  const name = 'local:token';
   try {
-    const users = await User.findAll({
-      attributes: ['id', 'email', 'profile.displayName'],
-      where: {
-        '$logins.name$': name,
-        '$logins.key$': token,
-      },
-      include: [{
-        attributes: ['name', 'key'],
-        model: UserLogin,
-        as: 'logins',
-        required: true,
-      }, {
-        attributes: ['displayName'],
-        model: UserProfile,
-        as: 'profile',
-      }],
-    });
-    if (!users.length) return done(null, false);
     verify(token, config.jwt.secret);
-    const lastLoginIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    users[0].update({
-      lastLoginIp,
-      lastLoginTime: `${new Date()}`,
+    const users = await getUserByToken(token);
+    if (!users.length) return done(null, false);
+
+    const LoginIp = req.headers['x-forwarded-for'] ||
+        req.connection.remoteAddress;
+    const activity = await users[0].getActivity({
+      where: { last: true },
     });
+
+    let lastLoginIp;
+    let lastLoginTime;
+
+    if (activity.length) {
+      lastLoginIp = activity[0].get('lastLoginIp');
+      lastLoginTime = activity[0].get('lastLoginTime');
+      await activity[0].update({
+        last: false,
+      });
+    } else {
+      lastLoginIp = '233';
+      lastLoginTime = '233';
+    }
+
+    await users[0].createActivity({
+      lastLoginIp: LoginIp,
+      lastLoginTime: new Date(),
+    });
+
+    const { email } = users[0].dataValues;
+
     return done(null, {
-      email: users[0].get('email'),
+      email,
+      lastLoginIp,
+      lastLoginTime,
+      HOME: `/home/${email}`,
       hostname: machineName || host,
-      username: users[0].get('displayName') || users[0].get('email').split('@')[0],
-      path: users[0].get('path'),
+      username: email.split('@')[0],
     }, { scope: 'read' });
   } catch (err) {
     if (err.name === 'JsonWebTokenError') return done(null, false);
@@ -167,6 +93,7 @@ passport.use(new BearerStrategy({
     return done(null, err);
   }
 },
+
 ));
 
 export default passport;

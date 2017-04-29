@@ -1,27 +1,36 @@
 import React, { PropTypes } from 'react';
 import cx from 'classnames';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import s from './Line.css';
+import s from './InputLine.css';
 import { SPACE } from '../../constants';
 
+/* eslint-disable */
+export function splitText(val, idx, className) {
+  return val === SPACE ? (<e key={idx} className={cx(s.e, className)}>&nbsp;</e>)
+    : (<e key={idx} className={cx(s.e, className)}>{val}</e>);
+}
+/* eslint-enable */
 
-function splitText(val, idx, className) {
-  return val === SPACE ? <e key={idx} className={cx(s.e, className)}>&nbsp;</e>
-    : <e key={idx} className={cx(s.e, className)}>{val}</e>;
+export function parserText(text, cursorPosition) {
+  const output = [];
+  for (let i = 0; i < text.length; i += 1) {
+    output.push(splitText(text.charAt(i), i, cursorPosition - 1 === i ? s.oncursor : ''));
+  }
+  return output;
 }
 
 export class Line extends React.Component {
   static propTypes = {
     classNames: PropTypes.string,
     lineHead: PropTypes.string,
-    text: PropTypes.arrayOf(PropTypes.string),
+    text: PropTypes.string,
   }
 
   print(text, cursorPosition) { // eslint-disable-line class-methods-use-this
     return (
       <div className={s.lineContent}>
         {
-          text.map((val, idx) => splitText(val, idx, cursorPosition - 1 === idx ? s.oncursor : ''))
+          parserText(text, cursorPosition)
         }
       </div>
     );
@@ -33,14 +42,14 @@ export class Line extends React.Component {
 
     return (
       <div className={lineClass}>
-        { lineHead ? <div className={s.lineHead}>{lineHead}</div> : null }
+        { lineHead ? <div>{lineHead}</div> : null }
         { child }
       </div>
     );
   }
 
   render() {
-    const { text = [] } = this.props;
+    const { text = '' } = this.props;
     return this.renderLine(this.print(text));
   }
 }
@@ -48,7 +57,7 @@ export class Line extends React.Component {
 Line.defaultProps = {
   classNames: '',
   lineHead: '',
-  text: [],
+  text: '',
 };
 
 export default withStyles(s)(Line);

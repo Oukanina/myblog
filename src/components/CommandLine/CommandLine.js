@@ -4,57 +4,67 @@ import s from './CommandLine.css';
 import Line from '../Line/Line.js'; // eslint-disable-line import/no-named-as-default
 import LastLine from '../Line/LastLine.js';
 import appState from '../../core/state.js';
+import BaseComponent from '../BaseComponent';
 
 
-class CommandLine extends React.Component {
+class CommandLine extends BaseComponent {
+
   constructor(props) {
     super(props);
 
     this.state = {
       historyCommands: [],
+      hideLastLine: false,
+      lastLoginTime: '...',
+      lastLoginIp: '...',
     };
 
-    this.commandsHandler = this.commandsHandler.bind(this);
+    this.internalState = ['historyCommands', 'lastLoginTime',
+      'lastLoginIp', 'hideLastLine'];
+    this.stateListener = this.stateListener.bind(this);
   }
 
-  componentDidMount() {
-    this.listen();
-  }
-
-  componentDidUpdate() {
+  didUpdate() { // eslint-disable-line class-methods-use-this
     appState.trigger('toBottom');
   }
 
-  componentWillUnmount() {
-    this.unlisten();
-  }
-
-  commandsHandler(historyCommands) {
+  stateListener(newState, stateName) {
     this.setState({
-      historyCommands,
+      [stateName]: newState,
     });
   }
 
-  listen() {
-    appState.listen('historyCommands', this.commandsHandler);
-  }
-
-  unlisten() {
-    appState.unlisten('historyCommands', this.commandsHandler);
+  renderHeadInfo() {
+    const { lastLoginIp, lastLoginTime } = this.state;
+    return (
+      <div>
+        <Line text={'Welcome to my blog!'} />
+        <Line text={'Type help for a list of commands.'} />
+        <Line
+          text={
+          ('Last login'
+          + ` ${new Date(Date.parse(lastLoginTime) + (8 * 60 * 60 * 1000)).toUTCString()}`
+          + ` from ${lastLoginIp}.`).replace('GMT', 'China Time')}
+        />
+        <Line text={' '} />
+      </div>
+    );
   }
 
   render() {
-    const { historyCommands } = this.state;
+    const { historyCommands, hideLastLine } = this.state;
     return (
       <div className={s.commandLine} ref={(e) => { this.contentElement = e; }}>
+        { this.renderHeadInfo() }
         {
           historyCommands.map((val, idx) =>
             (<Line lineHead={val.lineHead} text={val.text} key={idx.toString()} />))
         }
-        <LastLine />
+        <LastLine hide={hideLastLine} />
       </div>
     );
   }
+
 }
 
 export default withStyles(s)(CommandLine);
