@@ -1,8 +1,8 @@
 .cursor {
   display: inline-block;
   position: relative;
-  width: 8px;
+  width: 0.6em;
   height: 1em;
-  top: 2px;
+  top: 0.2em;
   background-color: #fff;
 }

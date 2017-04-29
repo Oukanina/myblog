@@ -30,17 +30,9 @@ class Link extends React.Component {
   };
 
   handleClick = (event) => {
-    if (this.props.onClick) {
-      this.props.onClick(event);
-    }
-
-    if (isModifiedEvent(event) || !isLeftClickEvent(event)) {
-      return;
-    }
-
-    if (event.defaultPrevented === true) {
-      return;
-    }
+    if (this.props.onClick) this.props.onClick(event);
+    if (isModifiedEvent(event) || !isLeftClickEvent(event)) return;
+    if (event.defaultPrevented === true) return;
 
     event.preventDefault();
     history.push(this.props.to);

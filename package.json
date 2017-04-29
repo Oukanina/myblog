@@ -22,6 +22,7 @@
     "express": "^4.14.1",
     "express-graphql": "^0.6.3",
     "express-jwt": "^5.1.0",
+    "express-ws": "^3.0.0",
     "fastclick": "^1.0.6",
     "fbjs": "^0.8.9",
     "graphql": "^0.9.1",
@@ -45,6 +46,7 @@
     "source-map-support": "^0.4.11",
     "sqlite3": "^3.1.8",
     "universal-router": "^2.0.0",
+    "uuid": "^3.0.1",
     "whatwg-fetch": "^2.0.2"
   },
   "devDependencies": {
@@ -117,6 +119,7 @@
     "webpack-bundle-analyzer": "^2.3.0",
     "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.16.1",
+    "worker-loader": "^0.8.0",
     "write-file-webpack-plugin": "^3.4.2"
   },
   "babel": {

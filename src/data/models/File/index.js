@@ -1,7 +1,7 @@
 import File, { FILETYPE, LINKTO, ROOTID } from './File';
 import { Article } from '../Article';
 import { User } from '../User';
-import { Group } from '../Group';
+import { UserGroup } from '../UserGroup';
 
 File.hasMany(File, {
   foreignKey: 'parentId',
@@ -21,10 +21,9 @@ File.belongsTo(User, {
   foreignKey: 'userId',
   as: 'owner',
   onUpdate: 'cascade',
-  // onDelete: 'cascade',
 });
 
-File.belongsTo(Group, {
+File.belongsTo(UserGroup, {
   foreignKey: 'groupId',
   as: 'group',
   onUpdate: 'cascade',

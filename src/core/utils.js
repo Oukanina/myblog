@@ -44,9 +44,9 @@ export function fetch({
 export function debounce(func, { prefunc, timespan = 25 }) {
   let clearTime;
   return function () { // eslint-disable-line func-names
+    if (clearTime) return;
     const args = arguments; // eslint-disable-line prefer-rest-params
     if (prefunc) prefunc.apply(this, args);
-    if (clearTime) clearTimeout(clearTime);
 
     clearTime = setTimeout(() => {
       clearTime = null;

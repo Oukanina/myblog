@@ -7,6 +7,12 @@ import ScrollbarHandler from '../../handlers/ScrollbarHandler';
 
 const state = ['scrollBar', 'toBottom', 'wheel'];
 
+function shouldShowScrollbar() {
+  const containerElement = appState.get('containerElement');
+  const screenElement = appState.get('screenElement');
+  return containerElement.offsetHeight > screenElement.offsetHeight;
+}
+
 class ScrollBar extends React.Component {
   constructor(props) {
     super(props);
@@ -24,7 +30,7 @@ class ScrollBar extends React.Component {
 
     // use shouldUpdate limit
     this.lastUpdateTime = 0;
-    this.updateLimit = 20;
+    this.updateLimit = 10;
     this.updateTimeout = null;
     this.nextState = {};
   }
@@ -62,6 +68,12 @@ class ScrollBar extends React.Component {
     }));
   }
 
+  setScrollbar(show) {
+    this.setState(Object.assign({}, this.state, {
+      show,
+    }));
+  }
+
   windowResizeHandler() {
     this.setBar();
   }
@@ -70,25 +82,21 @@ class ScrollBar extends React.Component {
     return (stateName === 'toBottom' && this.state.show);
   }
 
-  shouldShowScrollbar() {
-    const containerElement = appState.get('containerElement');
-    const screenElement = appState.get('screenElement');
-    return !this.state.show && containerElement.offsetHeight > screenElement.offsetHeight;
-  }
-
-  toogleScrollbar() {
-    this.setState(Object.assign({}, this.state, {
-      show: !this.state.show,
-    }));
-  }
+  // shouldShowScrollbar() {
+  //   const containerElement = appState.get('containerElement');
+  //   const screenElement = appState.get('screenElement');
+  //   return containerElement.offsetHeight > screenElement.offsetHeight;
+  // }
 
   listenHandler(newState, stateName) {
     if (this.shouldSetToBottom(stateName)) {
       this.scrollbarHandler.toBottom();
     }
-    if (this.shouldShowScrollbar()) {
-      this.toogleScrollbar();
-    } else if (this.state.show) this.toogleScrollbar();
+    if (shouldShowScrollbar()) {
+      this.setScrollbar(true);
+    } else {
+      this.setScrollbar(false);
+    }
     if (this.state.show) {
       this.setBar();
     }

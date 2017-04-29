@@ -9,6 +9,7 @@
 
 import path from 'path';
 import express from 'express';
+import enableWs from 'express-ws';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import expressGraphQL from 'express-graphql';
@@ -26,7 +27,9 @@ import schema from './data/schema';
 import routes from './routes';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import { port } from './config';
-import fetchApi from './fetchApi';
+import customApi from './customApi';
+import websocket from './websocket';
+import initial from './initial';
 
 const app = express();
 
@@ -60,19 +63,28 @@ if (__DEV__) {
 }
 
 //
-// Register API middleware
+// Enable websocket
 // -----------------------------------------------------------------------------
-app.use('/graphql', expressGraphQL(req => ({
-  schema,
-  graphiql: __DEV__,
-  rootValue: { request: req },
-  pretty: __DEV__,
-})));
+enableWs(app);
+websocket.install(app);
 
 //
-// Register fetch api
+// Register custom api
+// -----------------------------------------------------------------------------
+customApi.initial(app);
+
 //
-fetchApi.initial().register(app);
+// Register API middleware
+// -----------------------------------------------------------------------------
+app.use('/graphql',
+  // passport.authenticate('bearer', { session: false }),
+  expressGraphQL(req => ({
+    schema,
+    graphiql: __DEV__,
+    rootValue: { request: req },
+    pretty: __DEV__,
+  })));
+
 
 //
 // Register server-side rendering middleware
@@ -141,14 +153,15 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     </Html>,
   );
   res.status(err.status || 500);
-  res.send(`<!doctype html>${html}`);
+  res.send(`<!Doctype html>${html}`);
 });
 
 //
 // Launch the server
 // -----------------------------------------------------------------------------
 /* eslint-disable no-console */
-models.sync().catch(err => console.error(err.stack)).then(() => {
+models.sync().catch(err => console.error(err.stack)).then(async () => {
+  await initial();
   app.listen(port, () => {
     console.log(`The server is running at http://localhost:${port}/`);
   });

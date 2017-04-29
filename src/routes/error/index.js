@@ -16,7 +16,7 @@ export default {
 
   action({ error }) {
     return {
-      title: error.name,
+      title: error.name || 'Error',
       description: error.message,
       component: <ErrorPage error={error} />,
       status: error.status || 500,

@@ -9,12 +9,7 @@ const Article = Model.define('Article', {
     primaryKey: true,
   },
 
-  content: {
-    type: DataType.TEXT,
-    allowNull: false,
-  },
-
-  title: {
+  path: {
     type: DataType.STRING(255),
     allowNull: false,
   },
@@ -24,7 +19,7 @@ const Article = Model.define('Article', {
 }, {
 
   indexes: [
-    { fields: ['id', 'title', 'content'] },
+    { fields: ['id'] },
   ],
 
 });

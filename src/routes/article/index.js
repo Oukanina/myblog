@@ -8,8 +8,16 @@
  */
 
 import React from 'react';
-import Screen from '../../components/Screen';
+import MarkdownIt from 'markdown-it';
+import fm from 'front-matter';
+import Layout from '../../components/Layout';
 import Page from '../../components/Page';
+import fetch from '../../core/fetch';
+
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+});
 
 export default {
 
@@ -19,13 +27,21 @@ export default {
     const { articleId } = params;
     if (!articleId) return { redirct: './notFound' };
 
-    const data = await require.ensure([],
-      require => require('./privacy.md'), 'privacy');
-
+    const res = await fetch(`/graphql?query={
+      article(id: "${articleId}") {
+        content
+      }
+    }`).catch(err => console.error(err)); // eslint-disable-line no-console
+    const json = await res.json();
+    const frontmatter = fm(json.data.article.content);
+    frontmatter.attributes.html = md.render(frontmatter.body);
+    if (!frontmatter.attributes.title) {
+      frontmatter.attributes.title = frontmatter.body.substring(0, 10);
+    }
     return {
-      title: data.title,
-      chunk: 'privacy',
-      component: <Screen><Page {...data} /></Screen>,
+      title: frontmatter.attributes.title,
+      chunk: 'article',
+      component: <Layout><Page {...frontmatter.attributes} /></Layout>,
     };
   },
 

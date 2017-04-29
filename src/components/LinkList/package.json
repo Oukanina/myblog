@@ -1,0 +1,6 @@
+{
+  "name": "LinkList",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./LinkList.js"
+}

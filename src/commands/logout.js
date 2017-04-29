@@ -6,19 +6,26 @@ export default {
 
   name: 'logout',
 
+  help: '',
+
   test: /^\s*logout\s*$/,
 
   action() {
-    return new Promise((resolve) => {
-      Lockr.set('token', null);
-      history.push('/login');
-      const container = appState.get('containerElement');
-      container.style.top = 0;
-      appState.update('login', false);
-      appState.trigger('wheel');
+    return new Promise((resolve, reject) => {
+      try {
+        const container = appState.get('containerElement');
+        Lockr.set('token', null);
+        history.push('/login');
+        container.style.top = 0;
+        appState.update('currentCommand', []);
+        appState.update('login', false);
+        appState.trigger('wheel');
 
-      // if need goAhead then pass true
-      resolve(true);
+        // if need goAhead then pass true
+        resolve(false);
+      } catch (err) {
+        reject(true);
+      }
     });
   },
 };

@@ -18,7 +18,8 @@
  * ========================================================================== */
 
 html {
-  color: #222;
+  color: #fcfcfc;
+  background: #232323;
   font-weight: 100;
   font-size: 1em; /* ~16px; */
   font-family: var(--font-family-base);

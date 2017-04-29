@@ -11,7 +11,8 @@ import sequelize from '../sequelize';
 import { User, UserLogin, UserClaim, UserProfile } from './User';
 import { Article, ArticleTag } from './Article';
 import { File, FILETYPE, LINKTO, ROOTID } from './File';
-import { Group } from './Group';
+import { UserGroup } from './UserGroup';
+import Blog from './Blog';
 
 function sync(...args) {
   return sequelize.sync(...args);
@@ -21,4 +22,5 @@ export default { sync };
 export { User, UserLogin, UserClaim, UserProfile };
 export { Article, ArticleTag };
 export { File, FILETYPE, LINKTO, ROOTID };
-export { Group };
+export { UserGroup };
+export { Blog };

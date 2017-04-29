@@ -15,15 +15,19 @@ class State {
     this.set('currentCommand', []);
     this.set('cursorPosition', 1);
     this.set('path', '~');
+    this.set('HOME', '~');
+    this.set('files', []);
     this.set('username', '...');
     this.set('hostname', '...');
     this.set('login', false);
     this.set('fetchData', '');
+    this.set('lastLoginIp', '...');
+    this.set('lastLoginTime', '...');
     this.set('test', 'test');
-
+    this.set('hideLastLine', false);
+    this.set('lastLineHead', '');
     this.set('screenElement', {});
     this.set('containerElement', {});
-
     this.set('toBottom');
     this.set('wheel');
   }
@@ -45,7 +49,7 @@ class State {
       this.set('fetchData', 'done');
     } catch (err) {
       this.set('fetchData', '');
-      console.error(err); // eslint-disable-line no-console
+      log(err); // eslint-disable-line no-console
     }
   }
 

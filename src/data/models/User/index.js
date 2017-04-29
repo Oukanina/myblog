@@ -2,6 +2,7 @@ import User from './User';
 import UserLogin from './UserLogin';
 import UserClaim from './UserClaim';
 import UserProfile from './UserProfile';
+import UserActivity from './UserActivity';
 
 User.hasMany(UserLogin, {
   foreignKey: 'userId',
@@ -17,6 +18,11 @@ User.hasMany(UserClaim, {
   onDelete: 'cascade',
 });
 
+User.hasMany(UserActivity, {
+  foreignKey: 'userId',
+  as: 'activity',
+});
+
 User.hasOne(UserProfile, {
   foreignKey: 'userId',
   as: 'profile',
@@ -24,4 +30,4 @@ User.hasOne(UserProfile, {
   onDelete: 'cascade',
 });
 
-export { User, UserLogin, UserClaim, UserProfile };
+export { User, UserLogin, UserClaim, UserProfile, UserActivity };

@@ -1,0 +1,66 @@
+@import '../variables.css';
+
+.line {
+  position: relative;
+  text-shadow: 0 0 1px;
+  display: block;
+  padding: 0 3px;
+  width: 100%;
+  word-break: break-all;
+  color: #fafafa;
+  font-size: 1.2em;
+  letter-spacing: 0.5px;
+
+  &:focus {
+    border: 0;
+    outline: 0;
+  }
+
+  &.green {
+    color: green;
+  }
+
+  &.red {
+    color: red;
+  }
+}
+
+.lineContent {
+  display: inline;
+  position: relative;
+  font-size: 1em;
+  color: inherit;
+}
+
+.lineHead {
+  display: inline;
+  position: relative;
+  margin-right: 5px;
+  text-shadow: 0 0 1px;
+  color: inherit;
+  font-size: 1em;
+}
+
+.e {
+  display: inline-block;
+  position: relative;
+  font-size: 1em;
+  color: inherit;
+  min-width: 0.4em;
+  text-align: center;
+}
+
+.oncursor {
+  background: #fff;
+  color: #343434;
+}
+
+.cursor {
+  display: inline-block;
+  position: relative;
+  top: 1px;
+  margin: 0 1px;
+  width: 8px;
+  height: 13px;
+  background: #fafafa;
+}

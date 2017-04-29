@@ -10,17 +10,23 @@ import ScrollBar from '../ScrollBar/ScrollBar';
 class Screen extends React.Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
-  }
+    cover: PropTypes.bool, // eslint-disable-line no-unused-prop-types
+  };
+
+  static defaultProps = {
+    cover: true,
+  };
 
   componentDidMount() {
     appState.update('screenElement', this.screenElement);
   }
 
   render() {
+    const { cover } = this.props;
     return (
       <div className={s.root} ref={(e) => { this.screenElement = e; }}>
         <div className={s.screen}>
-          <div className={s.screenCover} />
+          { cover ? <div className={s.screenCover} /> : null }
           <Container>
             { this.props.children }
           </Container>
