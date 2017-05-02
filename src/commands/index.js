@@ -23,7 +23,6 @@ export function getLineHead() {
 export function addCurrentCommandToHistory(head) {
   const historyCommands = appState.get('historyCommands');
   const currentCommand = appState.get('currentCommand');
-
   historyCommands.push({
     lineHead: head ? getLineHead() : '',
     text: currentCommand.join(''),

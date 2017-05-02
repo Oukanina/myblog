@@ -53,12 +53,13 @@ class CommandLine extends BaseComponent {
 
   render() {
     const { historyCommands, hideLastLine } = this.state;
+    console.log(historyCommands);
     return (
       <div className={s.commandLine} ref={(e) => { this.contentElement = e; }}>
         { this.renderHeadInfo() }
         {
           historyCommands.map((val, idx) =>
-            (<Line lineHead={val.lineHead} text={val.text} key={idx.toString()} />))
+            (<Line {...val} key={idx.toString()} />))
         }
         <LastLine hide={hideLastLine} />
       </div>

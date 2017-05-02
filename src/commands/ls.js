@@ -1,6 +1,6 @@
 import appState from '../core/state';
 import fetch from '../core/fetch';
-import { getLineHead } from './index';
+import { addCurrentCommandToHistory } from './index';
 
 
 export default {
@@ -26,10 +26,7 @@ export default {
         const json = await res.json();
         const files = json.data.ls.children;
         const historyCommands = appState.get('historyCommands');
-        historyCommands.push({
-          lineHead: getLineHead(),
-          text: appState.get('currentCommand').join(''),
-        });
+        addCurrentCommandToHistory(true);
         appState.update('currentCommand', []);
         if (files.length) {
           files.forEach((file) => {
