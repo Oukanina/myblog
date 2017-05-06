@@ -3,7 +3,7 @@
 import React, { PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { Line } from './Line';
-import s from './InputLine.css';
+import s from './style.css';
 import appState from '../../core/state';
 import { AT, TILDE, COLON, DOLLAR } from '../../constants';
 import InputHandler from '../../handlers/InputHandler';

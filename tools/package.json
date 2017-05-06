@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "babel-preset-es2017": "^6.24.1"
+  }
+}

@@ -1,6 +1,6 @@
 import React from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import s from './InputLine.css';
+import s from './style.css';
 import Cursor from '../Cursor';
 import { parserText } from './Line';
 import BaseComponent from '../BaseComponent';
