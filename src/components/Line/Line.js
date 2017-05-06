@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import cx from 'classnames';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import s from './InputLine.css';
+import s from './style.css';
 import { SPACE } from '../../constants';
 
 /* eslint-disable */
@@ -14,7 +14,8 @@ export function splitText(val, idx, className) {
 export function parserText(text, cursorPosition) {
   const output = [];
   for (let i = 0; i < text.length; i += 1) {
-    output.push(splitText(text.charAt(i), i, cursorPosition - 1 === i ? s.oncursor : ''));
+    output.push(splitText(text.charAt(i), i,
+      cursorPosition - 1 === i ? s.oncursor : ''));
   }
   return output;
 }
@@ -39,10 +40,15 @@ export class Line extends React.Component {
   renderLine(child = '') {
     const { classNames, lineHead } = this.props;
     const lineClass = cx(s.line, classNames);
+    console.log(this.props);
 
     return (
       <div className={lineClass}>
-        { lineHead ? <div>{lineHead}</div> : null }
+        { lineHead ?
+          <span className={s.lineHead}>
+            { lineHead }
+          </span> : null
+        }
         { child }
       </div>
     );

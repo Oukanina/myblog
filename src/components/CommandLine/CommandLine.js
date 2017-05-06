@@ -58,7 +58,7 @@ class CommandLine extends BaseComponent {
         { this.renderHeadInfo() }
         {
           historyCommands.map((val, idx) =>
-            (<Line lineHead={val.lineHead} text={val.text} key={idx.toString()} />))
+            (<Line {...val} key={idx.toString()} />))
         }
         <LastLine hide={hideLastLine} />
       </div>
