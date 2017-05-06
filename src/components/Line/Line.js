@@ -40,7 +40,6 @@ export class Line extends React.Component {
   renderLine(child = '') {
     const { classNames, lineHead } = this.props;
     const lineClass = cx(s.line, classNames);
-    console.log(this.props);
 
     return (
       <div className={lineClass}>
