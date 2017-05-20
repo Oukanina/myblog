@@ -74,6 +74,8 @@ function openFileSelectWindow(resolve) {
 
 export default {
 
+  help: 'upload a file',
+
   name: 'touch',
 
   test: /^\s*touch\s*$/,

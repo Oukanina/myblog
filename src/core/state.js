@@ -3,33 +3,64 @@ import { log } from './utils';
 import { me } from './api';
 
 
+function pam(map) {
+  return ((res) => {
+    for (const [key, value] of map.entries()) { // eslint-disable-line no-restricted-syntax
+      res[key] = value; // eslint-disable-line no-param-reassign
+    }
+    return res;
+  })({});
+}
+
+const defaultSatte = {
+  historyCommands: [],
+  currentCommand: [],
+  files: [],
+  screenElement: {},
+  containerElement: {},
+  path: '~',
+  HOME: '~',
+  username: '...',
+  hostname: '...',
+  lastLoginIp: '...',
+  lastLoginTime: '...',
+  login: false,
+  hideLastLine: false,
+  wheel: null,
+  toBottom: null,
+  lastLineHead: null,
+  cursorPosition: 1,
+  fetchData: '',
+};
+
+
 class State {
-  constructor() {
+  constructor(name) {
+    this.name = name;
     this.stateMap = new Map();
     this.listenerMap = new Map();
   }
 
+  get status() {
+    return {
+      map: this.stateMap.size,
+      listeners: this.listenerMap.size,
+    };
+  }
+
+  get state() {
+    return pam(this.stateMap);
+  }
+
+  get listeners() {
+    return pam(this.listenerMap);
+  }
+
   initialState() {
     log('start init state...');
-    this.set('historyCommands', []);
-    this.set('currentCommand', []);
-    this.set('cursorPosition', 1);
-    this.set('path', '~');
-    this.set('HOME', '~');
-    this.set('files', []);
-    this.set('username', '...');
-    this.set('hostname', '...');
-    this.set('login', false);
-    this.set('fetchData', '');
-    this.set('lastLoginIp', '...');
-    this.set('lastLoginTime', '...');
-    this.set('test', 'test');
-    this.set('hideLastLine', false);
-    this.set('lastLineHead', '');
-    this.set('screenElement', {});
-    this.set('containerElement', {});
-    this.set('toBottom');
-    this.set('wheel');
+    for (const key in defaultSatte) { // eslint-disable-line guard-for-in, no-restricted-syntax
+      this.set(key, defaultSatte[key]);
+    }
   }
 
   async fetchData() {
@@ -129,6 +160,7 @@ class State {
       setTimeout(() => this.update(name, value), 0);
     });
   }
+
 }
 
 const state = new State();
