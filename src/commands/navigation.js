@@ -4,7 +4,7 @@ export default {
 
   name: 'navigation',
 
-  help: '导航',
+  help: 'navigation articles',
 
   test: /^\s*navigation\s*$/,
 

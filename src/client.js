@@ -19,7 +19,9 @@ import { updateMeta } from './core/DOMUtils';
 import { ErrorReporter, deepForceUpdate } from './core/devUtils';
 import appState from './core/state';
 
+// initialState
 appState.initialState();
+
 
 // Global (context) variables that can be easily accessed from any React component
 // https://facebook.github.io/react/docs/context.html
