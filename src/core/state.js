@@ -16,8 +16,8 @@ const defaultSatte = {
   historyCommands: [],
   currentCommand: [],
   files: [],
-  screenElement: {},
-  containerElement: {},
+  // screenElement: {},
+  // containerElement: {},
   path: '~',
   HOME: '~',
   username: '...',
@@ -30,7 +30,7 @@ const defaultSatte = {
   toBottom: null,
   lastLineHead: null,
   cursorPosition: 1,
-  fetchData: '',
+  isFetchData: '',
 };
 
 
@@ -64,9 +64,9 @@ class State {
   }
 
   async fetchData() {
-    if (this.get('fetchData') === 'done') return;
-    if (this.get('fetchData') === 'pending') return;
-    this.set('fetchData', 'pending');
+    if (this.isFetchData === 'done') return;
+    if (this.isFetchData === 'pending') return;
+    this.isFetchData = 'pending';
     try {
       const res = await me();
       const json = await res.json();
@@ -77,9 +77,9 @@ class State {
         }
       }
       this.update('login', true);
-      this.set('fetchData', 'done');
+      this.isFetchData = 'done';
     } catch (err) {
-      this.set('fetchData', '');
+      this.isFetchData = '';
       log(err); // eslint-disable-line no-console
     }
   }
@@ -131,8 +131,17 @@ class State {
     return this.stateMap.get(stateName);
   }
 
-  set(stateName, state) {
-    this.stateMap.set(stateName, state);
+  set(stateName, stateValue) {
+    if (!this[stateName]) {
+      Object.defineProperty(this, stateName, {
+        get: () => this.stateMap.get(stateName),
+        set: (value) => {
+          this.stateMap.set(stateName, value);
+          this.trigger(stateName);
+        },
+      });
+      this.stateMap.set(stateName, stateValue);
+    }
   }
 
   del(stateName) {

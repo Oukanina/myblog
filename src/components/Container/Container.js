@@ -17,7 +17,7 @@ class Container extends React.Component {
   }
 
   componentDidMount() {
-    appState.update('containerElement', this.containerElement);
+    appState.set('containerElement', this.containerElement);
 
     const images = this.getImagElement(this.containerElement);
     for (let i = 0; i < images.length; i += 1) {
@@ -40,7 +40,7 @@ class Container extends React.Component {
   }
 
   imageLoadHandler(event) {
-    appState.update('containerElement', this.containerElement);
+    appState.containerElement = this.containerElement;
     off(event.target, 'load', this.imageLoadHandler);
   }
 

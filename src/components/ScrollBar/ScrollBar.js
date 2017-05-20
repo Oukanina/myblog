@@ -8,8 +8,7 @@ import ScrollbarHandler from '../../handlers/ScrollbarHandler';
 const state = ['scrollBar', 'toBottom', 'wheel'];
 
 function shouldShowScrollbar() {
-  const containerElement = appState.get('containerElement');
-  const screenElement = appState.get('screenElement');
+  const { containerElement, screenElement } = appState;
   return containerElement.offsetHeight > screenElement.offsetHeight;
 }
 
@@ -26,7 +25,7 @@ class ScrollBar extends React.Component {
 
     this.listenHandler = this.listenHandler.bind(this);
     this.windowResizeHandler = this.windowResizeHandler.bind(this);
-    this.scrollbarHandler = new ScrollbarHandler();
+    // this.scrollbarHandler = new ScrollbarHandler();
 
     // use shouldUpdate limit
     this.lastUpdateTime = 0;
@@ -38,9 +37,9 @@ class ScrollBar extends React.Component {
   componentDidMount() {
     this.listen();
     on(window, 'resize', this.windowResizeHandler);
-    appState.set('scrollBarElement', this.scrollBarElement);
-    this.scrollbarHandler.on();
-    this.setBar();
+    appState.set('scrollbarElement', this.scrollbarElement);
+    // this.scrollbarHandler.on();
+    // this.setBar();
   }
 
   shouldComponentUpdate() {
@@ -51,17 +50,16 @@ class ScrollBar extends React.Component {
   componentWillUnmount() {
     this.unlisten();
     off(window, 'resize', this.windowResizeHandler);
-    this.scrollbarHandler.off();
+    ScrollbarHandler.off();
   }
 
   setBar() {
-    const container = appState.get('containerElement');
-    const screen = appState.get('screenElement');
-    const barHeight = (screen.offsetHeight * screen.offsetHeight) /
-      container.offsetHeight;
-    const containerTop = Number(container.style.top.replace('px', ''));
-    const barTop = Math.abs((screen.offsetHeight * containerTop) /
-      container.offsetHeight);
+    const { containerElement, screenElement } = appState;
+    const barHeight = (screenElement.offsetHeight * screenElement.offsetHeight) /
+      containerElement.offsetHeight;
+    const containerTop = Number(containerElement.style.top.replace('px', ''));
+    const barTop = Math.abs((screenElement.offsetHeight * containerTop) /
+      containerElement.offsetHeight);
 
     this.setState(Object.assign({}, this.state, {
       barHeight, barTop,
@@ -90,7 +88,7 @@ class ScrollBar extends React.Component {
 
   listenHandler(newState, stateName) {
     if (this.shouldSetToBottom(stateName)) {
-      this.scrollbarHandler.toBottom();
+      ScrollbarHandler.toBottom();
     }
     if (shouldShowScrollbar()) {
       this.setScrollbar(true);
@@ -110,11 +108,12 @@ class ScrollBar extends React.Component {
     appState.unlisten(state, this.listenHandler);
   }
 
-  renderComponent() {
+  render() {
+    const display = this.state.show ? 'block' : 'none';
     return (
-      <div className={s.scrollBar}>
+      <div className={s.scrollBar} style={{ display }}>
         <div
-          className={s.bar} ref={(e) => { this.scrollBarElement = e; }}
+          className={s.bar} ref={(e) => { this.scrollbarElement = e; }}
           style={{
             height: `${this.state.barHeight}px`,
             top: `${this.state.barTop}px`,
@@ -124,9 +123,9 @@ class ScrollBar extends React.Component {
     );
   }
 
-  render() {
-    return this.state.show ? this.renderComponent() : null;
-  }
+  // render() {
+  //   return this.state.show ? this.renderComponent() : null;
+  // }
 }
 
 
