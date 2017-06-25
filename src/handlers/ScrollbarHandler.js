@@ -26,9 +26,8 @@ class ScrollbarHandler {
   }
 
   setupParameter() {
-    const container = appState.get('containerElement');
     this.speed = getDefaultSpeed();
-    this.maxTop = container.offsetTop;
+    this.maxTop = appState.containerElement.offsetTop;
   }
 
   on() {
@@ -110,10 +109,9 @@ class ScrollbarHandler {
   }
 
   setPosition(move) {
-    const container = appState.get('containerElement');
-    const screen = appState.get('screenElement');
-    const minTop = screen.offsetHeight - container.offsetHeight;
-    const currentTop = Number(container.style.top.replace('px', '')) || 0;
+    const { containerElement, screenElement } = appState;
+    const minTop = screenElement.offsetHeight - containerElement.offsetHeight;
+    const currentTop = Number(containerElement.style.top.replace('px', '')) || 0;
 
     let target = currentTop + move;
     if (target > 0) {
@@ -124,17 +122,16 @@ class ScrollbarHandler {
       target = minTop;
       this.speed = 0;
     }
-    container.style.top = `${target}px`;
+    containerElement.style.top = `${target}px`;
     appState.trigger('wheel');
   }
 
   toBottom() { // eslint-disable-line class-methods-use-this
-    const container = appState.get('containerElement');
-    const screen = appState.get('screenElement');
-    const minTop = screen.offsetHeight - container.offsetHeight;
-    container.style.top = `${minTop}px`;
+    const { containerElement, screenElement } = appState;
+    const minTop = screenElement.offsetHeight - containerElement.offsetHeight;
+    containerElement.style.top = `${minTop}px`;
   }
 
 }
 
-export default ScrollbarHandler;
+export default new ScrollbarHandler();

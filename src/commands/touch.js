@@ -9,8 +9,7 @@ import { on } from '../core/utils';
 
 
 function prepareCommandLine() {
-  const historyCommands = appState.get('historyCommands');
-  const currentCommand = appState.get('currentCommand');
+  const { historyCommands, currentCommand } = appState;
 
   historyCommands.push({
     lineHead: getLineHead(),
