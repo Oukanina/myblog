@@ -35,6 +35,7 @@ const defaultSatte = {
 
 
 class State {
+
   constructor(name) {
     this.name = name;
     this.stateMap = new Map();
@@ -118,13 +119,14 @@ class State {
   unListenOne(state, listener) {
     const listeners = this.listenerMap.get(state);
     // if (!listeners) throw new Error(`no listeners on ${state}`);
-    if (!listeners) return;
+    if (!listeners) return log(state);
     for (let i = 0; i < listeners.length; i += 1) {
       if (listeners[i] === listener) {
         listeners.splice(i, 1);
         break;
       }
     }
+    return this.listenerMap.set(state, listeners);
   }
 
   get(stateName) {
@@ -132,7 +134,7 @@ class State {
   }
 
   set(stateName, stateValue) {
-    if (!this[stateName]) {
+    if (!this.hasOwnProperty(stateName)) { // eslint-disable-line no-prototype-builtins
       Object.defineProperty(this, stateName, {
         get: () => this.stateMap.get(stateName),
         set: (value) => {
@@ -140,8 +142,8 @@ class State {
           this.trigger(stateName);
         },
       });
-      this.stateMap.set(stateName, stateValue);
     }
+    this.stateMap.set(stateName, stateValue);
   }
 
   del(stateName) {
@@ -160,8 +162,11 @@ class State {
   }
 
   update(stateName, newState) {
-    this.stateMap.set(stateName, newState);
-    this.trigger(stateName);
+    if (this.hasOwnProperty(stateName)) { // eslint-disable-line no-prototype-builtins
+      this[stateName] = newState;
+    }
+    // this.stateMap.set(stateName, newState);
+    // this.trigger(stateName);
   }
 
   updateAll() {

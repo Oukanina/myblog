@@ -4,6 +4,7 @@ import s from './CommandLine.css';
 import Line from '../Line/Line.js'; // eslint-disable-line import/no-named-as-default
 import LastLine from '../Line/LastLine.js';
 import appState from '../../core/state.js';
+// import { log } from '../../core/utils.js';
 import BaseComponent from '../BaseComponent';
 
 

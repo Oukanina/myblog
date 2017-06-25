@@ -18,7 +18,7 @@ class Screen extends React.Component {
   };
 
   componentDidMount() {
-    appState.update('screenElement', this.screenElement);
+    appState.set('screenElement', this.screenElement);
   }
 
   render() {

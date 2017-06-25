@@ -22,8 +22,9 @@ export default class BaseComponent extends React.Component {
   }
 
   componentWillMount() {
-    appState.unlisten(this.internalState, this.stateListener);
-    this.willMount();
+    // console.log(this.internalState, this.stateListener);
+    // appState.unlisten(this.internalState, this.stateListener);
+    // this.willMount();
   }
 
   componentDidMount() {
@@ -49,6 +50,7 @@ export default class BaseComponent extends React.Component {
   }
 
   componentWillUnmount() {
+    appState.unlisten(this.internalState, this.stateListener);
     this.willUnmount();
   }
 

@@ -30,7 +30,7 @@ const ArrowDown = 'ArrowDown';
 const ArrowLeft = 'ArrowLeft';
 const ArrowRight = 'ArrowRight';
 
-const ERR_RETURN_TOKEN = new Error('not return token!');
+const ERR_AUTH_ERROR = new Error('auth error!');
 
 async function checkToken() {
   try {
@@ -201,7 +201,7 @@ class Login extends React.Component {
       });
       const json = await resp.json();
       if (json.stauts === 'vaild') return; //
-      if (!json.token) throw ERR_RETURN_TOKEN;
+      if (!json.token) throw ERR_AUTH_ERROR;
       Lockr.set('token', json.token || '');
       appState.set('login', true);
       appState.fetchData();
