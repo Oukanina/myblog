@@ -23,6 +23,10 @@
   max-width: 380px;
 }
 
+.pending {
+  opacity: 0.2;
+}
+
 .formGroup {
   margin-bottom: 5px;
 }
@@ -62,4 +66,12 @@
 .oncursor {
   background: #fff;
   color: #343434;
+}
+
+.errorText {
+  color: #ff4d4d;
+  position: absolute;
+  top: -30px;
+  font-size: 14px;
+  text-shadow: 1px 1px 1px #ff4d4d;
 }

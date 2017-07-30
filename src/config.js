@@ -16,7 +16,8 @@ export const machineName = 'blog';
 export const dataDir = `${__dirname}/data`;
 export const initialFile = `${__dirname}/.initial`;
 
-export const username = 'root@localhost.com';
+export const email = 'root@localhost.com';
+export const username = 'root';
 export const password = 'root';
 
 export const analytics = {

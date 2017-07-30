@@ -24,18 +24,21 @@ export function getUserById(id) {
   });
 }
 
-export function createUser({ email, password }) {
+export function createUser({ email, username, password }) {
   return new Promise(async (resolve, reject) => {
     let newUser;
     let userHome;
     try {
       const users = await User.findAll({
-        attributes: ['email'],
-        where: { email, onDelete: false },
+        // attributes: ['email'],
+        where: { $or: {
+          username, email,
+        },
+          onDelete: false },
       });
       if (users.length) throw ERR_EMAIL_ALREADY_EXISTS;
       newUser = await User.create({
-        email, password,
+        email, password, username: username || email,
       });
       // create user home folder
       const homeFolder = await createFolder({
@@ -49,7 +52,7 @@ export function createUser({ email, password }) {
       });
 
       userHome = await createFolder({
-        name: email,
+        name: username || email,
         parentId: homeFolder.get('id'),
         userId: newUser.get('id'),
         force: false,

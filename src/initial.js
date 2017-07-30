@@ -1,7 +1,7 @@
 import fs from 'fs';
 import {
   dataDir, initialFile,
-  username, password } from './config';
+  email, username, password } from './config';
 import { User, UserGroup,
   File, ROOTID, FILETYPE } from './data/models';
 
@@ -22,7 +22,8 @@ function createRootUser() {
   return new Promise(async (resolve, reject) => {
     try {
       resolve(await User.create({
-        email: username,
+        email,
+        username,
         password,
       }));
     } catch (err) {

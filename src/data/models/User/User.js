@@ -28,6 +28,11 @@ const User = Model.define('User', {
     defaultValue: false,
   },
 
+  username: {
+    type: DataType.STRING(255),
+    defaultValue: false,
+  },
+
   password: {
     type: DataType.STRING(255),
     defaultValue: false,
@@ -41,7 +46,7 @@ const User = Model.define('User', {
 }, {
 
   indexes: [
-    { fields: ['email'] },
+    { fields: ['username', 'email'] },
   ],
 
 });

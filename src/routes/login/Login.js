@@ -16,7 +16,7 @@ import s from './Login.css';
 import Cursor from '../../components/Cursor';
 import { CHARACTERREX, SPECIALKEY } from '../../constants';
 import { debounce, on, off, delayUpdate } from '../../core/utils';
-import { isToken, token, ERR_401 } from '../../core/api';
+import { isToken, apiVerificationUsername, token, ERR_401 } from '../../core/api';
 import history from '../../core/history';
 import appState from '../../core/state';
 
@@ -24,13 +24,13 @@ import appState from '../../core/state';
 const Tab = 'Tab';
 const Enter = 'Enter';
 const Escape = 'Escape';
-const ArrowUp = 'ArrowUp';
+// const ArrowUp = 'ArrowUp';
 const Backspace = 'Backspace';
-const ArrowDown = 'ArrowDown';
+// const ArrowDown = 'ArrowDown';
 const ArrowLeft = 'ArrowLeft';
 const ArrowRight = 'ArrowRight';
 
-const ERR_AUTH_ERROR = new Error('auth error!');
+// const ERR_AUTH_ERROR = new Error('auth error!');
 
 async function checkToken() {
   try {
@@ -72,10 +72,13 @@ class Login extends React.Component {
     super(props);
 
     this.state = {
-      email: [],
-      password: [],
       username: [],
-      emailFocus: true,
+      password: [],
+      usernameValid: false,
+      isPending: false,
+      isError: false,
+      errorText: '',
+      usernameFocus: true,
       passwordFocus: false,
       cursorPosition: 1,
       // if component render from server, then set login true
@@ -131,39 +134,43 @@ class Login extends React.Component {
   }
 
   toogleFocus() {
-    const { emailFocus, passwordFocus, email, password } = this.state;
-
-    if (emailFocus) this.passwordInput.focus();
-    if (passwordFocus) this.emailInput.focus();
-
-    this.setState(Object.assign({}, this.state, {
-      emailFocus: passwordFocus,
-      passwordFocus: emailFocus,
-      cursorPosition: emailFocus ? password.length + 1 : email.length + 1,
-    }));
+    const { usernameFocus, passwordFocus, username, password } = this.state;
+    if (passwordFocus) {
+      this.setState({
+        ...this.state,
+        username: [],
+        usernameValid: false,
+      });
+    }
+    this.setState({
+      ...this.state,
+      usernameFocus: passwordFocus,
+      passwordFocus: usernameFocus,
+      cursorPosition: usernameFocus ? password.length + 1 : username.length + 1,
+    });
   }
 
   backspace() {
-    const { emailFocus, cursorPosition, email, password } = this.state;
-    let newEmail = email; // eslint-disable-line prefer-const
+    this.hideError();
+    const { usernameFocus, cursorPosition, username, password } = this.state;
+    let newEmail = username; // eslint-disable-line prefer-const
     let newPasswod = password; // eslint-disable-line prefer-const
-
-    if (emailFocus) {
+    if (usernameFocus) {
       if (newEmail[cursorPosition - 2]) newEmail.splice(cursorPosition - 2, 1);
     } else if (newPasswod[cursorPosition - 2]) newPasswod.splice(cursorPosition - 2, 1);
 
     this.setState(Object.assign({}, this.state, {
-      email: newEmail,
+      user: newEmail,
       password: newPasswod,
       cursorPosition: cursorPosition > 1 ? cursorPosition - 1 : cursorPosition,
     }));
   }
 
   cursorPositionAdd(direction) {
-    const { emailFocus, cursorPosition, email, password } = this.state;
+    const { usernameFocus, cursorPosition, username, password } = this.state;
     const newPosition = cursorPosition + direction;
     if (newPosition < 1) return;
-    if (newPosition > (emailFocus ? email.length + 1 : password.length + 1)) return;
+    if (newPosition > (usernameFocus ? username.length + 1 : password.length + 1)) return;
 
     this.setState(Object.assign({}, this.state, {
       cursorPosition: newPosition,
@@ -171,10 +178,10 @@ class Login extends React.Component {
   }
 
   clearCurrentInput() {
-    const { emailFocus } = this.state;
-    if (emailFocus) {
+    const { usernameFocus } = this.state;
+    if (usernameFocus) {
       this.setState(Object.assign({}, this.state, {
-        email: [],
+        username: [],
         cursorPosition: 1,
       }));
     } else {
@@ -186,28 +193,114 @@ class Login extends React.Component {
   }
 
   async enterHandler() {
-    const { email, password } = this.state;
+    const { usernameFocus, passwordFocus } = this.state;
     try {
-      const resp = await token({
-        method: 'post',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.join(''),
-          password: password.join(''),
-        }),
-      });
-      const json = await resp.json();
-      if (json.stauts === 'vaild') return; //
-      if (!json.token) throw ERR_AUTH_ERROR;
-      Lockr.set('token', json.token || '');
-      appState.set('login', true);
-      appState.fetchData();
-      history.push('/');
+      if (usernameFocus) {
+        this.verificationUsername();
+      }
+      if (passwordFocus) {
+        this.verificationPassword();
+      }
+      // const resp = await token({
+      //   method: 'post',
+      //   headers: {
+      //     Accept: 'application/json',
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     user: username.join(''),
+      //     password: password.join(''),
+      //   }),
+      // });
+      // const json = await resp.json();
+      // if (json.stauts === 'vaild') return; //
+      // if (!json.token) throw ERR_AUTH_ERROR;
+      // Lockr.set('token', json.token || '');
+      // appState.set('login', true);
+      // appState.fetchData();
+      // history.push('/');
     } catch (err) {
       console.error(err); // eslint-disable-line no-console
+    }
+  }
+
+  pending() {
+    this.hideError();
+    this.setState({
+      isPending: true,
+    });
+  }
+
+  unpending() {
+    this.setState({
+      isPending: false,
+    });
+  }
+
+  async verificationUsername() {
+    const { username } = this.state;
+    this.pending();
+    const resp = await apiVerificationUsername(username.join(''));
+    const json = await resp.json();
+    if (json.status === 'ok') {
+      this.verificationUsernameSuccess();
+    } else {
+      this.verificationUsernameFailed(json);
+    }
+    this.unpending();
+  }
+
+  verificationUsernameSuccess() {
+    this.toogleFocus();
+    this.setState({
+      usernameValid: true,
+    });
+  }
+
+  verificationUsernameFailed(json) { // eslint-disable-line
+    this.showError(json.message);
+  }
+
+  async verificationPassword() {
+    const { username, password } = this.state;
+    this.pending();
+    const resp = await token({
+      username: username.join(''),
+      password: password.join(''),
+    });
+    const json = await resp.json();
+    if (json.status === 'ok') {
+      this.verificationPasswordSuccess(json);
+    } else {
+      this.verificationPasswordFailed(json);
+    }
+    this.unpending();
+  }
+
+  verificationPasswordSuccess(json) { // eslint-disable-line
+    Lockr.set('token', json.token || '');
+    appState.set('login', true);
+    appState.fetchData();
+    history.push('/');
+  }
+
+  verificationPasswordFailed(json) { // eslint-disable-line
+    this.showError(json.message);
+  }
+
+  showError(text) {
+    this.setState({
+      isError: true,
+      errorText: text,
+    });
+  }
+
+  hideError() {
+    if (this.state.isError) {
+      this.setState({
+        isError: false,
+        errorText: '',
+      });
     }
   }
 
@@ -215,9 +308,7 @@ class Login extends React.Component {
     if (!isSpecialKey(event.key)) return;
     switch (event.key) {
       case Tab:
-      case ArrowUp:
-      case ArrowDown:
-        this.toogleFocus();
+        if (this.state.usernameValid) this.toogleFocus();
         break;
       case ArrowLeft:
         this.cursorPositionAdd(-1);
@@ -241,12 +332,12 @@ class Login extends React.Component {
 
   characterHandler(event) {
     if (!isCharacter(event.key)) return;
-    const { emailFocus, cursorPosition } = this.state;
-    const { email, password } = this.state;
-
-    if (emailFocus) {
-      email.splice(cursorPosition - 1, 0, event.key);
-      if (!isEmail(email.join(''))) {
+    const { usernameFocus, cursorPosition } = this.state;
+    const { username, password } = this.state;
+    this.hideError();
+    if (usernameFocus) {
+      username.splice(cursorPosition - 1, 0, event.key);
+      if (!isEmail(username.join(''))) {
         // todo
         return;
       }
@@ -255,7 +346,7 @@ class Login extends React.Component {
     }
 
     this.setState({
-      email,
+      username,
       password,
       cursorPosition: cursorPosition + 1,
     });
@@ -263,78 +354,100 @@ class Login extends React.Component {
 
   renderText(textArray, focus, ishide = false) {
     const { cursorPosition } = this.state;
-    return (<span>
-      {
-        ishide ? null : textArray.map((value, index) => (
-          <e
-            className={focus && cursorPosition - 1 === index ?
-              cx(s.oncursor, s.e) : s.e}
-            key={index.toString()}
-          >
-            {value}
-          </e>))
-      }
-      {
-        focus && textArray.length < cursorPosition ?
-          <Cursor /> : null
-      }
-    </span>);
+    if (ishide) {
+      return (
+        <span>
+          {
+            focus ? <Cursor blink={(textArray.length < 1)} /> : null
+          }
+        </span>
+      );
+    } else { // eslint-disable-line
+      return (
+        <span>
+          {
+            textArray.map((value, index) => (
+              <e
+                className={focus && cursorPosition - 1 === index ?
+                  cx(s.oncursor, s.e) : s.e}
+                key={index.toString()}
+              >
+                {value}
+              </e>))
+          }
+          {
+            focus && textArray.length < cursorPosition ?
+              <Cursor /> : null
+          }
+        </span>
+      );
+    }
   }
 
-  renderInputEmail() {
-    const { email, emailFocus } = this.state;
+  renderUsername() {
+    const { username, usernameFocus } = this.state;
     return (<div>
-      {this.renderText(email, emailFocus)}
+      {this.renderText(username, usernameFocus)}
     </div>);
   }
 
-  renderInputPassword() {
+  renderPassword() {
     const { password, passwordFocus } = this.state;
     return (<div>
       {this.renderText(password, passwordFocus, true)}
     </div>);
   }
 
-  // renderInputUsername() {
-  //   const { username } = this.state;
-  //   return (
-  //     <div>
-  //       { this.renderText(username, truem) }
-  //     </div>)
-  // }
+  renderUsernameBox() {
+    return this.renderContainer(
+      <div className={s.formGroup}>
+        <label className={s.label} htmlFor="usernameOrEmail">
+          Login as:
+        </label>
+        <div
+          className={s.input}
+          ref={(u) => { this.usernameInput = u; }}
+        >
+          { this.renderUsername() }
+        </div>
+      </div>);
+  }
 
-  render() {
-    const { login } = this.state;
-    if (login) return null;
+  renderPasswordBox() {
+    return this.renderContainer(
+      <div className={s.formGroup}>
+        <label className={s.label} htmlFor="password">
+        Password:
+        </label>
+        <div
+          className={s.input}
+          ref={(p) => { this.passwordInput = p; }}
+        >
+          {this.renderPassword()}
+        </div>
+      </div>);
+  }
+
+  renderContainer(children) { // eslint-disable-line
+    const { isPending, isError, errorText } = this.state;
+    const containerClass = isPending ? cx(s.container, s.pending) : s.container;
 
     return (
       <div className={s.root}>
-        <div className={s.container}>
-          <div className={s.formGroup}>
-            <label className={s.label} htmlFor="usernameOrEmail">
-              Email:
-            </label>
-            <div
-              className={s.input}
-              ref={(u) => { this.emailInput = u; }}
-            >
-              {this.renderInputEmail()}
-            </div>
-          </div>
-          <div className={s.formGroup}>
-            <label className={s.label} htmlFor="password">
-              Password:
-            </label>
-            <div
-              className={s.input}
-              ref={(p) => { this.passwordInput = p; }}
-            >
-              {this.renderInputPassword()}
-            </div>
-          </div>
+        <div className={containerClass}>
+          { isError && <span className={s.errorText}> { errorText } </span> }
+          {children}
         </div>
       </div>
     );
+  }
+
+  render() {
+    const { login, usernameFocus, passwordFocus } = this.state;
+    if (login) return null;
+    if (usernameFocus) return this.renderUsernameBox();
+    if (passwordFocus) return this.renderPasswordBox();
+    return null;
   }
 }
 

@@ -1,7 +1,7 @@
 /* eslint-disable global-require, import/no-dynamic-require */
 
 const fetchApiList = [
-  'me', 'istoken', 'token',
+  'me', 'istoken', 'token', 'verificationUsername',
 ];
 
 export default {

@@ -14,7 +14,7 @@ class Screen extends React.Component {
   };
 
   static defaultProps = {
-    cover: true,
+    cover: !__DEV__, // eslint-disable-line
   };
 
   componentDidMount() {

@@ -15,24 +15,28 @@ export function createToken(email) {
 export default function token(app) {
   app.post('/token', async (req, res, next) => {
     try {
-      const { email, password } = req.body;
+      const { username, password } = req.body;
       const name = 'local:token';
 
-      if (!email || !password) {
+      if (!username || !password) {
         res.json({ status: 'no parameters email, password!' });
         return next();
       }
 
       let status;
+      let action;
       let user = await User.findOne({
-        where: { email, onDelete: false },
+        where: { $or: {
+          username, email: username,
+        },
+          onDelete: false },
       });
 
       if (!user) {
         const userCount = await User.count({
           onDelete: false,
         });
-        user = await createUser({ email, password });
+        user = await createUser({ username, password });
         if (userCount === 0) {
           await setUserGroup(user, await UserGroup.findOne({
             where: { name: 'root' },
@@ -42,13 +46,16 @@ export default function token(app) {
             where: { name: 'user' },
           }));
         }
-        status = 'created';
+        action = 'created';
+        status = 'ok';
       } else if (user.dataValues.password !== password) {
-        status = 'vaild';
+        action = 'vaild';
+        status = 'err';
         res.json({ status });
         return next();
       } else {
-        status = 'login';
+        status = 'ok';
+        action = 'login';
         const logins = await user.getLogins({
           where: { name },
         });
@@ -57,11 +64,11 @@ export default function token(app) {
         }
       }
 
-      const newToken = createToken(email);
+      const newToken = createToken(username);
       await user.createLogin({
         name, key: newToken,
       });
-      res.json({ status, token: newToken });
+      res.json({ status, action, token: newToken });
       return next();
     } catch (err) {
       console.error(err); // eslint-disable-line no-console

@@ -60,10 +60,25 @@ function api(url, options = {}, checkToken = true) {
 }
 
 function me() { return api('/me', { method: 'get' }); }
-function token(options) { return api('/token', options, false); }
 function isToken() { return api('/istoken', { method: 'get' }); }
+function token({ username, password }) {
+  return api('/token', {
+    ...defaultOptions,
+    body: JSON.stringify({
+      username, password,
+    }),
+  }, false);
+}
+function apiVerificationUsername(username) {
+  return api('/verificationUsername', {
+    ...defaultOptions,
+    body: JSON.stringify({
+      username,
+    }),
+  }, false);
+}
 
 export default api;
 export {
-  me, token, isToken,
+  me, token, isToken, apiVerificationUsername,
 };
