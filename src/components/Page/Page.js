@@ -15,7 +15,7 @@ class Page extends React.Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
     html: PropTypes.string.isRequired,
-    children: PropTypes.Node.isRequired,
+    children: PropTypes.node.isRequired,
   };
 
   render() {
