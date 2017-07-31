@@ -112,3 +112,9 @@ export function fliterObject(object) {
   }
   return newObject;
 }
+
+export function MyError(name, message = '') {
+  this.name = name;
+  this.message = message || name;
+  this.stack = (new Error(message)).stack;
+}

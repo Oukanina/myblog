@@ -7,7 +7,6 @@ import appState from '../core/state';
 import { getLineHead, createNewLine } from './index';
 import { on } from '../core/utils';
 
-
 function prepareCommandLine() {
   const { historyCommands, currentCommand } = appState;
 
@@ -16,7 +15,7 @@ function prepareCommandLine() {
     text: currentCommand.join(''),
   });
   historyCommands.push({
-    text: 'please select a file',
+    text: 'Choice a file:',
   });
 
   // appState.update('hideLastLine', true);
@@ -25,12 +24,17 @@ function prepareCommandLine() {
   appState.update('cursorPosition', 1);
 }
 
+function finishUpload() {
+  appState.update('hideLastLine', false);
+  appState.update('currentCommand', []);
+}
+
 function inputChangeHandler(resolve) {
   return (e) => {
     e.preventDefault();
     const files = e.target.files;
-    if (!window.Worker) throw new Error('doesn\'t support web worker!');
-
+    // if (!window.Worker) throw new Error('doesn\'t support web worker!');
+    const { historyCommands } = appState;
     const uploadWorker = new UploadWorker();
     const host = window.location.host;
     const token = Lockr.get('token');
@@ -41,8 +45,7 @@ function inputChangeHandler(resolve) {
       if (file) {
         uploadWorker.postMessage({ file, host, token, path });
       } else {
-        appState.update('hideLastLine', false);
-        appState.update('currentCommand', []);
+        finishUpload();
         uploadWorker.terminate();
         resolve(false);
       }
@@ -51,11 +54,21 @@ function inputChangeHandler(resolve) {
     appState.update('hideLastLine', true);
     uploadWorker.onmessage = (e2) => {
       const message = JSON.parse(e2.data);
-      appState.update('currentCommand', [
-        `Uploading: ${message.name} => ${message.progress}%`]);
+      if (message.status === 'error') {
+        historyCommands.push({
+          text: message.data,
+        });
+        finishUpload();
+        uploadWorker.terminate();
+        resolve(false);
+        return;
+      }
       if (message.status === 'finish') {
         createNewLine();
         doUpload(files[i++]);
+      } else {
+        appState.update('currentCommand',
+          [`Uploading: ${message.name} => ${message.progress}%`]);
       }
     };
     doUpload(files[i++]);
@@ -82,6 +95,7 @@ export default {
   action() {
     return new Promise(async (resolve, reject) => {
       try {
+        if (!window.Worker) throw new Error('doesn\'t support web worker!');
         prepareCommandLine();
         openFileSelectWindow(resolve);
       } catch (err) {

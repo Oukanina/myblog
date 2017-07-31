@@ -7,12 +7,20 @@ import { verify } from 'jsonwebtoken';
 import uuidv4 from 'uuid/v4';
 import { auth, dataDir } from '../config.js';
 import { TILDE } from '../constants';
+import { MyError } from '../core/utils.js';
 import { FILETYPE, LINKTO } from '../data/models';
 import { getUserByToken } from '../data/utils/userUtils.js';
 import { getUserHomeFolder, getFolderByPath, createFile } from '../data/utils/fileUtils.js';
 
 const ALLOW_FILE_TYPE = ['image/jpeg', 'image/png', 'text/markdown'];
-const MAX_FILE_SIZE = 1024 * 1024 * 10;
+const MAX_FILE_SIZE = (1 << 20) * 10; // eslint-disable-line
+const FILE_SAVE_ERROR = new MyError('FileSaveError', 'File save error!');
+const FILE_SIZEE_RROR = new MyError('FileSizeError',
+  `File size too large! max file size is ${MAX_FILE_SIZE/(1 << 20)}mb`);  // eslint-disable-line
+const FILE_TYPE_ERROR = new MyError('FileTypeError',
+`Unsuport file type! you can just upload: ${ALLOW_FILE_TYPE.join(',')}`);
+const NO_TOKEN_ERROR = new MyError('NoTokenError', 'Permission denied!');
+const NO_FILEE_RROR = new MyError('NoFileError', 'Permission denied!');
 
 function closeUpload(app, path) {
   app._router.stack.forEach((route, i, routes) => {
@@ -28,7 +36,7 @@ function saveFile({ file, path, token }) {
     try {
       const name = file.name;
       let user = await getUserByToken(token);
-      if (!user.length) throw new Error('FileSaveError');
+      if (!user.length) throw FILE_SAVE_ERROR;
       user = user[0];
       let folder;
       if (path === TILDE) {
@@ -73,7 +81,7 @@ function openUpload(app, ws, { file, path, token }) {
   app.ws(`/${uploadPath}`, (uplodWs) => {
     uplodWs.on('message', (message) => {
       const writtenSize = writer.bytesWritten + message.length;
-      if (writtenSize > MAX_FILE_SIZE) throw new Error('FileSizeError');
+      if (writtenSize > MAX_FILE_SIZE) throw FILE_SIZEE_RROR;
       writer.write(message);
       uplodWs.send(Math.floor(100 * writtenSize / file.size));
     });
@@ -98,27 +106,29 @@ function openUpload(app, ws, { file, path, token }) {
 }
 
 function verifyFile({ type, size }) {
-  if (size > MAX_FILE_SIZE) throw new Error('FileSizeError');
-  if (!ALLOW_FILE_TYPE.includes(type)) throw new Error('FileTypeError');
+  if (size > MAX_FILE_SIZE) throw FILE_SIZEE_RROR;
+  if (!ALLOW_FILE_TYPE.includes(type)) throw FILE_TYPE_ERROR;
 }
 
 function verifyFailed(err, ws) {
   switch (err.name) {
     case 'JsonWebTokenError':
     case 'TokenExpiredError':
-    case 'FileSizeError':
-    case 'FileTypeError':
-    case 'NoTokenError':
-    case 'NoFileError':
+    case FILE_SIZEE_RROR.name:
+    case FILE_TYPE_ERROR.name:
+    case NO_TOKEN_ERROR.name:
+    case NO_FILEE_RROR.name:
       ws.send(JSON.stringify({
         status: 'error',
         error: err.name,
+        data: err.message,
       }));
       break;
     default:
       ws.send(JSON.stringify({
         status: 'error',
         error: 'UnknowError',
+        data: 'UnknowError',
       }));
       break;
   }
@@ -129,8 +139,8 @@ export default (app) => {
     ws.on('message', (message) => {
       try {
         const json = JSON.parse(message);
-        if (!json.token) throw new Error('NoTokenError');
-        if (!json.file) throw new Error('NoFileError');
+        if (!json.token) throw NO_TOKEN_ERROR;
+        if (!json.file) throw NO_FILEE_RROR;
 
         verify(json.token, auth.jwt.secret);
         verifyFile(json.file);

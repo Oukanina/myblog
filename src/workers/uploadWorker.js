@@ -19,7 +19,7 @@ function createWebSoket(url) {
 }
 
 function FileSlice(file) {
-  const size = 1024 * 1024;
+  const size = (1 << 20); // eslint-disable-line
   const slices = Math.ceil(file.size / size);
   let start = 0;
 
@@ -94,10 +94,20 @@ onmessage = (event) => { // eslint-disable-line no-undef
 
   startUpload(ws, file, token, path)
   .then((data) => {
-    if (data.status !== 'success') throw data.error;
+    if (data.status !== 'success') {
+      throw data;
+    }
     sendFileData(createWebSoket(
       `${protocol}://${host}/${data.path}`), file)
     .catch(err => console.error(err)); // eslint-disable-line no-console
   })
-  .catch(err => console.error(err)); // eslint-disable-line no-console
+  .catch((err) => {
+    console.log(err);
+    postMessage(JSON.stringify({
+      status: 'error',
+      data: err.data.trim(),
+    }));
+    ws.close();
+    console.error(err); // eslint-disable-line no-console
+  });
 };
