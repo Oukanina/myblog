@@ -1,3 +1,5 @@
+/* eslint-disable css-modules/no-unused-class */
+
 import React, { PropTypes } from 'react';
 import cx from 'classnames';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';

@@ -1,8 +1,10 @@
 import React, { PropTypes } from 'react';
+import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import Link from '../Link';
+import s from './LinkList.css';
 
 
-class Navigation extends React.Component {
+export class LinkList extends React.Component {
   static propTypes = {
     files: PropTypes.arrayOf(PropTypes.object).isRequired,
   };
@@ -12,7 +14,13 @@ class Navigation extends React.Component {
     const fileList = [];
     fileList.push((
       <div key={'0'}>
-        <a href="/"><h2>Back to Home <small> ORZ </small></h2></a>
+        <a className={s.homeLink} style={{ textDecoration: 'none' }} href="/">
+          <h2>Back to Home
+            <small style={{ fontSize: '60%', marginLeft: '10px' }}>
+              ORZ
+            </small>
+          </h2>
+        </a>
       </div>
     ));
     for (let i = 0; i < files.length; i += 1) {
@@ -38,4 +46,6 @@ class Navigation extends React.Component {
   }
 }
 
-export default Navigation;
+// export { LinkList };
+
+export default withStyles(s)(LinkList);

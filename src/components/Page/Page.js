@@ -15,6 +15,7 @@ class Page extends React.Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
     html: PropTypes.string.isRequired,
+    children: PropTypes.Node.isRequired,
   };
 
   render() {
@@ -27,6 +28,7 @@ class Page extends React.Component {
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: html }}
           />
+          { this.props.children }
         </div>
       </div>
     );

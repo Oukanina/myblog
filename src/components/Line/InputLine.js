@@ -1,11 +1,11 @@
 import React from 'react';
-import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import s from './style.css';
+// import withStyles from 'isomorphic-style-loader/lib/withStyles';
+// import s from './style.css';
 import Cursor from '../Cursor';
 import { parserText } from './Line';
 import BaseComponent from '../BaseComponent';
 
-class InputLine extends BaseComponent {
+export default class InputLine extends BaseComponent {
   render() {
     const { text = '', cursorPosition = 0 } = this.props;
 
@@ -19,4 +19,4 @@ class InputLine extends BaseComponent {
   }
 }
 
-export default withStyles(s)(InputLine);
+// export default withStyles(s)(InputLine);

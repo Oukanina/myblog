@@ -1,0 +1,9 @@
+@import '../variables.css';
+
+.homeLink {
+  transition: color 0.2s;
+}
+
+.homeLink:hover {
+  color: #1cc11c;
+}
