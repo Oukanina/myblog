@@ -216,7 +216,7 @@ export function getUserHomeFolder(user) {
   return new Promise(async (resolve, reject) => {
     try {
       const homeFolder = await File.findOne({
-        where: { path: `/home/${user.get('email')}` },
+        where: { path: `/home/${user.get('username')}` },
       });
       if (!homeFolder) throw ERR_CAN_NOT_GET_HOME_FOLDER;
       resolve(homeFolder);
