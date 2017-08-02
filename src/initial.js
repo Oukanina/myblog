@@ -4,10 +4,12 @@ import {
   email, username, password } from './config';
 import { User, UserGroup,
   File, ROOTID, FILETYPE } from './data/models';
+import { log } from './core/utils';
 
 
 function initialGroup() {
   return new Promise(async (resolve, reject) => {
+    log('now is initial user group...');
     try {
       await UserGroup.create({ name: 'root' });
       await UserGroup.create({ name: 'user' });
@@ -20,6 +22,7 @@ function initialGroup() {
 
 function createRootUser() {
   return new Promise(async (resolve, reject) => {
+    log('now is initial root user...');
     try {
       resolve(await User.create({
         email,
@@ -38,6 +41,7 @@ function shoudlInitial() {
 
 function createRoot(root) {
   return new Promise(async (resolve, reject) => {
+    log('now is initial root folder');
     try {
       await File.create({
         id: ROOTID,
@@ -55,12 +59,17 @@ function createRoot(root) {
   });
 }
 
+function createUploadDataFolder() {
+  log('now is initial upload folder...');
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir);
+  }
+}
+
 export default async function () {
   try {
     if (!await shoudlInitial()) return;
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir);
-    }
+    createUploadDataFolder();
     if (!fs.existsSync(initialFile)) {
       await initialGroup();
       await createRoot(await createRootUser());
