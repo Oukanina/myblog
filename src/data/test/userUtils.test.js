@@ -4,13 +4,17 @@ import {
 import { setUserGroup, createGroup } from '../utils/groupUtils';
 import { ERR_TASK_FAILED } from './constants';
 
+const EMAIL = 'test@test.com';
+const USERNAME = 'test';
+const PASSWORD = 'test';
+
 function createTestUser() {
   return createUser({
-    email: 'test@test.com',
-    password: 'test',
+    email: EMAIL,
+    username: USERNAME,
+    password: PASSWORD,
   });
 }
-
 
 describe('User utils test: ', () => {
 
@@ -20,6 +24,18 @@ describe('User utils test: ', () => {
       testUser = await createTestUser();
       const theUser = await getUserById(testUser.get('id'));
       if (!theUser) throw ERR_TASK_FAILED;
+    } catch (err) {
+      throw err;
+    } finally {
+      if (testUser) await testUser.destroy();
+    }
+  });
+
+  it(`should username equal to ${USERNAME}`, async () => {
+    let testUser;
+    try {
+      testUser = await createTestUser();
+      if (testUser.username !== USERNAME) throw ERR_TASK_FAILED;
     } catch (err) {
       throw err;
     } finally {
@@ -38,7 +54,7 @@ describe('User utils test: ', () => {
     } catch (err) {
       if (err !== ERR_EMAIL_ALREADY_EXISTS) throw err;
     } finally {
-      if (testUser) testUser.destroy();
+      if (testUser) await testUser.destroy();
     }
   });
 
