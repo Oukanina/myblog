@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
-import { User, UserGroup } from '../data/models';
+import { User } from '../data/models';
 import { auth } from '../config';
-import { createUser } from '../data/utils/userUtils';
-import { setUserGroup } from '../data/utils/groupUtils';
+// import { createUser } from '../data/utils/userUtils';
+// import { setUserGroup } from '../data/utils/groupUtils';
 
 
 export function createToken(email) {
@@ -19,13 +19,13 @@ export default function token(app) {
       const name = 'local:token';
 
       if (!username || !password) {
-        res.json({ status: 'no parameters email, password!' });
+        res.json({ status: 'no parameters username, password!' });
         return next();
       }
 
       let status;
       let action;
-      let user = await User.findOne({
+      const user = await User.findOne({
         where: { $or: {
           username, email: username,
         },
@@ -33,21 +33,22 @@ export default function token(app) {
       });
 
       if (!user) {
-        const userCount = await User.count({
-          onDelete: false,
-        });
-        user = await createUser({ username, password });
-        if (userCount === 0) {
-          await setUserGroup(user, await UserGroup.findOne({
-            where: { name: 'root' },
-          }));
-        } else {
-          await setUserGroup(user, await UserGroup.findOne({
-            where: { name: 'user' },
-          }));
-        }
-        action = 'created';
-        status = 'ok';
+        // const userCount = await User.count({
+        //   onDelete: false,
+        // });
+        // user = await createUser({ username, password });
+        // if (userCount === 0) {
+        //   await setUserGroup(user, await UserGroup.findOne({
+        //     where: { name: 'root' },
+        //   }));
+        // } else {
+        //   await setUserGroup(user, await UserGroup.findOne({
+        //     where: { name: 'user' },
+        //   }));
+        // }
+        // action = 'created';
+        action = 'no user';
+        status = 'err';
       } else if (user.dataValues.password !== password) {
         action = 'vaild';
         status = 'err';

@@ -1,4 +1,4 @@
-/* eslint-disable class-methods-use-this */
+/* eslint-disable class-methods-use-this, css-modules/no-unused-class */
 
 import React, { PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
@@ -38,10 +38,11 @@ class LastLine extends Line {
       characterHandler: this.characterHandler.bind(this),
       enterHandler: this.enterHandler.bind(this),
       backspaceHandler: this.backspaceHandler.bind(this),
+      spaceHandler: this.spaceHandler.bind(this),
       leftHandler: this.leftHandler.bind(this),
       rightHandler: this.rightHandler.bind(this),
     }, {
-      deplay: this.updateLimit,
+      delay: this.updateLimit,
     });
 
     // use shouldUpdate limit
@@ -54,6 +55,7 @@ class LastLine extends Line {
     let cursorPosition = appState.get('cursorPosition');
     if (cursorPosition > 1) cursorPosition -= 1;
     appState.update('cursorPosition', cursorPosition);
+    return this;
   }
 
   rightHandler() {
@@ -61,6 +63,7 @@ class LastLine extends Line {
     let cursorPosition = appState.get('cursorPosition');
     if (cursorPosition <= currentCommand.length) cursorPosition += 1;
     appState.update('cursorPosition', cursorPosition);
+    return this;
   }
 
   backspaceHandler() {
@@ -71,27 +74,41 @@ class LastLine extends Line {
     if (cursorPosition > 1) cursorPosition -= 1;
     appState.update('currentCommand', currentCommand);
     appState.update('cursorPosition', cursorPosition);
+    return this;
   }
 
   enterHandler() {
     const currentCommand = appState.get('currentCommand');
     runCommand(currentCommand.join(''));
+    return this;
   }
 
   characterHandler(event) {
+    this.insertCharacter(event.key);
+    return this;
+  }
+
+  spaceHandler() {
+    this.insertCharacter(' ');
+    return this;
+  }
+
+  insertCharacter(Code) {
     const currentCommand = appState.get('currentCommand');
     let cursorPosition = appState.get('cursorPosition');
 
-    currentCommand.splice(cursorPosition - 1, 0, event.key);
+    currentCommand.splice(cursorPosition - 1, 0, Code);
     cursorPosition += 1;
     appState.update('currentCommand', currentCommand);
     appState.update('cursorPosition', cursorPosition);
+    return this;
   }
 
   stateHandler(newState, stateName) {
     this.setState(Object.assign({}, this.state, {
       [stateName]: newState,
     }));
+    return this;
   }
 
   listenState() {

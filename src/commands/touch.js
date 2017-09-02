@@ -33,7 +33,7 @@ function inputChangeHandler(resolve) {
   return (e) => {
     e.preventDefault();
     const files = e.target.files;
-    // if (!window.Worker) throw new Error('doesn\'t support web worker!');
+    if (!window.Worker) throw new Error('doesn\'t support web worker!');
     const { historyCommands } = appState;
     const uploadWorker = new UploadWorker();
     const host = window.location.host;

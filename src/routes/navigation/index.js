@@ -1,8 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom/server';
+// import ReactDOM from 'react-dom/server';
 import fetch from '../../core/fetch';
 import Screen from '../../components/Screen';
-import LinkList from '../../components/LinkList';
+import { LinkList } from '../../components/LinkList';
 import Page from '../../components/Page';
 
 export default {
@@ -21,16 +21,15 @@ export default {
       }
     }`).catch(err => console.error(err)); // eslint-disable-line no-console
     const json = await res.json();
-    const html = ReactDOM.renderToString(<LinkList files={json.data.articleList.articles} />);
+
     return {
       title: 'Navigation',
       chunk: 'navigation',
       component: (
         <Screen cover={false}>
-          <Page
-            title={'Blog'}
-            html={html}
-          />
+          <Page title={'Blog'} html={''}>
+            <LinkList files={json.data.articleList.articles} />
+          </Page>
         </Screen>
       ),
     };
