@@ -32,7 +32,7 @@ class LastLine extends Line {
       cursorPosition: 1,
     };
 
-    this.updateLimit = 0;
+    this.updateLimit = 5;
     this.stateHandler = this.stateHandler.bind(this);
     this.inputHandler = new InputHandler({
       characterHandler: this.characterHandler.bind(this),
