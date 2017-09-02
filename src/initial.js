@@ -1,10 +1,17 @@
 import fs from 'fs';
-import {
-  dataDir, initialFile,
-  email, username, password } from './config';
-import { User, UserGroup,
-  File, ROOTID, FILETYPE } from './data/models';
 import { log } from './core/utils';
+import {
+  dataDir,
+  initialFile,
+  email,
+  username,
+  password,
+} from './config';
+import {
+  User, UserGroup,
+  File, ROOTID,
+  FILETYPE,
+} from './data/models';
 
 
 function initialGroup() {
@@ -24,11 +31,13 @@ function createRootUser() {
   return new Promise(async (resolve, reject) => {
     log('now is initial root user...');
     try {
-      resolve(await User.create({
+      const root = await User.create({
         email,
         username,
         password,
-      }));
+        homePath: `/${username}`,
+      });
+      resolve(root);
     } catch (err) {
       reject(err);
     }
@@ -45,12 +54,21 @@ function createRoot(root) {
     try {
       await File.create({
         id: ROOTID,
-        name: 'root',
+        name: root.username,
         type: FILETYPE.d,
         mode: '755',
         userId: root.id,
         linkTo: 'none',
         path: '/',
+      });
+      await File.create({
+        name: root.username,
+        userId: root.id,
+        parentId: ROOTID,
+        type: FILETYPE.d,
+        mode: '755',
+        linkTo: 'none',
+        path: `/${username}`,
       });
       resolve();
     } catch (err) {
@@ -72,7 +90,8 @@ export default async function () {
     createUploadDataFolder();
     if (!fs.existsSync(initialFile)) {
       await initialGroup();
-      await createRoot(await createRootUser());
+      const root = await createRootUser();
+      await createRoot(root);
       fs.closeSync(fs.openSync(initialFile, 'w'));
     }
   } catch (err) {

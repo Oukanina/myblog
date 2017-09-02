@@ -215,8 +215,9 @@ export function searchFilesByName(name, parentId = ROOTID) {
 export function getUserHomeFolder(user) {
   return new Promise(async (resolve, reject) => {
     try {
+      console.log(user.get('homePath')); // eslint-disable-line
       const homeFolder = await File.findOne({
-        where: { path: `/home/${user.get('username')}` },
+        where: { path: user.get('homePath') },
       });
       if (!homeFolder) throw ERR_CAN_NOT_GET_HOME_FOLDER;
       resolve(homeFolder);

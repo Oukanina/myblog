@@ -50,20 +50,21 @@ passport.use(new BearerStrategy({
     verify(token, config.jwt.secret);
     const users = await getUserByToken(token);
     if (!users.length) return done(null, false);
+    const user = users[0];
 
     const LoginIp = req.headers['x-forwarded-for'] ||
         req.connection.remoteAddress;
-    const activity = await users[0].getActivity({
+    const activities = await user.getActivity({
       where: { last: true },
     });
 
     let lastLoginIp;
     let lastLoginTime;
 
-    if (activity.length) {
-      lastLoginIp = activity[0].get('lastLoginIp');
-      lastLoginTime = activity[0].get('lastLoginTime');
-      await activity[0].update({
+    if (activities.length) {
+      lastLoginIp = activities[0].get('lastLoginIp');
+      lastLoginTime = activities[0].get('lastLoginTime');
+      await activities[0].update({
         last: false,
       });
     } else {
@@ -71,20 +72,20 @@ passport.use(new BearerStrategy({
       lastLoginTime = '233';
     }
 
-    await users[0].createActivity({
+    await user.createActivity({
       lastLoginIp: LoginIp,
       lastLoginTime: new Date(),
     });
 
-    const { email } = users[0].dataValues;
+    // const { email } = user.dataValues;
 
     return done(null, {
-      email,
+      email: user.email,
+      HOME: user.homePath,
+      hostname: machineName || host,
+      username: user.username,
       lastLoginIp,
       lastLoginTime,
-      HOME: `/home/${email}`,
-      hostname: machineName || host,
-      username: email.split('@')[0],
     }, { scope: 'read' });
   } catch (err) {
     if (err.name === 'JsonWebTokenError') return done(null, false);

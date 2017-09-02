@@ -38,28 +38,49 @@ export function createUser({ email, username, password }) {
       });
       if (users.length) throw ERR_EMAIL_ALREADY_EXISTS;
       newUser = await User.create({
-        email, password, username: username || email,
+        email,
+        password,
+        username: username || email.split('@')[0],
       });
-      // create user home folder
-      const homeFolder = await createFolder({
-        name: 'home',
-        parentId: ROOTID,
-        userId: newUser.get('id'),
-        force: false,
-        mode: '755',
-        linkTo: LINKTO.none,
-        createIfNotExist: true,
-      });
-
-      userHome = await createFolder({
-        name: username || email,
-        parentId: homeFolder.get('id'),
-        userId: newUser.get('id'),
-        force: false,
-        mode: '755',
-        linkTo: LINKTO.none,
-        createIfNotExist: true,
-      });
+      if (newUser.get('username') === 'root') {
+        // userHome = await createFolder({
+        //   name: newUser.get('username'),
+        //   userId: newUser.get('id'),
+        //   parentId: ROOTID,
+        //   force: false,
+        //   mode: '755',
+        //   linkTo: LINKTO.none,
+        //   createIfNotExist: true,
+        // });
+        // newUser.homePath = `/${newUser.get('username')}`;
+        // await newUser.save();
+        // await newUser.update({
+        //   homePath: `/${newUser.get('username')}`,
+        // });
+      } else {
+        // create home folder if not exist
+        const homeFolder = await createFolder({
+          name: 'home',
+          parentId: ROOTID,
+          userId: newUser.get('id'),
+          force: false,
+          mode: '755',
+          linkTo: LINKTO.none,
+          createIfNotExist: true,
+        });
+        userHome = await createFolder({
+          name: newUser.get('username'),
+          parentId: homeFolder.get('id'),
+          userId: newUser.get('id'),
+          force: false,
+          mode: '755',
+          linkTo: LINKTO.none,
+          createIfNotExist: true,
+        });
+        await newUser.update({
+          homePath: `/home/${newUser.get('username')}`,
+        });
+      }
       resolve(newUser);
     } catch (err) {
       if (newUser) newUser.destroy();
@@ -181,7 +202,7 @@ export function changePassword({ userId, newPassword }) {
 
 export function getUserByToken(token) {
   return User.findAll({
-    attributes: ['id', 'email', 'profile.displayName'],
+    // attributes: ['id', 'email', ,'profile.displayName'],
     where: {
       '$logins.name$': 'local:token',
       '$logins.key$': token,

@@ -38,6 +38,11 @@ const User = Model.define('User', {
     defaultValue: false,
   },
 
+  homePath: {
+    type: DataType.STRING(255 * 20),
+    defaultValue: false,
+  },
+
   onDelete: {
     type: DataType.BOOLEAN,
     defaultValue: false,
