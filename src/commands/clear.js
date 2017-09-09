@@ -13,7 +13,7 @@ export default {
       try {
         appState.update('historyCommands', []);
         appState.update('currentCommand', []);
-
+        appState.update('showLoginInfo', false);
         // if need create a new line then pass true
         resolve(false);
       } catch (err) {

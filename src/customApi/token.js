@@ -33,20 +33,6 @@ export default function token(app) {
       });
 
       if (!user) {
-        // const userCount = await User.count({
-        //   onDelete: false,
-        // });
-        // user = await createUser({ username, password });
-        // if (userCount === 0) {
-        //   await setUserGroup(user, await UserGroup.findOne({
-        //     where: { name: 'root' },
-        //   }));
-        // } else {
-        //   await setUserGroup(user, await UserGroup.findOne({
-        //     where: { name: 'user' },
-        //   }));
-        // }
-        // action = 'created';
         action = 'no user';
         status = 'err';
       } else if (user.dataValues.password !== password) {

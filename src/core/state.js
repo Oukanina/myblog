@@ -25,6 +25,7 @@ const defaultSatte = {
   lastLoginIp: '...',
   lastLoginTime: '...',
   login: false,
+  showLoginInfo: false,
   hideLastLine: false,
   wheel: null,
   toBottom: null,

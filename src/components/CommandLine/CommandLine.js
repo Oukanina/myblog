@@ -4,7 +4,6 @@ import s from './CommandLine.css';
 import Line from '../Line/Line.js'; // eslint-disable-line import/no-named-as-default
 import LastLine from '../Line/LastLine.js';
 import appState from '../../core/state.js';
-// import { log } from '../../core/utils.js';
 import BaseComponent from '../BaseComponent';
 
 
@@ -18,10 +17,12 @@ class CommandLine extends BaseComponent {
       hideLastLine: false,
       lastLoginTime: '...',
       lastLoginIp: '...',
+      showLoginInfo: false,
     };
-
-    this.internalState = ['historyCommands', 'lastLoginTime',
-      'lastLoginIp', 'hideLastLine'];
+    this.internalState = [];
+    for (const p in this.state) { // eslint-disable-line
+      this.internalState.push(p);
+    }
     this.stateListener = this.stateListener.bind(this);
   }
 
@@ -36,16 +37,18 @@ class CommandLine extends BaseComponent {
   }
 
   renderHeadInfo() {
-    const { lastLoginIp, lastLoginTime } = this.state;
+    const { lastLoginIp, lastLoginTime, showLoginInfo } = this.state;
+    if (!showLoginInfo) return null;
     return (
       <div>
         <Line text={'Welcome to my blog!'} />
         <Line text={'Type help for a list of commands.'} />
         <Line
           text={
-          ('Last login'
-          + ` ${new Date(Date.parse(lastLoginTime) + (8 * 60 * 60 * 1000)).toUTCString()}`
-          + ` from ${lastLoginIp}.`).replace('GMT', 'China Time')}
+            ('Last login'
+              + ` ${new Date(Date.parse(lastLoginTime) + (3600 * 8000)).toUTCString()}`
+              + ` from ${lastLoginIp}.`).replace('GMT', 'China Time')
+            }
         />
         <Line text={' '} />
       </div>

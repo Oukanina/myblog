@@ -201,24 +201,6 @@ class Login extends React.Component {
       if (passwordFocus) {
         this.verificationPassword();
       }
-      // const resp = await token({
-      //   method: 'post',
-      //   headers: {
-      //     Accept: 'application/json',
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     user: username.join(''),
-      //     password: password.join(''),
-      //   }),
-      // });
-      // const json = await resp.json();
-      // if (json.stauts === 'vaild') return; //
-      // if (!json.token) throw ERR_AUTH_ERROR;
-      // Lockr.set('token', json.token || '');
-      // appState.set('login', true);
-      // appState.fetchData();
-      // history.push('/');
     } catch (err) {
       console.error(err); // eslint-disable-line no-console
     }
@@ -280,6 +262,7 @@ class Login extends React.Component {
   verificationPasswordSuccess(json) { // eslint-disable-line
     Lockr.set('token', json.token || '');
     appState.set('login', true);
+    appState.set('showLoginInfo', true);
     appState.fetchData();
     history.push('/');
   }
