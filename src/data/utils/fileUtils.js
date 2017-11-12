@@ -1,8 +1,9 @@
 /* eslint-disable no-restricted-syntax */
 
-import { File, FILETYPE, ROOTID } from '../models';
+import { File, FILETYPE, ROOTID, LINKTO } from '../models';
+import { getUserById } from './userUtils';
 
-// export const ERR_PARENT_NOT_FOUND = new Error(`parent file not found!`);
+export const ERR_PARENT_NOT_FOUND = new Error('parent file not found!');
 export const ERR_FILE_ALREADY_EXIST = new Error('file already exist!');
 export const ERR_FILE_NOT_EXIST = new Error('file not exist!');
 export const ERR_PARENT_SHOULD_BE_A_FOLDER = new Error('parent should be a folder!');
@@ -80,7 +81,7 @@ export function createFile({ id, name, type, parentId, parentFolder, mode,
         if (!force) throw ERR_FILE_ALREADY_EXIST;
         subFiles[0].destroy();
       }
-      const parentaPath = parent.get('path');
+      const parentPath = parent.get('path');
       newFile = await parent.createSubFile(fliterObject({
         id,
         userId,
@@ -88,7 +89,7 @@ export function createFile({ id, name, type, parentId, parentFolder, mode,
         type,
         mode,
         linkTo,
-        path: `${parentaPath === '/' ? '' : parentaPath}/${name}`,
+        path: `${parentPath === '/' ? '' : parentPath}/${name}`,
       }));
       resolve(newFile);
     } catch (err) {
@@ -215,7 +216,6 @@ export function searchFilesByName(name, parentId = ROOTID) {
 export function getUserHomeFolder(user) {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(user.get('homePath')); // eslint-disable-line
       const homeFolder = await File.findOne({
         where: { path: user.get('homePath') },
       });
@@ -232,6 +232,31 @@ export function getFolderByPath(path) {
     try {
       resolve(await File.findOne({
         where: { path },
+      }));
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function mkdir({ name, path, userId }) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let parent;
+      if (path === '~') {
+        const user = await getUserById(userId);
+        parent = await getUserHomeFolder(user);
+      } else {
+        parent = await getFolderByPath(path);
+      }
+      if (!parent) throw ERR_PARENT_NOT_FOUND;
+
+      resolve(await createFolder({
+        name,
+        userId,
+        mode: '755',
+        linkTo: LINKTO.none,
+        parentId: parent.id,
       }));
     } catch (err) {
       reject(err);

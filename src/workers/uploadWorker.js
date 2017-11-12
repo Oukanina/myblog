@@ -34,7 +34,6 @@ function FileSlice(file) {
 function startUpload(ws, file, token, path) {
   return new Promise((resolve, reject) => {
     try {
-      console.log('startUpload') // eslint-disable-line
       const { name, size, type, lastModified } = file;
       ws.onopen = () => { // eslint-disable-line no-param-reassign
         ws.send(JSON.stringify({

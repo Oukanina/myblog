@@ -5,8 +5,11 @@ import {
   GraphQLID as ID,
 } from 'graphql';
 import FileType from '../types/FileType';
-import { findFileById, findFileByPath,
-  ERR_FILE_NOT_EXIST } from '../utils/fileUtils';
+import {
+  findFileById,
+  findFileByPath,
+  ERR_FILE_NOT_EXIST,
+} from '../utils/fileUtils';
 
 
 async function subFile(parent) {

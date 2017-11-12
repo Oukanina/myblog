@@ -49,7 +49,7 @@ passport.use(new BearerStrategy({
   try {
     verify(token, config.jwt.secret);
     const users = await getUserByToken(token);
-    if (!users.length) return done(null, false);
+    if (!users.length) throw new Error('not found user!');
     const user = users[0];
 
     const LoginIp = req.headers['x-forwarded-for'] ||
@@ -77,9 +77,8 @@ passport.use(new BearerStrategy({
       lastLoginTime: new Date(),
     });
 
-    // const { email } = user.dataValues;
-
     return done(null, {
+      id: user.id,
       email: user.email,
       HOME: user.homePath,
       hostname: machineName || host,
@@ -88,10 +87,10 @@ passport.use(new BearerStrategy({
       lastLoginTime,
     }, { scope: 'read' });
   } catch (err) {
+    console.log(err); // eslint-disable-line no-console
     if (err.name === 'JsonWebTokenError') return done(null, false);
     if (err.name === 'TokenExpiredError') return done(null, false);
-    console.log(err); // eslint-disable-line no-console
-    return done(null, err);
+    return done(err);
   }
 },
 

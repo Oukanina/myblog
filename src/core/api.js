@@ -18,44 +18,38 @@ export const ERR_500 = new Error('500');
 export const ERR_NO_TOKEN = new Error('no token!');
 
 function api(url, options = {}, checkToken = true) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const authToken = Lockr.get('token');
-      if (checkToken && !authToken) {
-        history.replace('/login');
-        appState.update('login', false);
-        throw ERR_NO_TOKEN;
-      }
+  return new Promise((resolve, reject) => {
+    const authToken = Lockr.get('token');
+    if (checkToken && !authToken) {
+      history.push('/login');
+      appState.update('login', false);
+      throw ERR_NO_TOKEN;
+    }
 
-      const headers = Object.assign({}, defaultOptions.headers, options.headers, {
-        Authorization: `Bearer ${authToken}`,
-      });
-      const res = await fetch(url, Object.assign({}, defaultOptions, options, {
-        headers,
-      }));
+    const headers = Object.assign({}, defaultOptions.headers, options.headers, {
+      Authorization: `Bearer ${authToken}`,
+    });
 
+    fetch(url, Object.assign({}, defaultOptions, options, {
+      headers,
+    })).then((res) => {
       switch (res.status) {
         case 201:
         case 200:
-          resolve(res);
-          break;
-        case 400:
-          throw ERR_400;
+          return resolve(res);
         case 401:
-          history.replace('/login');
           appState.update('login', false);
-          throw ERR_401;
+          history.push('/login');
+          break;
         case 404:
-          throw ERR_404;
         case 500:
-          history.replace('/500');
-          throw ERR_500;
+          history.push('/500');
+          break;
         default:
           break;
       }
-    } catch (err) {
-      reject(err);
-    }
+      return reject();
+    });
   });
 }
 

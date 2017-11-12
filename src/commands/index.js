@@ -11,6 +11,7 @@ export const myCommands = [
   require('./logout').default,
   require('./navigation').default,
   require('./help').default,
+  require('./mkdir').default,
 ];
 
 export function getLineHead() {
@@ -51,7 +52,11 @@ export default async function (command) {
       hit = myCommands[i].test.test(command);
     }
     if (!hit) continue; // eslint-disable-line no-continue
-    canNewLine = await myCommands[i].action(command); // eslint-disable-line no-await-in-loop
+    try {
+      canNewLine = await myCommands[i].action(command); // eslint-disable-line no-await-in-loop
+    } catch (err) {
+      console.error(err); //eslint-disable-line
+    }
     break;
   }
 

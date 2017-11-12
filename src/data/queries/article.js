@@ -1,7 +1,5 @@
-
 import fs from 'fs';
 import {
-  // GraphQLList as ListType,
   GraphQLNonNull as NonNull,
   GraphQLID as ID,
 } from 'graphql';

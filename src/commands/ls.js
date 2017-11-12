@@ -1,5 +1,6 @@
 import appState from '../core/state';
-import fetch from '../core/fetch';
+// import fetch from '../core/fetch';
+import api from '../core/api';
 import { addCurrentCommandToHistory } from './index';
 
 
@@ -15,7 +16,7 @@ export default {
     return new Promise(async (resolve, reject) => {
       try {
         const home = appState.get('HOME');
-        const res = await fetch(`/graphql?query={
+        const res = await api(`/graphql?query={
           ls(path:"${home}") {
             children {
               id
@@ -38,7 +39,7 @@ export default {
         // if need create a new line then pass true
         resolve(false);
       } catch (err) {
-        reject(true);
+        reject(err);
       }
     });
   },
