@@ -27,11 +27,15 @@ export class Line extends React.Component {
     classNames: PropTypes.string,
     lineHead: PropTypes.string,
     text: PropTypes.string,
+    inline: PropTypes.number,
+    style: PropTypes.object, // eslint-disable-line
   }
 
   print(text, cursorPosition) { // eslint-disable-line class-methods-use-this
+    const { style } = this.props;
+
     return (
-      <div className={s.lineContent}>
+      <div className={s.lineContent} style={style}>
         {
           parserText(text, cursorPosition)
         }
@@ -40,11 +44,19 @@ export class Line extends React.Component {
   }
 
   renderLine(child = '') {
-    const { classNames, lineHead } = this.props;
+    const { classNames, lineHead, inline } = this.props;
     const lineClass = cx(s.line, classNames);
 
     return (
-      <div className={lineClass}>
+      <div
+        className={lineClass}
+        style={inline ? {
+          display: 'inline-block',
+          margin: 0,
+          padding: 0,
+          width: `${Number(100 / inline).toFixed(2)}%`,
+        } : {}}
+      >
         { lineHead ?
           <span className={s.lineHead}>
             { lineHead }

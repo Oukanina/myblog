@@ -21,6 +21,7 @@ export default {
             children {
               id
               name
+              type
             }
           }
         }`).catch((err) => { throw err; });
@@ -31,7 +32,13 @@ export default {
         appState.update('currentCommand', []);
         if (files.length) {
           files.forEach((file) => {
-            historyCommands.push({ text: file.name });
+            historyCommands.push({
+              inline: 4,
+              text: file.name,
+              style: file.type === 'd' ? {
+                color: 'green',
+              } : { },
+            });
           });
           appState.update('historyCommands', historyCommands);
         }
