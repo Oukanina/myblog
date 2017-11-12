@@ -84,7 +84,7 @@
     "lint-staged": "^3.3.0",
     "markdown-it": "^8.2.2",
     "mkdirp": "^0.5.1",
-    "mocha": "^3.2.0",
+    "mocha": "^4.0.1",
     "pixrem": "^3.0.2",
     "pleeease-filters": "^3.0.0",
     "postcss": "^5.2.12",
