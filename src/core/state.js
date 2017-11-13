@@ -120,14 +120,14 @@ class State {
   unListenOne(state, listener) {
     const listeners = this.listenerMap.get(state);
     // if (!listeners) throw new Error(`no listeners on ${state}`);
-    if (!listeners) return log(state);
+    if (!listeners) return;
     for (let i = 0; i < listeners.length; i += 1) {
       if (listeners[i] === listener) {
         listeners.splice(i, 1);
         break;
       }
     }
-    return this.listenerMap.set(state, listeners);
+    this.listenerMap.set(state, listeners);
   }
 
   get(stateName) {
@@ -154,7 +154,7 @@ class State {
   trigger(stateName) {
     const listeners = this.listenerMap.get(stateName);
     if (!listeners) {
-      log(`no listeners on ${stateName}`);
+      // log(`no listeners on ${stateName}`);
       // todo
       return;
     }

@@ -30,10 +30,13 @@ export default {
         const historyCommands = appState.get('historyCommands');
         addCurrentCommandToHistory(true);
         appState.update('currentCommand', []);
+        const columns = Math.floor(window.innerWidth / 150);
+        const inline = columns > 1 ? columns : 1;
+
         if (files.length) {
           files.forEach((file) => {
             historyCommands.push({
-              inline: 4,
+              inline,
               text: file.name,
               style: file.type === 'd' ? {
                 color: 'green',

@@ -44,8 +44,11 @@ export class Line extends React.Component {
   }
 
   renderLine(child = '') {
-    const { classNames, lineHead, inline } = this.props;
+    const { classNames, lineHead, inline, text } = this.props;
     const lineClass = cx(s.line, classNames);
+    const width = Math.max(
+      text.length * 12, Number(100 / inline).toFixed(2),
+    );
 
     return (
       <div
@@ -54,7 +57,10 @@ export class Line extends React.Component {
           display: 'inline-block',
           margin: 0,
           padding: 0,
-          width: `${Number(100 / inline).toFixed(2)}%`,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          width,
         } : {}}
       >
         { lineHead ?
