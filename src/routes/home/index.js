@@ -17,7 +17,7 @@ export default {
 
   async action() {
     return {
-      title: 'guokeke',
+      title: 'Oukanina',
       component: <Screen><Home /></Screen>,
     };
   },
