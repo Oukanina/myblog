@@ -25,7 +25,7 @@ export const KEYMAP = {
   LEFT: 37,
   RIGHT: 39,
   END: 35,
-  HOME: 3,
+  HOME: 36,
 };
 
 export const UPLOAD_STATUS = {

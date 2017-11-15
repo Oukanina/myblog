@@ -14,6 +14,7 @@ const FileType = new ObjectType({
   fields: () => ({
     id: { type: ID },
     name: { type: StringType },
+    path: { type: StringType },
     type: { type: StringType },
     children: { type: new ListType(FileType) },
     error: { type: StringType },

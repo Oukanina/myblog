@@ -9,19 +9,22 @@ export const myCommands = [
   require('./touch').default,
   require('./clear').default,
   require('./logout').default,
-  require('./navigation').default,
+  // require('./navigation').default,
   require('./help').default,
   require('./mkdir').default,
+  require('./cd').default,
 ];
 
 export function getLineHead() {
   const username = appState.get('username');
   const hostname = appState.get('hostname');
   const path = appState.get('path');
-  return `${username}${AT}${hostname}${COLON}${path}${DOLLAR}`;
+  const HOME = appState.get('HOME');
+  const pathString = path === HOME ? '~' : path;
+  return `${username}${AT}${hostname}${COLON}${pathString}${DOLLAR}`;
 }
 
-export function addCurrentCommandToHistory(head) {
+export function addCurrentCommandToHistory(head = true) {
   const historyCommands = appState.get('historyCommands');
   const currentCommand = appState.get('currentCommand');
   historyCommands.push({
@@ -41,6 +44,30 @@ export function createNewLine(head) {
   clearCurrentCommand();
 }
 
+export function getCommandParamters(command) {
+  const inputs = command.match(/-?[\w|/.+|~]+/gm);
+  const options = [];
+  const params = [];
+
+  for (let i = 1; i < inputs.length; i += 1) {
+    if (inputs[i].charAt(0) === '-') {
+      options.push(inputs[i]);
+    } else {
+      params.push(inputs[i]);
+    }
+  }
+
+  return {
+    options, params,
+  };
+}
+
+function recardInput(input) {
+  const history = appState.get('history');
+  history.push(input.split(''));
+  appState.set('history', history);
+}
+
 export default async function (command) {
   let hit = false;
   let canNewLine = true;
@@ -51,7 +78,10 @@ export default async function (command) {
     } else if (is.regexp(myCommands[i].test)) {
       hit = myCommands[i].test.test(command);
     }
-    if (!hit) continue; // eslint-disable-line no-continue
+    if (!hit) {
+      continue; // eslint-disable-line no-continue
+    }
+
     try {
       canNewLine = await myCommands[i].action(command); // eslint-disable-line no-await-in-loop
     } catch (err) {
@@ -63,4 +93,6 @@ export default async function (command) {
   if (!hit || canNewLine) {
     createNewLine(true);
   }
+
+  recardInput(command);
 }

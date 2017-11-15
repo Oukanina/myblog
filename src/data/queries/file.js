@@ -1,4 +1,4 @@
-
+import _path from 'path';
 import {
   GraphQLNonNull as NonNull,
   GraphQLString as String,
@@ -13,9 +13,8 @@ import {
 
 
 async function subFile(parent) {
-  return {
-    children: parent ? await parent.getSubFile() : [],
-  };
+  const children = await parent.getSubFile();
+  return parent ? children : [];
 }
 
 
@@ -31,7 +30,15 @@ export const ls = {
 
   async resolve(_, { path }) { // eslint-disable-line consistent-return
     try {
-      return subFile(await findFileByPath(path));
+      const file = await findFileByPath(_path.resolve(path));
+
+      return {
+        id: file.get('id'),
+        name: file.get('name'),
+        path: file.get('path'),
+        type: file.get('type'),
+        children: subFile(file),
+      };
     } catch (error) {
       console.error(error); // eslint-disable-line no-console
       return {
@@ -53,11 +60,7 @@ const file = {
 
   async resolve(_, { id }) { // eslint-disable-line consistent-return
     try {
-      const theFile = await findFileById(id);
-      return {
-        id: theFile.get('id'),
-        name: theFile.get('name'),
-      };
+      return await findFileById(id);
     } catch (error) {
       console.error(error); // eslint-disable-line no-console
       return {

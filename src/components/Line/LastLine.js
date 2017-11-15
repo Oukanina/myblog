@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this, css-modules/no-unused-class */
 
+import is from 'is_js';
 import React, { PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { Line } from './Line';
@@ -12,8 +13,11 @@ import runCommand from '../../commands';
 import { delayUpdate } from '../../core/utils';
 
 
-const states = ['username', 'hostname', 'path',
-  'cursorPosition', 'currentCommand', 'lastLineHead'];
+const states = [
+  'username', 'hostname', 'path',
+  'HOME', 'cursorPosition', 'currentCommand',
+  'lastLineHead',
+];
 
 class LastLine extends Line {
   static propTypes = {
@@ -28,9 +32,12 @@ class LastLine extends Line {
       username: '...',
       hostname: '...',
       path: TILDE,
+      HOME: TILDE,
       lastLineHead: '',
       cursorPosition: 1,
     };
+
+    this.historyPointer = -1;
 
     this.updateLimit = 0;
     this.stateHandler = this.stateHandler.bind(this);
@@ -41,6 +48,49 @@ class LastLine extends Line {
       spaceHandler: this.spaceHandler.bind(this),
       leftHandler: this.leftHandler.bind(this),
       rightHandler: this.rightHandler.bind(this),
+      endHandler: () => {
+        appState.update(
+          'cursorPosition',
+          appState.get('currentCommand').length + 1,
+        );
+      },
+      homeHandler: () => {
+        appState.update('cursorPosition', 1);
+      },
+      upHandler: () => {
+        const history = appState.get('history');
+        if (this.historyPointer === -1) {
+          this.historyPointer = history.length - 1;
+        } else {
+          this.historyPointer -= 1;
+        }
+        if (history.length && history[this.historyPointer]) {
+          appState.update('currentCommand', history[this.historyPointer]);
+          appState.update(
+            'cursorPosition',
+            appState.get('currentCommand').length + 1,
+          );
+        } else {
+          appState.update('currentCommand', []);
+        }
+      },
+      downHandler: () => {
+        const history = appState.get('history');
+        if (this.historyPointer < history.length - 1) {
+          this.historyPointer += 1;
+        } else {
+          this.historyPointer = -1;
+        }
+        if (history.length && history[this.historyPointer]) {
+          appState.update('currentCommand', history[this.historyPointer]);
+          appState.update(
+            'cursorPosition',
+            appState.get('currentCommand').length + 1,
+          );
+        } else {
+          appState.update('currentCommand', []);
+        }
+      },
     }, {
       delay: this.updateLimit,
     });
@@ -79,7 +129,11 @@ class LastLine extends Line {
 
   enterHandler() {
     const currentCommand = appState.get('currentCommand');
-    runCommand(currentCommand.join(''));
+    if (is.array(currentCommand)) {
+      runCommand(currentCommand.join(''));
+    } else if (is.string(currentCommand)) {
+      runCommand(currentCommand);
+    }
     return this;
   }
 
@@ -142,15 +196,22 @@ class LastLine extends Line {
 
   render() {
     const { hide } = this.props;
-    const { lastLineHead, currentCommand,
-      hostname, username, path, cursorPosition } = this.state;
+    const {
+      lastLineHead, currentCommand, HOME,
+      hostname, username, path, cursorPosition,
+    } = this.state;
+
+    const pathString = path === HOME ? '~' : path;
 
     return this.renderLine(
       <span>
         {
           hide ? null :
           <div className={s.lineHead}>
-            { lastLineHead || `${username}${AT}${hostname}${COLON}${path}${DOLLAR}` }
+            {
+              lastLineHead ||
+              `${username}${AT}${hostname}${COLON}${pathString}${DOLLAR}`
+            }
           </div>
         }
         <InputLine text={currentCommand.join('')} cursorPosition={cursorPosition} />

@@ -2,14 +2,13 @@ import React from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './ScrollBar.css';
 import appState from '../../core/state';
-import { on, off, delayUpdate, log } from '../../core/utils';
+import { on, off, delayUpdate } from '../../core/utils';
 import ScrollbarHandler from '../../handlers/ScrollbarHandler';
 
 const state = ['scrollBar', 'toBottom', 'wheel'];
 
 function shouldShowScrollbar() {
   const { containerElement, screenElement } = appState;
-  log(appState);
   return containerElement.offsetHeight > screenElement.offsetHeight;
 }
 

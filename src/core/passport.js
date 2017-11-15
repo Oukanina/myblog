@@ -18,30 +18,6 @@ import { verify } from 'jsonwebtoken';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import { auth as config, host, machineName } from '../config.js';
 import { getUserByToken } from '../data/utils/userUtils.js';
-// import { Strategy as FacebookStrategy } from 'passport-facebook';
-// import { User, UserLogin, UserProfile } from '../data/models';
-
-// export function getUsersByToken(token) {
-//   const name = 'local:token';
-//   return User.findAll({
-//     attributes: ['id', 'email', 'profile.displayName'],
-//     where: {
-//       '$logins.name$': name,
-//       '$logins.key$': token,
-//       onDelete: false,
-//     },
-//     include: [{
-//       attributes: ['name', 'key'],
-//       model: UserLogin,
-//       as: 'logins',
-//       required: true,
-//     }, {
-//       attributes: ['displayName'],
-//       model: UserProfile,
-//       as: 'profile',
-//     }],
-//   });
-// }
 
 passport.use(new BearerStrategy({
   passReqToCallback: true,
@@ -49,7 +25,9 @@ passport.use(new BearerStrategy({
   try {
     verify(token, config.jwt.secret);
     const users = await getUserByToken(token);
-    if (!users.length) throw new Error('not found user!');
+    if (!users.length) {
+      return done(null, false);
+    }
     const user = users[0];
 
     const LoginIp = req.headers['x-forwarded-for'] ||
@@ -68,8 +46,8 @@ passport.use(new BearerStrategy({
         last: false,
       });
     } else {
-      lastLoginIp = '233';
-      lastLoginTime = '233';
+      lastLoginIp = '';
+      lastLoginTime = '';
     }
 
     await user.createActivity({
@@ -81,13 +59,15 @@ passport.use(new BearerStrategy({
       id: user.id,
       email: user.email,
       HOME: user.homePath,
+      home: user.homePath,
+      path: user.homePath,
       hostname: machineName || host,
       username: user.username,
       lastLoginIp,
       lastLoginTime,
     }, { scope: 'read' });
   } catch (err) {
-    console.log(err); // eslint-disable-line no-console
+    console.log(err.name); // eslint-disable-line no-console
     if (err.name === 'JsonWebTokenError') return done(null, false);
     if (err.name === 'TokenExpiredError') return done(null, false);
     return done(err);

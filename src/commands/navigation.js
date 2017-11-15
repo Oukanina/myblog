@@ -6,7 +6,7 @@ export default {
 
   help: 'navigation articles',
 
-  test: /^\s*navigation\s*$/,
+  test: /^\s*nav.*$/,
 
   action() {
     return new Promise((resolve, reject) => {

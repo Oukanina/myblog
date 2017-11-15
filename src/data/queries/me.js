@@ -14,6 +14,7 @@ const me = {
   resolve({ request }) {
     return request.user && {
       id: request.user.id,
+      username: request.user.username,
       email: request.user.email,
     };
   },

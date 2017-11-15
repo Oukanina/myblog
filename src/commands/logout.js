@@ -6,17 +6,19 @@ export default {
 
   name: 'logout',
 
-  help: '',
+  help: 'Logout',
 
-  test: /^\s*logout\s*$/,
+  test: /^\s*logout|exit\s*$/,
 
   action() {
     return new Promise((resolve, reject) => {
       try {
         const container = appState.get('containerElement');
+
         Lockr.set('token', null);
         history.push('/login');
         container.style.top = 0;
+
         appState.update('currentCommand', []);
         appState.update('login', false);
         appState.trigger('wheel');

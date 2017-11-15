@@ -15,7 +15,8 @@ function prepareCommandLine() {
     text: currentCommand.join(''),
   });
   historyCommands.push({
-    text: 'Choice a file:',
+    text: 'choose file...',
+    style: { color: 'yellow' },
   });
 
   // appState.update('hideLastLine', true);
@@ -86,11 +87,11 @@ function openFileSelectWindow(resolve) {
 
 export default {
 
-  help: 'upload a file',
+  help: 'Upload a file',
 
-  name: 'touch',
+  name: 'upload',
 
-  test: /^\s*touch\s*$/,
+  test: /^\s*touch|upload.*$/,
 
   action() {
     return new Promise(async (resolve, reject) => {

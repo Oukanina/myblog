@@ -227,16 +227,20 @@ export function getUserHomeFolder(user) {
   });
 }
 
-export function getFolderByPath(path) {
+export function getFileByPath(path, type) {
   return new Promise(async (resolve, reject) => {
     try {
       resolve(await File.findOne({
-        where: { path },
+        where: { path, type },
       }));
     } catch (err) {
       reject(err);
     }
   });
+}
+
+export function getFolderByPath(path) {
+  return getFileByPath(path, FILETYPE.d);
 }
 
 export function mkdir({ name, path, userId }) {

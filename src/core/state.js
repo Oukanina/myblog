@@ -15,9 +15,8 @@ function pam(map) {
 const defaultSatte = {
   historyCommands: [],
   currentCommand: [],
+  history: [],
   files: [],
-  // screenElement: {},
-  // containerElement: {},
   path: '~',
   HOME: '~',
   username: '...',

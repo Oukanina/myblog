@@ -17,6 +17,7 @@ export default {
         const inputs = command.match(/-?\w+/gm);
         const options = [];
         const params = [];
+
         for (let i = 1; i < inputs.length; i += 1) {
           if (inputs[i].charAt(0) === '-') {
             // option
@@ -30,6 +31,7 @@ export default {
         const path = appState.get('path');
         const name = params[0];
         const headers = new Headers();
+
         headers.append('Content-Type', 'application/json');
         await api('/graphql', {
           method: 'post',

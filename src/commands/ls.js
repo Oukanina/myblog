@@ -15,9 +15,9 @@ export default {
   action() {
     return new Promise(async (resolve, reject) => {
       try {
-        const home = appState.get('HOME');
+        const path = appState.get('path');
         const res = await api(`/graphql?query={
-          ls(path:"${home}") {
+          ls(path:"${path}") {
             children {
               id
               name
