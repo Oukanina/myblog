@@ -4,16 +4,19 @@ import is from 'is_js';
 import appState from '../core/state';
 import { AT, COLON, DOLLAR } from '../constants';
 
-export const myCommands = [
-  require('./ls').default,
-  require('./touch').default,
-  require('./clear').default,
-  require('./logout').default,
-  // require('./navigation').default,
-  require('./help').default,
-  require('./mkdir').default,
-  require('./cd').default,
+const commandsPath = [
+  'ls',
+  'touch',
+  'clear',
+  'logout',
+  'help',
+  'mkdir',
+  'cd',
+  'rm',
 ];
+
+export const myCommands = commandsPath
+  .map(c => require(`./${c}`).default); // eslint-disable-line
 
 export function getLineHead() {
   const username = appState.get('username');
@@ -45,7 +48,7 @@ export function createNewLine(head) {
 }
 
 export function getCommandParamters(command) {
-  const inputs = command.match(/-?[\w|/.+|~]+/gm);
+  const inputs = command.match(/-?[\w|/.+|~|*|@|#|$|%|+|-|_|)|()]+/gm);
   const options = [];
   const params = [];
 
