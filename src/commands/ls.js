@@ -1,7 +1,7 @@
+import _path from 'path';
 import appState from '../core/state';
-// import fetch from '../core/fetch';
 import api from '../core/api';
-import { addCurrentCommandToHistory } from './index';
+import { addCurrentCommandToHistory, getCommandParamters } from './index';
 
 
 export default {
@@ -10,12 +10,15 @@ export default {
 
   help: '',
 
-  test: /^\s*ls\s*$/,
+  test: /^\s*ls.*$/,
 
-  action() {
+  action(command) {
     return new Promise(async (resolve, reject) => {
       try {
-        const path = appState.get('path');
+        const { params } = getCommandParamters(command);
+        const path = _path.resolve(
+          params.join('') || appState.get('path'),
+        );
         const res = await api(`/graphql?query={
           ls(path:"${path}") {
             children {
