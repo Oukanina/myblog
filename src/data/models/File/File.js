@@ -48,12 +48,6 @@ const File = Model.define('File', {
     defaultValue: DataType.NOW,
   },
 
-  // underRoot: {
-  //   type: DataType.BOOLEAN,
-  //   defaultValue: false,
-  //   allowNull: false,
-  // },
-
   path: {
     type: DataType.STRING(255 * 25),
     allowNull: false,

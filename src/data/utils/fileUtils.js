@@ -267,3 +267,26 @@ export function mkdir({ name, path, userId }) {
     }
   });
 }
+
+export function rm(path, rmChildren = false) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const file = await findFileByPath(path);
+
+      if (!file) {
+        throw ERR_FILE_NOT_EXIST;
+      } else {
+        if (rmChildren) {
+          await File.destroy({
+            where: { parentId: file.get('id') },
+          });
+        } else {
+          await file.destroy();
+        }
+        resolve(file);
+      }
+    } catch (err) {
+      reject(err);
+    }
+  });
+}

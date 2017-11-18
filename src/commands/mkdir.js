@@ -30,12 +30,12 @@ export default {
 
         const path = appState.get('path');
         const name = params[0];
-        const headers = new Headers();
 
-        headers.append('Content-Type', 'application/json');
         await api('/graphql', {
           method: 'post',
-          headers,
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
             query: `
               mutation{
