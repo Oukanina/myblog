@@ -5,6 +5,7 @@ import cx from 'classnames';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './style.css';
 import { SPACE } from '../../constants';
+import BaseComponent from '../BaseComponent';
 
 /* eslint-disable */
 export function splitText(val, idx, className) {
@@ -22,7 +23,7 @@ export function parserText(text, cursorPosition) {
   return output;
 }
 
-export class Line extends React.Component {
+export class Line extends BaseComponent {
   static propTypes = {
     classNames: PropTypes.string,
     lineHead: PropTypes.string,
@@ -44,23 +45,19 @@ export class Line extends React.Component {
   }
 
   renderLine(child = '') {
-    const { classNames, lineHead, inline, text } = this.props;
+    const { classNames, lineHead, inline } = this.props;
     const lineClass = cx(s.line, classNames);
-    const width = Math.max(
-      text.length * 12, Number(100 / inline).toFixed(2),
-    );
 
     return (
       <div
         className={lineClass}
         style={inline ? {
           display: 'inline-block',
-          margin: 0,
+          marginRight: '50px',
           padding: 0,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
-          width,
         } : {}}
       >
         { lineHead ?

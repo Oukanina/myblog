@@ -28,8 +28,8 @@ const defaultSatte = {
   hideLastLine: false,
   wheel: null,
   toBottom: null,
-  lastLineHead: null,
   cursorPosition: 1,
+  lastLineHead: '',
   isFetchData: '',
 };
 

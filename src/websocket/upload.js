@@ -12,13 +12,13 @@ import { FILETYPE, LINKTO } from '../data/models';
 import { getUserByToken } from '../data/utils/userUtils.js';
 import { getUserHomeFolder, getFolderByPath, createFile } from '../data/utils/fileUtils.js';
 
-const ALLOW_FILE_TYPE = ['image/jpeg', 'image/png', 'text/markdown'];
+const ALLOW_FILE_TYPE = ['image/jpeg', 'image/png', 'text/markdown', 'audio/mp3', 'audio/mpeg'];
 const MAX_FILE_SIZE = (1 << 20) * 10; // eslint-disable-line
 const FILE_SAVE_ERROR = new MyError('FileSaveError', 'File save error!');
 const FILE_SIZEE_RROR = new MyError('FileSizeError',
   `File size too large! max file size is ${MAX_FILE_SIZE/(1 << 20)}mb`);  // eslint-disable-line
 const FILE_TYPE_ERROR = new MyError('FileTypeError',
-`Unsuport file type! you can just upload: ${ALLOW_FILE_TYPE.join(',')}`);
+`Your can't upload {0} file! you can just upload: ${ALLOW_FILE_TYPE.join(',')}`);
 const NO_TOKEN_ERROR = new MyError('NoTokenError', 'Permission denied!');
 const NO_FILEE_RROR = new MyError('NoFileError', 'Permission denied!');
 
@@ -107,7 +107,10 @@ function openUpload(app, ws, { file, path, token }) {
 
 function verifyFile({ type, size }) {
   if (size > MAX_FILE_SIZE) throw FILE_SIZEE_RROR;
-  if (!ALLOW_FILE_TYPE.includes(type)) throw FILE_TYPE_ERROR;
+  if (!ALLOW_FILE_TYPE.includes(type)) {
+    FILE_TYPE_ERROR.message = FILE_TYPE_ERROR.message.replace('{0}', type);
+    throw FILE_TYPE_ERROR;
+  }
 }
 
 function verifyFailed(err, ws) {

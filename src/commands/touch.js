@@ -4,7 +4,7 @@
 import Lockr from 'lockr';
 import UploadWorker from 'worker-loader!../workers/uploadWorker';
 import appState from '../core/state';
-import { getLineHead, createNewLine } from './index';
+import { getLineHead } from './index';
 import { on } from '../core/utils';
 
 function prepareCommandLine() {
@@ -19,7 +19,6 @@ function prepareCommandLine() {
     style: { color: 'yellow' },
   });
 
-  // appState.update('hideLastLine', true);
   appState.update('currentCommand', []);
   appState.trigger('historyCommands');
   appState.update('cursorPosition', 1);
@@ -34,7 +33,15 @@ function inputChangeHandler(resolve) {
   return (e) => {
     e.preventDefault();
     const files = e.target.files;
-    if (!window.Worker) throw new Error('doesn\'t support web worker!');
+
+    if (!window.Worker) {
+      console.error('doesn\'t support web worker!'); // eslint-disable-line
+      resolve(false);
+    }
+    if (files.length < 1) {
+      resolve(false);
+    }
+
     const { historyCommands } = appState;
     const uploadWorker = new UploadWorker();
     const host = window.location.host;
@@ -64,12 +71,15 @@ function inputChangeHandler(resolve) {
         resolve(false);
         return;
       }
+
+      historyCommands[historyCommands.length - 1] = {
+        text: `${message.name} ==> ${message.progress}%`,
+        style: { color: 'green' },
+      };
+      appState.update(history);
+
       if (message.status === 'finish') {
-        createNewLine();
         doUpload(files[i++]);
-      } else {
-        appState.update('currentCommand',
-          [`Uploading: ${message.name} => ${message.progress}%`]);
       }
     };
     doUpload(files[i++]);
