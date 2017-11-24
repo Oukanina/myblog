@@ -10,9 +10,19 @@ import { TILDE } from '../constants';
 import { MyError } from '../core/utils.js';
 import { FILETYPE, LINKTO } from '../data/models';
 import { getUserByToken } from '../data/utils/userUtils.js';
-import { getUserHomeFolder, getFolderByPath, createFile } from '../data/utils/fileUtils.js';
+import {
+  getUserHomeFolder,
+  getFolderByPath,
+  createFile,
+} from '../data/utils/fileUtils.js';
 
-const ALLOW_FILE_TYPE = ['image/jpeg', 'image/png', 'text/markdown', 'audio/mp3', 'audio/mpeg'];
+const ALLOW_FILE_TYPE = [
+  'image/jpeg',
+  'image/png',
+  'text/markdown',
+  'audio/mp3',
+  'audio/mpeg',
+];
 const MAX_FILE_SIZE = (1 << 20) * 10; // eslint-disable-line
 const FILE_SAVE_ERROR = new MyError('FileSaveError', 'File save error!');
 const FILE_SIZEE_RROR = new MyError('FileSizeError',
