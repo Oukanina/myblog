@@ -55,6 +55,7 @@ export class Line extends BaseComponent {
           display: 'inline-block',
           marginRight: '50px',
           padding: 0,
+          width: 'auto',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
