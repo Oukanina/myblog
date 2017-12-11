@@ -75,7 +75,7 @@ function recardInput(input) {
   appState.set('history', history);
 }
 
-export default async function (command) {
+export default async function (command, cb) {
   let hit = false;
   let canNewLine = true;
 
@@ -102,4 +102,8 @@ export default async function (command) {
   }
 
   recardInput(command);
+
+  if (cb && cb instanceof Function) {
+    cb();
+  }
 }

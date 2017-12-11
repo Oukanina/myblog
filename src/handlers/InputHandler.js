@@ -123,17 +123,12 @@ export default class InputHandler {
         this.specialKeyHandler(event.keyCode);
       }
     };
-    // return debounce((event) => {
-    //   if (this.state.pause) return;
-    //   this.event = event;
-    //   if (!this.stopCharacterHandler) this.characterHandler(event.key);
-    //   if (!this.stopSpecialKeyHandler) this.specialKeyHandler(event.keyCode);
-    // }, {
-    //   prefunc: (event) => {
-    //     event.preventDefault();
-    //   },
-    //   timespan: this.deplay,
-    // });
+  }
+
+  setValue(value = '') {
+    if (this.$input) {
+      this.$input.value = value;
+    }
   }
 
   characterHandler(key) {
@@ -149,9 +144,11 @@ export default class InputHandler {
         this.runHandler('tabHandler');
         break;
       case KEYMAP.UP:
+        this.event.preventDefault();
         this.runHandler('upHandler');
         break;
       case KEYMAP.DOWN:
+        this.event.preventDefault();
         this.runHandler('downHandler');
         break;
       case KEYMAP.LEFT:
@@ -165,15 +162,10 @@ export default class InputHandler {
         break;
       case KEYMAP.ENTER:
         this.runHandler('enterHandler');
-        this.$input.value = '';
         break;
       case KEYMAP.ESC:
         this.runHandler('escHandler');
         break;
-      // case KEYMAP.SPACE:
-        // this.
-        // this.runHandler('spaceHandler');
-        // break;
       case KEYMAP.ALT:
         this.runHandler('altHandler');
         break;

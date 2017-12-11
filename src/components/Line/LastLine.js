@@ -18,6 +18,21 @@ const states = [
   'HOME', 'cursorPosition', 'currentCommand',
   'lastLineHead',
 ];
+// https://stackoverflow.com/questions/512528/set-keyboard-caret-position-in-html-textbox
+function setCaretPosition(elem, caretPos) {
+  if (elem !== null) {
+    if (elem.createTextRange) {
+      const range = elem.createTextRange();
+      range.move('character', caretPos);
+      range.select();
+    } else if (elem.selectionStart) {
+      elem.focus();
+      elem.setSelectionRange(caretPos, caretPos);
+    } else {
+      elem.focus();
+    }
+  }
+}
 
 class LastLine extends Line {
   static propTypes = {
@@ -40,12 +55,12 @@ class LastLine extends Line {
     this.historyPointer = -1;
 
     this.updateLimit = 5;
+    this.commandCallback = this.commandCallback.bind(this);
     this.stateHandler = this.stateHandler.bind(this);
     this.inputHandler = new InputHandler({
       characterHandler: this.insertCharacter.bind(this),
       enterHandler: this.enterHandler.bind(this),
       backspaceHandler: this.backspaceHandler.bind(this),
-      // spaceHandler: this.spaceHandler.bind(this),
       leftHandler: this.leftHandler.bind(this),
       rightHandler: this.rightHandler.bind(this),
       endHandler: () => {
@@ -73,6 +88,7 @@ class LastLine extends Line {
         } else {
           appState.update('currentCommand', []);
         }
+        this.syncInputValueAfterUpDown();
       },
       downHandler: () => {
         const history = appState.get('history');
@@ -90,6 +106,7 @@ class LastLine extends Line {
         } else {
           appState.update('currentCommand', []);
         }
+        this.syncInputValueAfterUpDown();
       },
     }, {
       delay: this.updateLimit,
@@ -130,11 +147,25 @@ class LastLine extends Line {
   enterHandler() {
     const currentCommand = appState.get('currentCommand');
     if (is.array(currentCommand)) {
-      runCommand(currentCommand.join(''));
+      runCommand(currentCommand.join(''), this.commandCallback);
     } else if (is.string(currentCommand)) {
-      runCommand(currentCommand);
+      runCommand(currentCommand, this.commandCallback);
     }
     return this;
+  }
+
+  commandCallback() {
+    this.inputHandler.setValue('');
+  }
+
+  syncInputValueAfterUpDown() {
+    this.inputHandler.setValue(
+      appState.get('currentCommand').join(''),
+    );
+    setCaretPosition(
+      this.inputHandler.$input,
+      appState.get('currentCommand').length,
+    );
   }
 
   insertCharacter(userInputs = '') {
