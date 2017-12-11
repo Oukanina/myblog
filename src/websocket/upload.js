@@ -1,6 +1,4 @@
-
 /* eslint-disable no-underscore-dangle, no-mixed-operators */
-
 
 import fs from 'fs';
 import { verify } from 'jsonwebtoken';

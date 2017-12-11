@@ -1,5 +1,5 @@
 import is from 'is_js';
-import { debounce, on, off, log } from '../core/utils';
+import { on, off, log } from '../core/utils';
 import { CHARACTERREX, KEYMAP } from '../constants';
 
 export function isCharacter(key) {
@@ -28,9 +28,40 @@ export default class InputHandler {
     this.delay = options.delay;
     this.stopCharacterHandler = false;
     this.stopSpecialKeyHandler = false;
-
+    this.$input = null;
     this.keyDownHandler = this.keyDownHandler.bind(this);
+
+    this.createInputElement();
     this.initialHandlers(handlers);
+  }
+
+  createInputElement() {
+    if (this.$input) return this;
+
+    this.$input = document.createElement('input');
+    this.$input.style.position = 'fixed';
+    if (__DEV__) {
+      this.$input.style.bottom = '50px';
+      this.$input.style.width = '250px';
+      this.$input.style.left = '50%';
+      this.$input.style.marginLeft = '-125px';
+      this.$input.style.zIndex = '999999';
+    } else {
+      this.$input.style.bottom = '-50px';
+    }
+
+    document.body.append(this.$input);
+    this.$input.focus();
+
+    document.addEventListener('click', () => {
+      this.$input.focus();
+    }, false);
+
+    window.addEventListener('focus', () => {
+      this.$input.focus();
+    }, false);
+
+    return this;
   }
 
   initialHandlers(handlers) {
@@ -80,17 +111,29 @@ export default class InputHandler {
   }
 
   keyDownHandler() {
-    return debounce((event) => {
+    return () => {
       if (this.state.pause) return;
       this.event = event;
-      if (!this.stopCharacterHandler) this.characterHandler(event.key);
-      if (!this.stopSpecialKeyHandler) this.specialKeyHandler(event.keyCode);
-    }, {
-      prefunc: (event) => {
-        event.preventDefault();
-      },
-      timespan: this.deplay,
-    });
+      if (!this.stopCharacterHandler) {
+        setTimeout(() => {
+          this.handlers.characterHandler(this.$input.value);
+        }, 0);
+      }
+      if (!this.stopSpecialKeyHandler) {
+        this.specialKeyHandler(event.keyCode);
+      }
+    };
+    // return debounce((event) => {
+    //   if (this.state.pause) return;
+    //   this.event = event;
+    //   if (!this.stopCharacterHandler) this.characterHandler(event.key);
+    //   if (!this.stopSpecialKeyHandler) this.specialKeyHandler(event.keyCode);
+    // }, {
+    //   prefunc: (event) => {
+    //     event.preventDefault();
+    //   },
+    //   timespan: this.deplay,
+    // });
   }
 
   characterHandler(key) {
@@ -122,13 +165,15 @@ export default class InputHandler {
         break;
       case KEYMAP.ENTER:
         this.runHandler('enterHandler');
+        this.$input.value = '';
         break;
       case KEYMAP.ESC:
         this.runHandler('escHandler');
         break;
-      case KEYMAP.SPACE:
-        this.runHandler('spaceHandler');
-        break;
+      // case KEYMAP.SPACE:
+        // this.
+        // this.runHandler('spaceHandler');
+        // break;
       case KEYMAP.ALT:
         this.runHandler('altHandler');
         break;

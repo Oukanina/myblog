@@ -8,7 +8,7 @@ export const TILDE = '~';
 export const COLON = ':';
 export const DOLLAR = '$';
 
-export const CHARACTERREX = /^[0-9|a-zA-Z|%|\^|\&|\*|(|)|\!|#|\$|,|\.|\?|@|<|>|"|'|;|:|\{|\}|\[|\]|\||\\|~|`|\/|+|\-|=|_]$/;
+export const CHARACTERREX = /^[0-9|a-zA-Z|%|\^|\&|\*|(|)|\!|#|\$|,|\.|\?|@|<|>|"|'|;|:|\{|\}|\[|\]|\||\\|~|`|\/|+|\-|=|_|\s]$/;
 export const SPECIALKEY = /Backspace|ArrowUp|ArrowDown|ArrowLeft|ArrowRight|Shift|Control|Alt|Escape|Meta|CapsLock|Tab|/;
 
 export const KEYMAP = {

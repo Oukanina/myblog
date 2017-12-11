@@ -39,13 +39,13 @@ class LastLine extends Line {
 
     this.historyPointer = -1;
 
-    this.updateLimit = 0;
+    this.updateLimit = 5;
     this.stateHandler = this.stateHandler.bind(this);
     this.inputHandler = new InputHandler({
-      characterHandler: this.characterHandler.bind(this),
+      characterHandler: this.insertCharacter.bind(this),
       enterHandler: this.enterHandler.bind(this),
       backspaceHandler: this.backspaceHandler.bind(this),
-      spaceHandler: this.spaceHandler.bind(this),
+      // spaceHandler: this.spaceHandler.bind(this),
       leftHandler: this.leftHandler.bind(this),
       rightHandler: this.rightHandler.bind(this),
       endHandler: () => {
@@ -137,23 +137,13 @@ class LastLine extends Line {
     return this;
   }
 
-  characterHandler(event) {
-    this.insertCharacter(event.key);
-    return this;
-  }
-
-  spaceHandler() {
-    this.insertCharacter(' ');
-    return this;
-  }
-
-  insertCharacter(Code) {
+  insertCharacter(userInputs = '') {
+    const inputs = userInputs.split('');
     const currentCommand = appState.get('currentCommand');
     let cursorPosition = appState.get('cursorPosition');
+    cursorPosition += (inputs.length - currentCommand.length);
 
-    currentCommand.splice(cursorPosition - 1, 0, Code);
-    cursorPosition += 1;
-    appState.update('currentCommand', currentCommand);
+    appState.update('currentCommand', inputs);
     appState.update('cursorPosition', cursorPosition);
     return this;
   }
