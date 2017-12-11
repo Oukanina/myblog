@@ -44,7 +44,8 @@ function closeUpload(app, path) {
 function saveFile({ file, path, token }) {
   return new Promise(async (resolve, reject) => {
     try {
-      const name = file.name;
+      // change all spaces to -
+      const name = file.name.replace(/\s/g, '-');
       let user = await getUserByToken(token);
       if (!user.length) throw FILE_SAVE_ERROR;
       user = user[0];

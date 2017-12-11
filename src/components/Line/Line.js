@@ -54,7 +54,7 @@ export class Line extends BaseComponent {
         style={inline ? {
           display: 'inline-block',
           marginRight: '50px',
-          padding: 0,
+          // padding: 0,
           width: 'auto',
           overflow: 'hidden',
           textOverflow: 'ellipsis',

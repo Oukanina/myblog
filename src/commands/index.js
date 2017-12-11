@@ -48,16 +48,20 @@ export function createNewLine(head) {
 }
 
 export function getCommandParamters(command) {
-  const inputs = command.match(/-?[\w|/.+|~|*|@|#|$|%|+|-|_|)|()]+/gm);
+  const inputs = command.split(' ');
+  const tmp = inputs.slice(1, inputs.length); // eslint-disable-line
   const options = [];
   const params = [];
+  let fragment = tmp.pop();
 
-  for (let i = 1; i < inputs.length; i += 1) {
-    if (inputs[i].charAt(0) === '-') {
-      options.push(inputs[i]);
+  while (fragment) {
+    if (fragment.charAt(0) === '-') {
+      options.unshift(fragment);
     } else {
-      params.push(inputs[i]);
+      params.unshift(fragment);
     }
+
+    fragment = tmp.pop();
   }
 
   return {
