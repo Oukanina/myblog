@@ -17,7 +17,8 @@ export default {
       try {
         const { params } = getCommandParamters(command);
         const path = _path.resolve(
-          appState.get('path'), params[0],
+          appState.get('path') || '',
+          params[0] || '',
         );
         const res = await api(`/graphql?query={
           ls(path:"${path}") {
