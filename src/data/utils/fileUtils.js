@@ -276,12 +276,24 @@ export function rm(path, rmChildren = false) {
       if (!file) {
         throw ERR_FILE_NOT_EXIST;
       } else {
-        if (rmChildren) {
+        if (file.type === FILETYPE.d && rmChildren) {
           await File.destroy({
-            where: { parentId: file.get('id') },
+            where: {
+              $or: {
+                parentId: file.get('id'),
+                id: file.get('id'),
+              },
+            },
           });
-        } else {
+        } else if (file.type === FILETYPE.f) {
           await file.destroy();
+        } else {
+          reject(new Error(
+            `can not remove ${
+              file.type === FILETYPE.d
+              ? 'directory' : 'file'
+            } ${file.name} without -r`),
+          );
         }
         resolve(file);
       }

@@ -14,8 +14,12 @@ export default {
       name: 'path',
       type: new NonNull(String),
     },
+    options: {
+      name: 'options',
+      type: String,
+    },
   },
-  async resolve(_, { path }) {
+  async resolve(_, { path, options = '' }) {
     try {
       let filePath = path;
 
@@ -25,12 +29,7 @@ export default {
       if (path.indexOf('~') > -1) {
         filePath = path.replace('~', _.request.user.HOME);
       }
-      // if (/^\//.test(filePath)) {
-      //
-      // } else if (/^\.\//.test(filePath)) {
-      //   filePath = _path.resolve(_.request.user.path, filePath);
-      // } else {
-      // }
+
       filePath = _path.resolve(filePath);
 
       if (
@@ -44,10 +43,9 @@ export default {
 
       if (/\*$/.test(filePath)) {
         filePath = _path.resolve(filePath.replace('*', ''));
-        return await rm(filePath, true);
-      } else { // eslint-disable-line
-        return await rm(filePath);
       }
+
+      return await rm(filePath, options.includes('-r'));
     } catch (error) {
       console.error(error); // eslint-disable-line
       return {

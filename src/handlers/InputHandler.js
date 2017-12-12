@@ -38,17 +38,35 @@ export default class InputHandler {
   createInputElement() {
     if (this.$input) return this;
 
+    let style = { };
+
     this.$input = document.createElement('input');
     this.$input.style.position = 'fixed';
+
     if (__DEV__) {
-      this.$input.style.bottom = '50px';
-      this.$input.style.width = '250px';
-      this.$input.style.left = '50%';
-      this.$input.style.marginLeft = '-125px';
-      this.$input.style.zIndex = '999999';
+      style = {
+        position: 'fixed',
+        bottom: '1px',
+        width: '100%',
+        left: '1px',
+        zIndex: '999999',
+        color: '#fff',
+        background: '#232323',
+        border: 'none',
+        outline: 'none',
+      };
     } else {
-      this.$input.style.bottom = '-50px';
+      style = {
+        position: 'fixed',
+        bottom: '-50px',
+      };
     }
+
+    Object
+      .keys(style)
+      .forEach((key) => {
+        this.$input.style[key] = style[key];
+      });
 
     document.body.append(this.$input);
     this.$input.focus();
@@ -97,6 +115,7 @@ export default class InputHandler {
 
   destory() {
     off(window, 'keydown', this.keyDownHandler());
+
     this.keyDownHandler = null;
     this.handlers = null;
     this.state.running = false;

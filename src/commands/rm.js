@@ -15,7 +15,7 @@ export default {
   action(command) {
     return new Promise(async (resolve, reject) => { // eslint-disable-line
       try {
-        const { params } = getCommandParamters(command);
+        const { params, options } = getCommandParamters(command);
 
         if (
           !params[0] ||
@@ -34,7 +34,7 @@ export default {
           body: JSON.stringify({
             query: `
               mutation{
-                rm(path:"${params[0]}") {
+                rm(path:"${params[0]}", options:"${options}") {
                   name, error
                 }
               }
