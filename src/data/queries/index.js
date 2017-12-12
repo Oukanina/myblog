@@ -4,7 +4,7 @@ import {
 import me from './me';
 import file, { ls } from './file';
 import news from './news';
-import article, { articleList } from './article';
+import article, { articleList, read } from './article';
 
 const queryType = new ObjectType({
   name: 'Query',
@@ -15,6 +15,7 @@ const queryType = new ObjectType({
     file,
     article,
     articleList,
+    read,
   },
 });
 

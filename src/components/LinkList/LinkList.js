@@ -4,7 +4,7 @@ import Link from '../Link';
 import s from './LinkList.css';
 
 
-export class LinkList extends React.Component {
+class LinkList extends React.Component {
   static propTypes = {
     files: PropTypes.arrayOf(PropTypes.object).isRequired,
   };
@@ -45,7 +45,5 @@ export class LinkList extends React.Component {
     );
   }
 }
-
-// export { LinkList };
 
 export default withStyles(s)(LinkList);

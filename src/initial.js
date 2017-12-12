@@ -77,7 +77,7 @@ function createRoot(root) {
   });
 }
 
-function createUploadDataFolder() {
+export function createUploadDataFolder() {
   log('now is initial upload folder...');
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir);

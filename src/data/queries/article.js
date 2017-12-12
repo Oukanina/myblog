@@ -2,13 +2,16 @@ import fs from 'fs';
 import {
   GraphQLNonNull as NonNull,
   GraphQLID as ID,
+  GraphQLString as String,
 } from 'graphql';
 import ArticleType, { ArticleList } from '../types/ArticleType';
+import FileType from '../types/FileType';
 import { dataDir } from '../../config.js';
-import { File, User } from '../models';
+import { File, User, FILETYPE } from '../models';
+import * as fileUtils from '../utils/fileUtils';
 
 
-function read(name) {
+function readFile(name) {
   return new Promise((resolve, reject) => {
     try {
       fs.readFile(`${dataDir}/${name}.md`, (err, data) => {
@@ -65,6 +68,40 @@ export const articleList = {
   },
 };
 
+export const read = {
+  type: FileType,
+
+  args: {
+    path: {
+      name: 'path',
+      type: new NonNull(String),
+    },
+  },
+
+  async resolve(_, { path }) {
+    try {
+      if (!path) throw new Error('no path parameter when call article resolve!');
+
+      const file = await fileUtils.getFileByPath(path);
+
+      if (!file) {
+        throw fileUtils.ERR_FILE_NOT_EXIST;
+      }
+      if (file.type === FILETYPE.d) {
+        throw new Error(`${file.get('name')} is a directory!`);
+      }
+
+      return {
+        id: file.getArticle().get('id'),
+      };
+    } catch (err) {
+      console.error(err); // eslint-disable-line
+      return {
+        error: err,
+      };
+    }
+  },
+};
 
 const article = {
   type: ArticleType,
@@ -80,10 +117,13 @@ const article = {
     try {
       if (!id) throw new Error('no id parameter when call article resolve!');
       return {
-        content: await read(id),
+        content: await readFile(id),
       };
     } catch (err) {
       console.error(err); // eslint-disable-line
+      return {
+        error: err,
+      };
     }
   },
 

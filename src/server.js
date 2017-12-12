@@ -78,7 +78,7 @@ customApi.initial(app);
 // Register API middleware
 // -----------------------------------------------------------------------------
 app.use('/graphql',
-  passport.authenticate('bearer', { session: false }),
+  // passport.authenticate('bearer', { session: false }),
   expressGraphQL(req => ({
     schema,
     graphiql: __DEV__,

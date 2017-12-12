@@ -13,6 +13,7 @@ const commandsPath = [
   'mkdir',
   'cd',
   'rm',
+  'read',
 ];
 
 export const myCommands = commandsPath

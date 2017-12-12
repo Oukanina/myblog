@@ -2,12 +2,12 @@ import React from 'react';
 // import ReactDOM from 'react-dom/server';
 import fetch from '../../core/fetch';
 import Screen from '../../components/Screen';
-import { LinkList } from '../../components/LinkList';
+import LinkList from '../../components/LinkList';
 import Page from '../../components/Page';
 
 export default {
 
-  path: '/navigation',
+  path: '/list',
 
   async action() {
     const res = await fetch(`/graphql?query={
@@ -20,7 +20,14 @@ export default {
         }
       }
     }`).catch(err => console.error(err)); // eslint-disable-line no-console
+
     const json = await res.json();
+
+    if (json.errors) {
+      return {
+        redirect: '/error',
+      };
+    }
 
     return {
       title: 'Navigation',

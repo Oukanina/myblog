@@ -32,16 +32,26 @@ export default {
         content
       }
     }`).catch(err => console.error(err)); // eslint-disable-line no-console
+
     const json = await res.json();
+
+    if (json.errors) {
+      return {
+        redirect: '404',
+      };
+    }
+
     const frontmatter = fm(json.data.article.content);
     frontmatter.attributes.html = md.render(frontmatter.body);
+
     if (!frontmatter.attributes.title) {
       frontmatter.attributes.title = frontmatter.body.substring(0, 10);
     }
+
     return {
       title: frontmatter.attributes.title,
       chunk: 'article',
-      component: <Layout><Page {...frontmatter.attributes} /></Layout>,
+      component: <Layout><Page {...frontmatter.attributes}> { null } </Page></Layout>,
     };
   },
 

@@ -13,6 +13,7 @@ import {
   getFolderByPath,
   createFile,
 } from '../data/utils/fileUtils.js';
+import { createUploadDataFolder } from '../initial.js';
 
 const ALLOW_FILE_TYPE = [
   'image/jpeg',
@@ -66,6 +67,7 @@ function saveFile({ file, path, token }) {
       });
       const suf = name.split('.').pop();
       const newPath = `${dataDir}/${uid}.${suf}`;
+      createUploadDataFolder();
       fs.rename(`/tmp/${name}`, newPath, async () => {
         await newFile.createArticle({
           id: uid,

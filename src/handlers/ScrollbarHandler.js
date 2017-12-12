@@ -27,7 +27,11 @@ class ScrollbarHandler {
 
   setupParameter() {
     this.speed = getDefaultSpeed();
-    this.maxTop = appState.containerElement.offsetTop;
+    const { containerElement } = appState;
+
+    if (containerElement) {
+      this.maxTop = containerElement.offsetTop;
+    }
   }
 
   on() {
@@ -110,10 +114,16 @@ class ScrollbarHandler {
 
   setPosition(move) {
     const { containerElement, screenElement } = appState;
+
+    if (!containerElement || !screenElement) {
+      return;
+    }
+
     const minTop = screenElement.offsetHeight - containerElement.offsetHeight;
     const currentTop = Number(containerElement.style.top.replace('px', '')) || 0;
 
     let target = currentTop + move;
+
     if (target > 0) {
       target = 0;
       this.speed = 0;
@@ -122,14 +132,18 @@ class ScrollbarHandler {
       target = minTop;
       this.speed = 0;
     }
+
     containerElement.style.top = `${target}px`;
     appState.trigger('wheel');
   }
 
   toBottom() { // eslint-disable-line class-methods-use-this
     const { containerElement, screenElement } = appState;
-    const minTop = screenElement.offsetHeight - containerElement.offsetHeight;
-    containerElement.style.top = `${minTop}px`;
+    if (containerElement && screenElement) {
+      containerElement.style.top = `${
+        screenElement.offsetHeight - containerElement.offsetHeight
+      }px`;
+    }
   }
 
 }

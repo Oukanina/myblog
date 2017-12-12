@@ -1,7 +1,10 @@
 import _path from 'path';
 import appState from '../core/state';
 import api from '../core/api';
-import { addCurrentCommandToHistory, getCommandParamters } from './index';
+import {
+  addCurrentCommandToHistory,
+  getCommandParamters,
+} from './index';
 
 
 export default {

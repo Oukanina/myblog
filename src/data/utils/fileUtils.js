@@ -227,7 +227,7 @@ export function getUserHomeFolder(user) {
   });
 }
 
-export function getFileByPath(path, type) {
+export function getFileByPath(path, type = FILETYPE.f) {
   return new Promise(async (resolve, reject) => {
     try {
       resolve(await File.findOne({

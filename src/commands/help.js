@@ -1,5 +1,9 @@
 import appState from '../core/state';
-import { myCommands, addCurrentCommandToHistory, clearCurrentCommand } from './index';
+import {
+  myCommands,
+  addCurrentCommandToHistory,
+  clearCurrentCommand,
+} from './index';
 
 export default {
 
