@@ -67,8 +67,12 @@ function saveFile({ file, path, token }) {
       });
       const suf = name.split('.').pop();
       const newPath = `${dataDir}/${uid}.${suf}`;
+
       createUploadDataFolder();
-      fs.rename(`/tmp/${name}`, newPath, async () => {
+
+      fs.rename(`/tmp/${name}`, newPath, async (err) => {
+        if (err) return;
+
         await newFile.createArticle({
           id: uid,
           path: newPath,

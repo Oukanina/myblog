@@ -29,7 +29,7 @@ export default {
 
     const res = await fetch(`/graphql?query={
       article(id: "${articleId}") {
-        content
+        content, error
       }
     }`).catch(err => console.error(err)); // eslint-disable-line no-console
 
@@ -37,7 +37,7 @@ export default {
 
     if (json.errors) {
       return {
-        redirect: '404',
+        redirect: '/notFound',
       };
     }
 

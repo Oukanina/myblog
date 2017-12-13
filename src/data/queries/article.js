@@ -13,14 +13,10 @@ import * as fileUtils from '../utils/fileUtils';
 
 function readFile(name) {
   return new Promise((resolve, reject) => {
-    try {
-      fs.readFile(`${dataDir}/${name}.md`, (err, data) => {
-        if (err) throw err;
-        resolve(data);
-      });
-    } catch (err) {
-      reject(err);
-    }
+    fs.readFile(`${dataDir}/${name}.md`, (err, data) => {
+      if (err) return reject(err);
+      return resolve(data);
+    });
   });
 }
 
@@ -116,8 +112,9 @@ const article = {
   async resolve(_, { id }) { // eslint-disable-line
     try {
       if (!id) throw new Error('no id parameter when call article resolve!');
+      const content = await readFile(id);
       return {
-        content: await readFile(id),
+        content,
       };
     } catch (err) {
       console.error(err); // eslint-disable-line
