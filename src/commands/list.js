@@ -2,16 +2,16 @@ import history from '../core/history';
 
 export default {
 
-  name: 'navigation',
+  name: 'list',
 
-  help: 'navigation articles',
+  help: 'list articles',
 
-  test: /^\s*nav.*$/,
+  test: /^\s*list.*$/,
 
   action() {
     return new Promise((resolve, reject) => {
       try {
-        history.push('/navigation');
+        history.push('/list');
         // if need goAhead then pass true
         resolve(true);
       } catch (err) {

@@ -29,13 +29,13 @@ export default {
 
     const res = await fetch(`/graphql?query={
       article(id: "${articleId}") {
-        content, error
+        content,
       }
     }`).catch(err => console.error(err)); // eslint-disable-line no-console
 
     const json = await res.json();
 
-    if (json.errors) {
+    if (!json.data.article.content) {
       return {
         redirect: '/notFound',
       };

@@ -6,6 +6,7 @@ import { AT, COLON, DOLLAR } from '../constants';
 
 const commandsPath = [
   'ls',
+  'list',
   'touch',
   'clear',
   'logout',
