@@ -6,6 +6,45 @@ import {
   getCommandParamters,
 } from './index';
 
+export function getCurrenFolderChildren(path) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await api(`/graphql?query={
+        ls(path:"${path}") {
+          children {
+            id
+            name
+            type
+          }
+        }
+      }`).catch((err) => { throw err; });
+      const json = await res.json();
+      resolve(json);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function listFile(files) {
+  if (!files.length) return;
+
+  const historyCommands = appState.historyCommands;
+  const columns = Math.floor(window.innerWidth / 150);
+  const inline = columns > 1 ? columns : 1;
+
+  files.forEach((file) => {
+    historyCommands.push({
+      inline,
+      text: file.name,
+      style: file.type === 'd' ? {
+        color: 'green',
+      } : { },
+    });
+  });
+
+  appState.update('historyCommands', historyCommands);
+}
 
 export default {
 
@@ -23,35 +62,12 @@ export default {
           appState.get('path') || '',
           params[0] || '',
         );
-        const res = await api(`/graphql?query={
-          ls(path:"${path}") {
-            children {
-              id
-              name
-              type
-            }
-          }
-        }`).catch((err) => { throw err; });
-        const json = await res.json();
+        const json = await getCurrenFolderChildren(path);
         const files = json.data.ls.children;
-        const historyCommands = appState.get('historyCommands');
+
         addCurrentCommandToHistory(true);
         appState.update('currentCommand', []);
-        const columns = Math.floor(window.innerWidth / 150);
-        const inline = columns > 1 ? columns : 1;
-
-        if (files.length) {
-          files.forEach((file) => {
-            historyCommands.push({
-              inline,
-              text: file.name,
-              style: file.type === 'd' ? {
-                color: 'green',
-              } : { },
-            });
-          });
-          appState.update('historyCommands', historyCommands);
-        }
+        listFile(files);
 
         // if need create a new line then pass true
         resolve(false);

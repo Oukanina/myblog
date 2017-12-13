@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this, css-modules/no-unused-class */
 
 import is from 'is_js';
+import _path from 'path';
 import React, { PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { Line } from './Line';
@@ -9,8 +10,9 @@ import appState from '../../core/state';
 import { AT, TILDE, COLON, DOLLAR } from '../../constants';
 import InputHandler from '../../handlers/InputHandler';
 import InputLine from './InputLine';
-import runCommand from '../../commands';
+import runCommand, { addCurrentCommandToHistory } from '../../commands';
 import { delayUpdate } from '../../core/utils';
+import { getCurrenFolderChildren, listFile } from '../../commands/ls';
 
 
 const states = [
@@ -63,6 +65,7 @@ class LastLine extends Line {
       backspaceHandler: this.backspaceHandler.bind(this),
       leftHandler: this.leftHandler.bind(this),
       rightHandler: this.rightHandler.bind(this),
+      tabHandler: this.tabHandler.bind(this),
       endHandler: () => {
         appState.update(
           'cursorPosition',
@@ -116,6 +119,47 @@ class LastLine extends Line {
     this.lastUpdateTime = 0;
     this.updateTimeout = null;
     this.nextState = {};
+  }
+
+  async tabHandler() {
+    const path = _path.resolve(appState.path);
+    const { currentCommand, cursorPosition } = appState;
+
+    if (!currentCommand.length) return;
+
+    const json = await getCurrenFolderChildren(path);
+    const r = [];
+
+    let inputStr = '';
+    let cp = cursorPosition - 2;
+    while (currentCommand[cp] && currentCommand[cp] !== ' ') {
+      inputStr = currentCommand[cp] + inputStr;
+      cp -= 1;
+    }
+
+    for (let i = 0; i < json.data.ls.children.length; i += 1) {
+      const file = json.data.ls.children[i];
+
+      if (file.name.indexOf(inputStr) > -1) {
+        r.push(file);
+      }
+    }
+
+    if (r.length < 1) return;
+    if (r.length === 1) {
+      const resultCommand = [
+        ...currentCommand.slice(0, cp + 1),
+        ...r[0].name.split(''),
+        ...currentCommand.slice(cursorPosition - 1, currentCommand.length),
+      ];
+      appState.update('currentCommand', resultCommand);
+      this.inputHandler.setValue(resultCommand.join(''));
+      appState.update('cursorPosition', resultCommand.length + 1);
+      setCaretPosition(resultCommand.length + 1);
+    } else {
+      addCurrentCommandToHistory(true);
+      listFile(r);
+    }
   }
 
   leftHandler() {
@@ -223,6 +267,7 @@ class LastLine extends Line {
     } = this.state;
 
     const pathString = path === HOME ? '~' : path;
+    const text = currentCommand.join ? currentCommand.join('') : currentCommand;
 
     return this.renderLine(
       <span>
@@ -235,7 +280,10 @@ class LastLine extends Line {
             }
           </div>
         }
-        <InputLine text={currentCommand.join('')} cursorPosition={cursorPosition} />
+        <InputLine
+          text={text}
+          cursorPosition={cursorPosition}
+        />
       </span>,
     );
   }

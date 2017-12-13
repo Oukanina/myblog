@@ -160,6 +160,7 @@ export default class InputHandler {
 
     switch (keyCode) {
       case KEYMAP.TAB:
+        this.event.preventDefault();
         this.runHandler('tabHandler');
         break;
       case KEYMAP.UP:
