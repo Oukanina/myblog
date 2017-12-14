@@ -67,6 +67,7 @@ export default {
 
         addCurrentCommandToHistory(true);
         appState.update('currentCommand', []);
+        appState.update('cursorPosition', 1);
         listFile(files);
 
         // if need create a new line then pass true

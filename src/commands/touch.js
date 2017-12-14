@@ -62,6 +62,7 @@ function inputChangeHandler(resolve) {
     appState.update('hideLastLine', true);
     uploadWorker.onmessage = (e2) => {
       const message = JSON.parse(e2.data);
+
       if (message.status === 'error') {
         historyCommands.push({
           text: message.data,
@@ -76,7 +77,7 @@ function inputChangeHandler(resolve) {
         text: `${message.name} ==> ${message.progress}%`,
         style: { color: 'green' },
       };
-      appState.update(history);
+      appState.update('historyCommands', historyCommands);
 
       if (message.status === 'finish') {
         doUpload(files[i++]);

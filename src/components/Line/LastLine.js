@@ -28,9 +28,9 @@ function setCaretPosition(elem, caretPos) {
       range.move('character', caretPos);
       range.select();
     } else if (elem.selectionStart) {
-      elem.focus();
+      if (elem.focus instanceof Function) elem.focus();
       elem.setSelectionRange(caretPos, caretPos);
-    } else {
+    } else if (elem.focus instanceof Function) {
       elem.focus();
     }
   }
@@ -132,6 +132,7 @@ class LastLine extends Line {
 
     let inputStr = '';
     let cp = cursorPosition - 2;
+
     while (currentCommand[cp] && currentCommand[cp] !== ' ') {
       inputStr = currentCommand[cp] + inputStr;
       cp -= 1;
@@ -158,6 +159,7 @@ class LastLine extends Line {
       setCaretPosition(resultCommand.length + 1);
     } else {
       addCurrentCommandToHistory(true);
+      appState.update('cursorPosition', appState.currentCommand.length + 1);
       listFile(r);
     }
   }
@@ -206,10 +208,12 @@ class LastLine extends Line {
     this.inputHandler.setValue(
       appState.get('currentCommand').join(''),
     );
-    setCaretPosition(
-      this.inputHandler.$input,
-      appState.get('currentCommand').length,
-    );
+    if (this.inputHandler.$input) {
+      setCaretPosition(
+        this.inputHandler.$input,
+        appState.get('currentCommand').length,
+      );
+    }
   }
 
   insertCharacter(userInputs = '') {
