@@ -39,7 +39,9 @@ export function listFile(files) {
       text: file.name,
       style: file.type === 'd' ? {
         color: 'green',
-      } : { },
+      } : {
+        color: '#cbcbcb',
+      },
     });
   });
 
