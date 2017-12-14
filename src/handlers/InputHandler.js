@@ -52,6 +52,7 @@ export default class InputHandler {
         zIndex: '999999',
         color: '#fff',
         background: '#232323',
+        opacity: 0.6,
         border: 'none',
         outline: 'none',
       };

@@ -95,10 +95,15 @@ function openUpload(app, ws, { file, path, token }) {
 
   app.ws(`/${uploadPath}`, (uplodWs) => {
     uplodWs.on('message', (message) => {
-      const writtenSize = writer.bytesWritten + message.length;
-      if (writtenSize > MAX_FILE_SIZE) throw FILE_SIZEE_RROR;
-      writer.write(message);
-      uplodWs.send(Math.floor(100 * writtenSize / file.size));
+      try {
+        const writtenSize = writer.bytesWritten + message.length;
+        if (writtenSize > MAX_FILE_SIZE) throw FILE_SIZEE_RROR;
+        writer.write(message);
+        uplodWs.send(Math.floor(100 * writtenSize / file.size));
+      } catch (err) {
+        console.error(err); // eslint-disable-line
+        endUpload();
+      }
     });
     uplodWs.on('close', async () => {
       if (writer.bytesWritten === file.size) {

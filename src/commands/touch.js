@@ -4,24 +4,20 @@
 import Lockr from 'lockr';
 import UploadWorker from 'worker-loader!../workers/uploadWorker';
 import appState from '../core/state';
-import { getLineHead } from './index';
+import { addCurrentCommandToHistory, clearCurrentCommand } from './index';
 import { on } from '../core/utils';
 
 function prepareCommandLine() {
-  const { historyCommands, currentCommand } = appState;
+  const { historyCommands } = appState;
 
-  historyCommands.push({
-    lineHead: getLineHead(),
-    text: currentCommand.join(''),
-  });
+  addCurrentCommandToHistory(true);
+  clearCurrentCommand();
+
   historyCommands.push({
     text: 'choose file...',
     style: { color: 'yellow' },
   });
-
-  appState.update('currentCommand', []);
   appState.trigger('historyCommands');
-  appState.update('cursorPosition', 1);
 }
 
 function finishUpload() {
@@ -47,6 +43,7 @@ function inputChangeHandler(resolve) {
     const host = window.location.host;
     const token = Lockr.get('token');
     const path = appState.get('path');
+    let isOnUplading = false;
     let i = 0;
 
     const doUpload = (file) => {
@@ -60,6 +57,7 @@ function inputChangeHandler(resolve) {
     };
 
     appState.update('hideLastLine', true);
+
     uploadWorker.onmessage = (e2) => {
       const message = JSON.parse(e2.data);
 
@@ -73,16 +71,34 @@ function inputChangeHandler(resolve) {
         return;
       }
 
-      historyCommands[historyCommands.length - 1] = {
-        text: `${message.name} ==> ${message.progress}%`,
-        style: { color: 'green' },
-      };
-      appState.update('historyCommands', historyCommands);
+      if (!isOnUplading) {
+        historyCommands.push({
+          text: `uploading ${message.progress}%`,
+          style: { color: 'green' },
+        });
+      }
 
       if (message.status === 'finish') {
+        historyCommands[historyCommands.length - 1] = {
+          text: `${message.name} ${message.progress}%`,
+          style: { color: 'green' },
+        };
+        isOnUplading = false;
+
         doUpload(files[i++]);
+      } else {
+        if (isOnUplading) {
+          historyCommands[historyCommands.length - 1] = {
+            text: `uploading ${message.progress}%`,
+            style: { color: 'green' },
+          };
+        }
+        isOnUplading = true;
       }
+
+      appState.update('historyCommands', historyCommands);
     };
+
     doUpload(files[i++]);
   };
 }
@@ -109,7 +125,9 @@ export default {
       try {
         if (!window.Worker) throw new Error('doesn\'t support web worker!');
         prepareCommandLine();
-        openFileSelectWindow(resolve);
+        setTimeout(() => {
+          openFileSelectWindow(resolve);
+        }, 50);
       } catch (err) {
         reject(err);
       }

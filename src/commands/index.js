@@ -42,6 +42,7 @@ export function addCurrentCommandToHistory(head = true) {
 export function clearCurrentCommand() {
   appState.update('currentCommand', []);
   appState.update('cursorPosition', 1);
+  document.querySelector('input').value = '';
 }
 
 export function createNewLine(head) {
