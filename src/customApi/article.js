@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { dataDir } from '../config.js';
+import { File, User } from '../data/models';
 
 function readFile(name) {
   return new Promise((resolve, reject) => {
@@ -23,4 +24,28 @@ export default function article(app) {
         content: content.toString(),
       });
     });
+
+  app.get('/articles', async (req, res) => {
+    const files = await File.findAll({
+      attributes: ['id', 'name', 'owner.email', 'onCreate'],
+      where: {
+        linkTo: 'article',
+      },
+      include: [{
+        attributes: ['email'],
+        model: User,
+        as: 'owner',
+        required: true,
+      }],
+    });
+
+    const articles = files.map(file => ({
+      id: file.id,
+      name: file.name,
+      owner: file.owner.email,
+      onCreate: file.onCreate,
+    }));
+
+    return res.json({ articles });
+  });
 }

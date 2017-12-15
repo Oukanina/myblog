@@ -10,36 +10,26 @@ export default {
   path: '/list',
 
   async action() {
-    const res = await fetch(`/graphql?query={
-      articleList {
-        articles {
-          id
-          owner
-          name
-          onCreate
-        }
-      }
-    }`).catch(err => console.error(err)); // eslint-disable-line no-console
+    try {
+      const res = await fetch('/articles')
+        .catch(err => console.error(err)); // eslint-disable-line no-console
+      const json = await res.json();
 
-    const json = await res.json();
-
-    if (json.errors) {
+      return {
+        title: 'Navigation',
+        chunk: 'navigation',
+        component: (
+          <Screen cover={false}>
+            <Page title={'Blog'} html={''}>
+              <LinkList files={json.articles} />
+            </Page>
+          </Screen>
+        ),
+      };
+    } catch (err) {
       return {
         redirect: '/error',
       };
     }
-
-    return {
-      title: 'Navigation',
-      chunk: 'navigation',
-      component: (
-        <Screen cover={false}>
-          <Page title={'Blog'} html={''}>
-            <LinkList files={json.data.articleList.articles} />
-          </Page>
-        </Screen>
-      ),
-    };
   },
-
 };
