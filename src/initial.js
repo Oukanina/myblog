@@ -12,6 +12,7 @@ import {
   File, ROOTID,
   FILETYPE,
 } from './data/models';
+import { createUser } from './data/utils/userUtils';
 
 
 function initialGroup() {
@@ -38,6 +39,23 @@ function createRootUser() {
         homePath: `/${username}`,
       });
       resolve(root);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+function createAnonymousUser() {
+  return new Promise(async (resolve, reject) => {
+    log('now is initial anonymous user...');
+    try {
+      const anonymous = await createUser({
+        email: 'anonymous@example.com',
+        username: 'anonymous',
+        password: 'anonymous',
+        homePath: '/home/anonymous',
+      });
+      resolve(anonymous);
     } catch (err) {
       reject(err);
     }
@@ -92,6 +110,7 @@ export default async function () {
       await initialGroup();
       const root = await createRootUser();
       await createRoot(root);
+      await createAnonymousUser();
       fs.closeSync(fs.openSync(initialFile, 'w'));
     }
   } catch (err) {

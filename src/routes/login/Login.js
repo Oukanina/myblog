@@ -263,7 +263,7 @@ class Login extends React.Component {
     Lockr.set('token', json.token || '');
     appState.set('login', true);
     appState.set('showLoginInfo', true);
-    appState.fetchData();
+    appState.fetchData({ force: true });
     history.push('/');
   }
 

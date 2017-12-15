@@ -44,7 +44,7 @@ export default {
         appState.update('cursorPosition', 1);
 
         if (json.data.read.id) {
-          window.location.assign(`/article/${
+          window.location.assign(`/read/${
             json.data.read.id
           }`);
         }

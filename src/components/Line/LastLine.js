@@ -154,7 +154,7 @@ class LastLine extends Line {
         ...currentCommand.slice(cursorPosition - 1, currentCommand.length),
       ];
       appState.update('currentCommand', resultCommand);
-      this.inputHandler.setValue(resultCommand.join(''));
+      this.setValue(resultCommand.join(''));
       appState.update('cursorPosition', resultCommand.length + 1);
       setCaretPosition(resultCommand.length + 1);
     } else {
@@ -201,11 +201,17 @@ class LastLine extends Line {
   }
 
   commandCallback() {
-    this.inputHandler.setValue('');
+    this.setValue('');
+  }
+
+  setValue(value) {
+    if (this.inputHandler) {
+      this.inputHandler.setValue(value);
+    }
   }
 
   syncInputValueAfterUpDown() {
-    this.inputHandler.setValue(
+    this.setValue(
       appState.get('currentCommand').join(''),
     );
     if (this.inputHandler.$input) {

@@ -19,14 +19,27 @@ import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import { auth as config, host, machineName } from '../config.js';
 import { getUserByToken } from '../data/utils/userUtils.js';
 
+const anonymous = {
+  id: '233',
+  email: '',
+  HOME: '/home/anonymous',
+  home: '/home/anonymous',
+  path: '/home/anonymous',
+  hostname: machineName || host,
+  username: 'anonymous',
+  lastLoginIp: '',
+  lastLoginTime: new Date(),
+};
+
 passport.use(new BearerStrategy({
   passReqToCallback: true,
 }, async (req, token, done) => {
   try {
     verify(token, config.jwt.secret);
     const users = await getUserByToken(token);
+
     if (!users.length) {
-      return done(null, false);
+      return done(null, anonymous, { scope: 'read' });
     }
     const user = users[0];
 
@@ -47,7 +60,7 @@ passport.use(new BearerStrategy({
       });
     } else {
       lastLoginIp = '';
-      lastLoginTime = '';
+      lastLoginTime = new Date();
     }
 
     await user.createActivity({

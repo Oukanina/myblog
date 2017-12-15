@@ -1,8 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../data/models';
 import { auth } from '../config';
-// import { createUser } from '../data/utils/userUtils';
-// import { setUserGroup } from '../data/utils/groupUtils';
 
 
 export function createToken(email) {

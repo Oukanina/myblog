@@ -72,6 +72,17 @@ export function getCommandParamters(command) {
   };
 }
 
+export function printError(errors) {
+  const { historyCommands } = appState;
+
+  errors.forEach((error) => {
+    historyCommands.push({
+      text: error.message,
+      style: { color: 'red' },
+    });
+  });
+}
+
 function recardInput(input) {
   const history = appState.get('history');
   history.push(input.split(''));

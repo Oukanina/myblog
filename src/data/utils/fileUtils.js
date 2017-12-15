@@ -268,7 +268,26 @@ export function mkdir({ name, path, userId }) {
   });
 }
 
-export function rm(path, rmChildren = false) {
+async function rmFile({ file, recurrence = false }) {
+  if (file.type === FILETYPE.d && recurrence) {
+    await File.destroy({
+      where: {
+        $or: {
+          parentId: file.get('id'),
+          id: file.get('id'),
+        },
+      },
+    });
+  } else if (file.type === FILETYPE.f) {
+    await file.destroy();
+  } else if (file.type === FILETYPE.d && !recurrence) {
+    throw new Error(`can not remove directory ${file.name} without -r`);
+  } else {
+    throw new Error(`remove ${file.name} failed!`);
+  }
+}
+
+export function rm({ path, recurrence = false }) {
   return new Promise(async (resolve, reject) => {
     try {
       const file = await findFileByPath(path);
@@ -276,27 +295,72 @@ export function rm(path, rmChildren = false) {
       if (!file) {
         throw ERR_FILE_NOT_EXIST;
       } else {
-        if (file.type === FILETYPE.d && rmChildren) {
-          await File.destroy({
-            where: {
-              $or: {
-                parentId: file.get('id'),
-                id: file.get('id'),
-              },
-            },
-          });
-        } else if (file.type === FILETYPE.f) {
-          await file.destroy();
-        } else {
-          reject(new Error(
-            `can not remove ${
-              file.type === FILETYPE.d
-              ? 'directory' : 'file'
-            } ${file.name} without -r`),
-          );
-        }
+        rmFile({ file, recurrence });
         resolve(file);
       }
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function rmWithWildcard({ path, recurrence = false }) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let tmp = '';
+      let i = 0;
+
+      while (path.charAt(i)) {
+        if (path.charAt(i) === '\'') {
+          i += 1;
+
+          while (path.charAt(i)) {
+            if (path.charAt(i) === '\'') {
+              break;
+            } else {
+              tmp += path.charAt(i);
+            }
+            i += 1;
+          }
+        } else if (path.charAt(i) === '[') {
+          tmp += path.charAt(i);
+          i += 1;
+
+          while (path.charAt(i)) {
+            if (path.charAt(i) === ']') {
+              tmp += path.charAt(i);
+              break;
+            } else if (path.charAt(i) === ',') {
+              tmp += '';
+            } else if (path.charAt(i) === '*') {
+              tmp += '%';
+            } else {
+              tmp += path.charAt(i);
+            }
+            i += 1;
+          }
+        // } else if (path.charAt(i) === '{') {
+        } else if (path.charAt(i) === '*') {
+          tmp += '%';
+        } else {
+          tmp += path.charAt(i);
+        }
+        i += 1;
+      }
+
+      const files = await File.findAll({
+        where: {
+          path: {
+            $like: tmp,
+          },
+        },
+      });
+
+      for (const file of files) {
+        rmFile({ file, recurrence });
+      }
+
+      resolve();
     } catch (err) {
       reject(err);
     }

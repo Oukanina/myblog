@@ -67,9 +67,9 @@ class State {
     }
   }
 
-  async fetchData() {
-    if (this.isFetchData === 'done') return;
-    if (this.isFetchData === 'pending') return;
+  async fetchData({ force = false } = { }) {
+    if (!force && this.isFetchData === 'done') return;
+    if (!force && this.isFetchData === 'pending') return;
     this.isFetchData = 'pending';
     try {
       const res = await me();
@@ -82,6 +82,7 @@ class State {
       }
       this.update('login', true);
       this.isFetchData = 'done';
+      this.updateAll();
     } catch (err) {
       this.isFetchData = '';
       log(err); // eslint-disable-line no-console

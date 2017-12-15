@@ -60,12 +60,15 @@ function sendFileData(uploadWs, file) {
       let data = fileSlice.next();
 
       uploadWs.onmessage = (message) => { // eslint-disable-line no-param-reassign
-        const status = message.data === '100' ? 'finish' : 'progress';
+        const status = message.data === '100'
+          ? 'finish' : 'progress';
+
         postMessage(JSON.stringify({
           status,
           progress: message.data,
           name: file.name,
         }));
+
         if (status === 'finish') {
           uploadWs.close();
           resolve();
@@ -78,6 +81,14 @@ function sendFileData(uploadWs, file) {
             uploadWs.send(data);
             data = fileSlice.next();
             setTimeout(loop, 0);
+          } else {
+            uploadWs.close();
+            postMessage(JSON.stringify({
+              status: 'finish',
+              progress: '100',
+              name: file.name,
+            }));
+            resolve();
           }
         };
         loop();

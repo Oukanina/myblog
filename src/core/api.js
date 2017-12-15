@@ -48,7 +48,9 @@ function api(url, options = {}, checkToken = true) {
         default:
           break;
       }
-      return reject();
+      return resolve(res);
+    }).catch((err) => {
+      reject({ errors: [err.message] });
     });
   });
 }

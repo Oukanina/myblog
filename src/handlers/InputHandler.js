@@ -36,12 +36,17 @@ export default class InputHandler {
   }
 
   createInputElement() {
-    if (this.$input) return this;
+    if (this.$input) return this.$input;
+    if (document.getElementById('command')) {
+      this.$input = document.getElementById('command');
+      return this.$input;
+    }
 
     let style = { };
 
     this.$input = document.createElement('input');
     this.$input.style.position = 'fixed';
+    this.$input.id = 'command';
 
     if (__DEV__) {
       style = {
@@ -80,7 +85,7 @@ export default class InputHandler {
       this.$input.focus();
     }, false);
 
-    return this;
+    return this.$input;
   }
 
   initialHandlers(handlers) {

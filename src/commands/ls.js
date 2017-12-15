@@ -4,6 +4,7 @@ import api from '../core/api';
 import {
   addCurrentCommandToHistory,
   getCommandParamters,
+  printError,
 } from './index';
 
 export function getCurrenFolderChildren(path) {
@@ -11,6 +12,7 @@ export function getCurrenFolderChildren(path) {
     try {
       const res = await api(`/graphql?query={
         ls(path:"${path}") {
+          error,
           children {
             id
             name
@@ -33,17 +35,18 @@ export function listFile(files) {
   const columns = Math.floor(window.innerWidth / 150);
   const inline = columns > 1 ? columns : 1;
 
-  files.forEach((file) => {
-    historyCommands.push({
-      inline,
-      text: file.name,
-      style: file.type === 'd' ? {
-        color: 'green',
-      } : {
-        color: '#cbcbcb',
-      },
+  files.sort((a, b) => a.name > b.name)
+    .forEach((file) => {
+      historyCommands.push({
+        inline,
+        text: file.name,
+        style: file.type === 'd' ? {
+          color: '#2ecc71',
+        } : {
+          color: '#cbcbcb',
+        },
+      });
     });
-  });
 
   appState.update('historyCommands', historyCommands);
 }
@@ -71,6 +74,10 @@ export default {
         appState.update('currentCommand', []);
         appState.update('cursorPosition', 1);
         listFile(files);
+
+        if (json.errors) {
+          printError(json.errors);
+        }
 
         // if need create a new line then pass true
         resolve(false);

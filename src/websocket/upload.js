@@ -106,14 +106,12 @@ function openUpload(app, ws, { file, path, token }) {
       }
     });
     uplodWs.on('close', async () => {
-      if (writer.bytesWritten === file.size) {
-        try {
-          await saveFile({ file, path, token });
-        } catch (err) {
-          console.error(err); // eslint-disable-line no-console
-        }
+      try {
+        endUpload();
+        await saveFile({ file, path, token });
+      } catch (err) {
+        console.error(err); // eslint-disable-line no-console
       }
-      endUpload();
     });
     uplodWs.on('error', (err) => {
       console.error(err); // eslint-disable-line no-console

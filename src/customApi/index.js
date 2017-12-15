@@ -2,6 +2,7 @@
 
 const fetchApiList = [
   'me', 'istoken', 'token', 'verificationUsername',
+  'article',
 ];
 
 export default {

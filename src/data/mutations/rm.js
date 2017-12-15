@@ -4,7 +4,7 @@ import {
   GraphQLString as String,
 } from 'graphql';
 import FileType from '../types/FileType';
-import { rm } from '../utils/fileUtils';
+import { rm, rmWithWildcard } from '../utils/fileUtils';
 
 export default {
   type: FileType,
@@ -21,6 +21,7 @@ export default {
   },
   async resolve(_, { path, options = '' }) {
     try {
+      const recurrence = options.includes('-r');
       let filePath = path;
 
       if (!filePath) {
@@ -32,20 +33,17 @@ export default {
 
       filePath = _path.resolve(filePath);
 
-      if (
-        !filePath ||
-        filePath === '/' ||
-        filePath === '/*' ||
-        filePath === '/root'
-      ) {
-        return { };
+      if (/\*/.test(filePath)) {
+        return await rmWithWildcard({
+          path: filePath,
+          recurrence,
+        });
       }
 
-      if (/\*$/.test(filePath)) {
-        filePath = _path.resolve(filePath.replace('*', ''));
-      }
-
-      return await rm(filePath, options.includes('-r'));
+      return await rm({
+        path: filePath,
+        recurrence,
+      });
     } catch (error) {
       console.error(error); // eslint-disable-line
       return {
