@@ -53,6 +53,7 @@ class Html extends React.Component {
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: children }}
           />
+          <a href="/list" style={{ display: 'none' }}>list</a>
           {scripts.map(script => <script key={script} src={script} />)}
           {analytics.google.trackingId &&
             <script
