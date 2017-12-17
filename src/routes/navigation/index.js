@@ -21,7 +21,7 @@ export default {
         component: (
           <Screen cover={false}>
             <Page title={'Blog'} html={''}>
-              <LinkList files={json.articles} />
+              <LinkList files={json.articles || []} />
             </Page>
           </Screen>
         ),
