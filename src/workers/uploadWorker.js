@@ -77,19 +77,19 @@ function sendFileData(uploadWs, file) {
 
       uploadWs.onopen = () => { // eslint-disable-line no-param-reassign
         const loop = () => {
-          if (data) {
-            uploadWs.send(data);
-            data = fileSlice.next();
-            setTimeout(loop, 0);
-          } else {
-            uploadWs.close();
-            postMessage(JSON.stringify({
-              status: 'finish',
-              progress: '100',
-              name: file.name,
-            }));
-            resolve();
-          }
+          uploadWs.send(data);
+          data = fileSlice.next();
+          setTimeout(loop, 0);
+          // if (data) {
+          // } else {
+          //   uploadWs.close();
+          //   postMessage(JSON.stringify({
+          //     status: 'finish',
+          //     progress: '100',
+          //     name: file.name,
+          //   }));
+          //   resolve();
+          // }
         };
         loop();
       };

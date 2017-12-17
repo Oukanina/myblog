@@ -15,6 +15,13 @@ import {
 } from '../data/utils/fileUtils.js';
 import { createUploadDataFolder } from '../initial.js';
 
+const FILE_TYPE_LINK_MAP = {
+  'image/jpeg': LINKTO.image,
+  'image/png': LINKTO.image,
+  'text/markdown': LINKTO.article,
+  'audio/mp3': LINKTO.music,
+  'audio/mpeg': LINKTO.music,
+};
 const ALLOW_FILE_TYPE = [
   'image/jpeg',
   'image/png',
@@ -55,6 +62,8 @@ function saveFile({ file, path, token }) {
         folder = await getFolderByPath(path);
       }
       const uid = uuidv4();
+      const suf = name.split('.').pop();
+      const newPath = `${dataDir}/${uid}.${suf}`;
       const newFile = await createFile({
         name,
         user,
@@ -63,21 +72,19 @@ function saveFile({ file, path, token }) {
         force: true,
         type: FILETYPE.f,
         parentFolder: folder,
-        linkTo: LINKTO.article,
+        linkTo: FILE_TYPE_LINK_MAP[file.type],
       });
-      const suf = name.split('.').pop();
-      const newPath = `${dataDir}/${uid}.${suf}`;
 
       createUploadDataFolder();
 
       fs.rename(`/tmp/${name}`, newPath, async (err) => {
-        if (err) return;
+        if (err) return reject(err);
 
         await newFile.createArticle({
           id: uid,
           path: newPath,
         });
-        resolve();
+        return resolve();
       });
     } catch (err) {
       reject(err);
@@ -88,8 +95,10 @@ function saveFile({ file, path, token }) {
 function openUpload(app, ws, { file, path, token }) {
   const uploadPath = uuidv4();
   const writer = fs.createWriteStream(`/tmp/${file.name}`);
-  const endUpload = () => {
+  const endUpload = (uws) => {
     writer.end();
+    writer.close();
+    uws.close();
     closeUpload(app, uploadPath);
   };
 
@@ -97,17 +106,21 @@ function openUpload(app, ws, { file, path, token }) {
     uplodWs.on('message', (message) => {
       try {
         const writtenSize = writer.bytesWritten + message.length;
-        if (writtenSize > MAX_FILE_SIZE) throw FILE_SIZEE_RROR;
-        writer.write(message);
-        uplodWs.send(Math.floor(100 * writtenSize / file.size));
+
+        if (writtenSize > MAX_FILE_SIZE) {
+          throw FILE_SIZEE_RROR;
+        } else if (message) {
+          writer.write(message);
+          uplodWs.send(Math.floor(100 * writtenSize / file.size));
+        }
       } catch (err) {
         console.error(err); // eslint-disable-line
-        endUpload();
+        endUpload(uplodWs);
       }
     });
     uplodWs.on('close', async () => {
       try {
-        endUpload();
+        endUpload(uplodWs);
         await saveFile({ file, path, token });
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
@@ -115,7 +128,7 @@ function openUpload(app, ws, { file, path, token }) {
     });
     uplodWs.on('error', (err) => {
       console.error(err); // eslint-disable-line no-console
-      endUpload();
+      endUpload(uplodWs);
     });
   });
   app._router.stack.unshift(app._router.stack.pop());

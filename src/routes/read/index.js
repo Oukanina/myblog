@@ -1,12 +1,3 @@
-/**
- * React Starter Kit (https://www.reactstarterkit.com/)
- *
- * Copyright © 2014-present Kriasoft, LLC. All rights reserved.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE.txt file in the root directory of this source tree.
- */
-
 import React from 'react';
 import MarkdownIt from 'markdown-it';
 import fm from 'front-matter';
@@ -21,13 +12,13 @@ const md = new MarkdownIt({
 
 export default {
 
-  path: '/read/:articleId',
+  path: '/read/:fileId',
 
   async action({ params }) {
     try {
-      const { articleId } = params;
-      if (!articleId) return { redirct: './notFound' };
-      const res = await fetch(`/article/${articleId}`)
+      const { fileId } = params;
+      if (!fileId) return { redirct: './notFound' };
+      const res = await fetch(`/file/${fileId}`)
         .catch(err => console.error(err)); // eslint-disable-line
       let json = null;
 
@@ -38,18 +29,30 @@ export default {
           redirect: '/notFound',
         };
       }
+      if (json.redirect) {
+        return {
+          redirect: json.content,
+        };
+      }
 
       const frontmatter = fm(json.content || '');
       frontmatter.attributes.html = md.render(frontmatter.body);
 
       if (!frontmatter.attributes.title) {
-        frontmatter.attributes.title = frontmatter.body.substring(0, 10);
+        frontmatter.attributes.title =
+          frontmatter.body.substring(0, 10);
       }
 
       return {
         title: frontmatter.attributes.title,
         chunk: 'article',
-        component: <Layout><Page {...frontmatter.attributes}> { null } </Page></Layout>,
+        component: (
+          <Layout>
+            <Page {...frontmatter.attributes}>
+              { null }
+            </Page>
+          </Layout>
+        ),
       };
     } catch (err) {
       throw err;

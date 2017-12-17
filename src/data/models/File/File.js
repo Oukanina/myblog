@@ -10,6 +10,7 @@ export const LINKTO = {
   article: 'article',
   music: 'music',
   video: 'video',
+  image: 'image',
   none: 'none',
 };
 

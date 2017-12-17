@@ -2481,7 +2481,7 @@ eslint-module-utils@^2.1.1:
     debug "^2.6.8"
     pkg-dir "^1.0.0"
 
-eslint-plugin-css-modules@^2.2.0:
+eslint-plugin-css-modules@^2.7.5:
   version "2.7.5"
   resolved "https://registry.yarnpkg.com/eslint-plugin-css-modules/-/eslint-plugin-css-modules-2.7.5.tgz#a4f49d3b585c721b37a8fee810af40373906bb1c"
   dependencies:

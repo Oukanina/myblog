@@ -26,7 +26,7 @@ import models from './data/models';
 import schema from './data/schema';
 import routes from './routes';
 import assets from './assets.json'; // eslint-disable-line import/no-unresolved
-import { port } from './config';
+import { port, dataDir } from './config';
 import customApi from './customApi';
 import websocket from './websocket';
 import initial from './initial';
@@ -45,6 +45,7 @@ global.navigator.userAgent = global.navigator.userAgent || 'all';
 // -----------------------------------------------------------------------------
 app.disable('x-powered-by');
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(dataDir));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -115,7 +116,9 @@ app.get('*', async (req, res, next) => {
     }
 
     const data = { ...route };
-    data.children = ReactDOM.renderToString(<App context={context}>{route.component}</App>);
+    data.children = ReactDOM.renderToString(
+      <App context={context}>{route.component}</App>,
+    );
     data.styles = [
       { id: 'css', cssText: [...css].join('') },
     ];
