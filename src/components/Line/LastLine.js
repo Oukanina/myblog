@@ -141,7 +141,7 @@ class LastLine extends Line {
     for (let i = 0; i < json.data.ls.children.length; i += 1) {
       const file = json.data.ls.children[i];
 
-      if (file.name.indexOf(inputStr) > -1) {
+      if (file.name.startsWith(inputStr)) {
         r.push(file);
       }
     }
