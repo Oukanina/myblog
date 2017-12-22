@@ -17,7 +17,9 @@ export default {
   async action({ params }) {
     try {
       const { fileId } = params;
+
       if (!fileId) return { redirct: './notFound' };
+
       const res = await fetch(`/file/${fileId}`)
         .catch(err => console.error(err)); // eslint-disable-line
       let json = null;

@@ -1,4 +1,5 @@
 import is from 'is_js';
+import lockr from 'lockr';
 import { log } from './utils';
 import { me } from './api';
 
@@ -63,7 +64,7 @@ class State {
   initialState() {
     log('start init state...');
     for (const key in defaultSatte) { // eslint-disable-line guard-for-in, no-restricted-syntax
-      this.set(key, defaultSatte[key]);
+      this.set(key, lockr.get(key) || defaultSatte[key]);
     }
   }
 
@@ -144,6 +145,7 @@ class State {
         set: (value) => {
           this.stateMap.set(stateName, value);
           this.trigger(stateName);
+          this.saveOnePropToStorage(stateName, value);
         },
       });
     }
@@ -169,14 +171,28 @@ class State {
     if (this.hasOwnProperty(stateName)) { // eslint-disable-line no-prototype-builtins
       this[stateName] = newState;
     }
-    // this.stateMap.set(stateName, newState);
-    // this.trigger(stateName);
   }
 
   updateAll() {
     this.stateMap.forEach((value, name) => {
       setTimeout(() => this.update(name, value), 0);
     });
+  }
+
+  saveOnePropToStorage(stateName, value) {
+    if (
+      value instanceof Array ||
+      value instanceof String ||
+      value instanceof Number
+    ) {
+      if (stateName === 'historyCommands') {
+        lockr.set(stateName, value.slice(value.length - 200, value.length));
+      } else {
+        lockr.set(stateName, value);
+      }
+    }
+
+    return this;
   }
 
 }
