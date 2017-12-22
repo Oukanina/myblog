@@ -224,6 +224,7 @@ class Login extends React.Component {
     this.pending();
     const resp = await apiVerificationUsername(username.join(''));
     const json = await resp.json();
+
     if (json.status === 'ok') {
       this.verificationUsernameSuccess();
     } else {
@@ -345,26 +346,26 @@ class Login extends React.Component {
           }
         </span>
       );
-    } else { // eslint-disable-line
-      return (
-        <span>
-          {
-            textArray.map((value, index) => (
-              <e
-                className={focus && cursorPosition - 1 === index ?
-                  cx(s.oncursor, s.e) : s.e}
-                key={index.toString()}
-              >
-                {value}
-              </e>))
-          }
-          {
-            focus && textArray.length < cursorPosition ?
-              <Cursor /> : null
-          }
-        </span>
-      );
     }
+
+    return (
+      <span>
+        {
+          textArray.map((value, index) => (
+            <span
+              className={focus && cursorPosition - 1 === index ?
+                cx(s.oncursor, s.e) : s.e}
+              key={index.toString()}
+            >
+              {value}
+            </span>))
+        }
+        {
+          focus && textArray.length < cursorPosition ?
+            <Cursor /> : null
+        }
+      </span>
+    );
   }
 
   renderUsername() {
@@ -376,9 +377,11 @@ class Login extends React.Component {
 
   renderPassword() {
     const { password, passwordFocus } = this.state;
-    return (<div>
-      {this.renderText(password, passwordFocus, true)}
-    </div>);
+    return (
+      <div>
+        {this.renderText(password, passwordFocus, true)}
+      </div>
+    );
   }
 
   renderUsernameBox() {

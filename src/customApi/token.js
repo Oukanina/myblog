@@ -18,7 +18,8 @@ export default function token(app) {
 
       if (!username || !password) {
         res.json({ status: 'no parameters username, password!' });
-        return next();
+        next();
+        return;
       }
 
       let status;
@@ -33,32 +34,41 @@ export default function token(app) {
       if (!user) {
         action = 'no user';
         status = 'err';
-      } else if (user.dataValues.password !== password) {
+
+        throw new Error(`not found ${username}`);
+      }
+
+      if (user.dataValues.password !== password) {
         action = 'vaild';
         status = 'err';
-        res.json({ status });
-        return next();
-      } else {
-        status = 'ok';
-        action = 'login';
-        const logins = await user.getLogins({
-          where: { name },
-        });
-        for (let i = 0; i < logins.length; i += 1) {
-          logins[i].destroy();
-        }
+
+        throw new Error('wrong password');
+      }
+
+      status = 'ok';
+      action = 'login';
+
+      const logins = await user.getLogins({
+        where: { name },
+      });
+
+      for (let i = 0; i < logins.length; i += 1) {
+        logins[i].destroy();
       }
 
       const newToken = createToken(username);
+
       await user.createLogin({
         name, key: newToken,
       });
+
       res.json({ status, action, token: newToken });
-      return next();
+
+      next();
     } catch (err) {
       console.error(err); // eslint-disable-line no-console
-      res.json({ err });
-      return next();
+      res.json({ message: err.message });
+      next();
     }
   });
 }
