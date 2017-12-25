@@ -27,7 +27,7 @@ class LinkList extends React.Component {
       const { id, name, onCreate, owner } = files[i];
       fileList.push((
         <div key={id}>
-          <i><strong><Link to={`/article/${id}`}>{name}</Link></strong></i>
+          <i><strong><Link to={`/read/${id}`}>{name}</Link></strong></i>
           <small style={{ float: 'right' }}>
             on { new Date(onCreate).toLocaleString()} by {owner}
           </small>
