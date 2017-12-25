@@ -15,7 +15,7 @@ class Page extends React.Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
     html: PropTypes.string.isRequired,
-    children: PropTypes.node.isRequired,
+    children: PropTypes.node,
   };
 
   render() {
@@ -34,5 +34,9 @@ class Page extends React.Component {
     );
   }
 }
+
+Page.defaultProps = {
+  children: null,
+};
 
 export default withStyles(s)(Page);

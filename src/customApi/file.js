@@ -36,6 +36,7 @@ export default function (app) {
         const content = await readFile(path);
         return res.json({
           type: LINKTO.article,
+          title: file.name.split('.')[0],
           content: content.toString(),
         });
       }

@@ -41,8 +41,7 @@ export default {
       frontmatter.attributes.html = md.render(frontmatter.body);
 
       if (!frontmatter.attributes.title) {
-        frontmatter.attributes.title =
-          frontmatter.body.substring(0, 10);
+        frontmatter.attributes.title = json.title || '';
       }
 
       return {
@@ -50,9 +49,7 @@ export default {
         chunk: 'article',
         component: (
           <Layout>
-            <Page {...frontmatter.attributes}>
-              { null }
-            </Page>
+            <Page {...frontmatter.attributes} />
           </Layout>
         ),
       };
