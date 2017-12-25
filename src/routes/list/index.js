@@ -16,8 +16,8 @@ export default {
       const json = await res.json();
 
       return {
-        title: 'Navigation',
-        chunk: 'navigation',
+        title: 'list',
+        chunk: 'list',
         component: (
           <Screen cover={false}>
             <Page title={'Blog'} html={''}>

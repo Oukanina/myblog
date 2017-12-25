@@ -58,7 +58,7 @@ export default function (app) {
     const articles = await File.findAll({
       attributes: ['id', 'name', 'owner.email', 'onCreate'],
       where: {
-        linkTo: LINKTO.articles,
+        linkTo: LINKTO.article,
       },
       include: [{
         attributes: ['email'],
@@ -79,6 +79,6 @@ export default function (app) {
       });
     });
 
-    return res.json({ files: r });
+    return res.json({ articles: r });
   });
 }
