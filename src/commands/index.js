@@ -15,6 +15,7 @@ const commandsPath = [
   'cd',
   'rm',
   'read',
+  'mv',
 ];
 
 export const myCommands = commandsPath

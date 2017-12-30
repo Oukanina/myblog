@@ -7,7 +7,7 @@ import {
   printError,
 } from './index';
 
-export function getCurrenFolderChildren(path) {
+export function getFolderChildren(path) {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await api(`/graphql?query={
@@ -16,6 +16,7 @@ export function getCurrenFolderChildren(path) {
           children {
             id
             name
+            path
             type
           }
         }
@@ -67,7 +68,7 @@ export default {
           appState.get('path') || '',
           params[0] || '',
         );
-        const json = await getCurrenFolderChildren(path);
+        const json = await getFolderChildren(path);
         const files = json.data.ls.children;
 
         addCurrentCommandToHistory(true);

@@ -1,3 +1,4 @@
+import compress from 'graphql-query-compress';
 import Lockr from 'lockr';
 import fetch from './fetch';
 import history from './history';
@@ -30,7 +31,7 @@ function api(url, options = {}, checkToken = true) {
       Authorization: `Bearer ${authToken}`,
     });
 
-    fetch(url, Object.assign({}, defaultOptions, options, {
+    fetch(compress(url), Object.assign({}, defaultOptions, options, {
       headers,
     })).then((res) => {
       switch (res.status) {

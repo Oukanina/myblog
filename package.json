@@ -26,6 +26,7 @@
     "fastclick": "^1.0.6",
     "fbjs": "^0.8.9",
     "graphql": "^0.9.1",
+    "graphql-query-compress": "^0.9.6",
     "history": "^4.5.1",
     "is_js": "^0.9.0",
     "isomorphic-style-loader": "^2.0.0",

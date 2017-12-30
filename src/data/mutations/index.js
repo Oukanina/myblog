@@ -4,6 +4,7 @@ import {
 import mkdir from './mkdir';
 import cd from './cd';
 import rm from './rm';
+import mv from './mv';
 
 const mutationType = new ObjectType({
   name: 'Mutation',
@@ -11,6 +12,7 @@ const mutationType = new ObjectType({
     cd,
     mkdir,
     rm,
+    mv,
   },
 });
 

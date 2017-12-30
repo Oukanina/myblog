@@ -304,42 +304,32 @@ export function rm({ path, recurrence = false }) {
   });
 }
 
-export function rmWithWildcard({ path, recurrence = false }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let tmp = '';
-      let i = 0;
+function convertWildcard(path) {
+  let tmp = '';
+  let i = 0;
+
+  while (path.charAt(i)) {
+    if (path.charAt(i) === '\'') {
+      i += 1;
 
       while (path.charAt(i)) {
         if (path.charAt(i) === '\'') {
-          i += 1;
-
-          while (path.charAt(i)) {
-            if (path.charAt(i) === '\'') {
-              break;
-            } else {
-              tmp += path.charAt(i);
-            }
-            i += 1;
-          }
-        } else if (path.charAt(i) === '[') {
+          break;
+        } else {
           tmp += path.charAt(i);
-          i += 1;
+        }
+        i += 1;
+      }
+    } else if (path.charAt(i) === '[') {
+      tmp += path.charAt(i);
+      i += 1;
 
-          while (path.charAt(i)) {
-            if (path.charAt(i) === ']') {
-              tmp += path.charAt(i);
-              break;
-            } else if (path.charAt(i) === ',') {
-              tmp += '';
-            } else if (path.charAt(i) === '*') {
-              tmp += '%';
-            } else {
-              tmp += path.charAt(i);
-            }
-            i += 1;
-          }
-        // } else if (path.charAt(i) === '{') {
+      while (path.charAt(i)) {
+        if (path.charAt(i) === ']') {
+          tmp += path.charAt(i);
+          break;
+        } else if (path.charAt(i) === ',') {
+          tmp += '';
         } else if (path.charAt(i) === '*') {
           tmp += '%';
         } else {
@@ -347,11 +337,25 @@ export function rmWithWildcard({ path, recurrence = false }) {
         }
         i += 1;
       }
+    // } else if (path.charAt(i) === '{') {
+    } else if (path.charAt(i) === '*') {
+      tmp += '%';
+    } else {
+      tmp += path.charAt(i);
+    }
+    i += 1;
+  }
 
+  return tmp;
+}
+
+export function rmWithWildcard({ path, recurrence = false }) {
+  return new Promise(async (resolve, reject) => {
+    try {
       const files = await File.findAll({
         where: {
           path: {
-            $like: tmp,
+            $like: convertWildcard(path),
           },
         },
       });
@@ -359,6 +363,42 @@ export function rmWithWildcard({ path, recurrence = false }) {
       for (const file of files) {
         rmFile({ file, recurrence });
       }
+
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function mv({ files = [], target } = {}) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const parent = await File.findOne({
+        where: { path: target },
+      });
+
+      if (!parent) {
+        throw new Error(`not found ${target}`);
+      }
+
+      const children = await File.findAll({
+        where: {
+          $or: files.map(f => ({
+            path: {
+              $like: convertWildcard(f),
+            },
+          })),
+        },
+      });
+
+      const t = [];
+
+      for (const c of children) {
+        t.push(c.update({ parentId: parent.id }));
+      }
+
+      await Promise.all(t);
 
       resolve();
     } catch (err) {

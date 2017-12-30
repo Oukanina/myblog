@@ -12,7 +12,7 @@ import InputHandler from '../../handlers/InputHandler';
 import InputLine from './InputLine';
 import runCommand, { addCurrentCommandToHistory } from '../../commands';
 import { delayUpdate } from '../../core/utils';
-import { getCurrenFolderChildren, listFile } from '../../commands/ls';
+import { getFolderChildren, listFile } from '../../commands/ls';
 
 
 const states = [
@@ -122,12 +122,10 @@ class LastLine extends Line {
   }
 
   async tabHandler() {
-    const path = _path.resolve(appState.path);
     const { currentCommand, cursorPosition } = appState;
 
     if (!currentCommand.length) return;
 
-    const json = await getCurrenFolderChildren(path);
     const r = [];
 
     let inputStr = '';
@@ -138,21 +136,46 @@ class LastLine extends Line {
       cp -= 1;
     }
 
+    let folderPath;
+
+    if (inputStr.startsWith('/')) {
+      const folders = inputStr.split('/');
+      if (folders.length <= 1) {
+        folderPath = _path.resolve('/');
+      } else {
+        folderPath = _path.resolve(folders.slice(0, folders.length - 1).join('/'));
+      }
+    } else {
+      folderPath = _path.resolve(appState.path);
+    }
+
+    const json = await getFolderChildren(folderPath);
+
     for (let i = 0; i < json.data.ls.children.length; i += 1) {
       const file = json.data.ls.children[i];
 
-      if (file.name.startsWith(inputStr)) {
+      if (file.name.startsWith(inputStr.split('/').pop())) {
         r.push(file);
       }
     }
 
     if (r.length < 1) return;
     if (r.length === 1) {
-      const resultCommand = [
-        ...currentCommand.slice(0, cp + 1),
-        ...r[0].name.split(''),
-        ...currentCommand.slice(cursorPosition - 1, currentCommand.length),
-      ];
+      let resultCommand;
+      if (r[0].type === 'd') {
+        r[0].path += '/';
+        resultCommand = [
+          ...currentCommand.slice(0, cp + 1),
+          ...r[0].path.split(''),
+          ...currentCommand.slice(cursorPosition - 1, currentCommand.length),
+        ];
+      } else {
+        resultCommand = [
+          ...currentCommand.slice(0, cp + 1),
+          ...r[0].name.split(''),
+          ...currentCommand.slice(cursorPosition - 1, currentCommand.length),
+        ];
+      }
       appState.update('currentCommand', resultCommand);
       this.setValue(resultCommand.join(''));
       appState.update('cursorPosition', resultCommand.length + 1);
