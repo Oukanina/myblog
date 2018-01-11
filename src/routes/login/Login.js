@@ -128,7 +128,9 @@ class Login extends React.Component {
       this.specialKeyHandler(event);
     }, {
       prefunc(event) {
-        event.preventDefault();
+        if (!event.ctrlKey && !event.altKey) {
+          event.preventDefault();
+        }
       },
     });
   }

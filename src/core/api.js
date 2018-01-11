@@ -22,7 +22,8 @@ function api(url, options = {}, checkToken = true) {
   return new Promise((resolve, reject) => {
     const authToken = Lockr.get('token');
     if (checkToken && !authToken) {
-      history.push('/login');
+      Lockr.set('token', '');
+      history.replace('/login');
       appState.update('login', false);
       throw ERR_NO_TOKEN;
     }
@@ -40,7 +41,8 @@ function api(url, options = {}, checkToken = true) {
           return resolve(res);
         case 401:
           appState.update('login', false);
-          history.push('/login');
+          Lockr.set('token', '');
+          history.replace('/login');
           break;
         case 404:
         case 500:
