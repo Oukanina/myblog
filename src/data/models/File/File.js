@@ -40,7 +40,12 @@ const File = Model.define('File', {
   },
 
   linkTo: {
-    type: DataType.ENUM(LINKTO.article, LINKTO.music, LINKTO.video, LINKTO.none),
+    type: DataType.ENUM(
+      LINKTO.article,
+      LINKTO.music,
+      LINKTO.video,
+      LINKTO.none,
+    ),
     allowNull: false,
   },
 
@@ -57,7 +62,8 @@ const File = Model.define('File', {
 }, {
 
   indexs: [
-    { fields: ['id', 'name', 'path', 'linkTo'] },
+    { unique: true, fields: ['path'] },
+    { fields: ['name'] },
   ],
 
 });
