@@ -18,9 +18,10 @@ export const machineName = 'blog';
 export const dataDir = path.resolve(__dirname, '..', 'data');
 export const initialFile = path.resolve(__dirname, '.initial');
 
-export const email = 'root@localhost.com';
-export const username = 'root';
-export const password = 'root';
+// can't be root
+export const email = `toy@${machineName}.com`;
+export const username = 'toy';
+export const password = 'toy';
 
 export const analytics = {
 
@@ -36,6 +37,10 @@ export const auth = {
   jwt: {
     secret: process.env.JWT_SECRET || 'THE WORLD!!!',
     expires: '24h',
+  },
+
+  password: {
+    secret: 'The death is the only god who comes when you call',
   },
 
   // https://developers.facebook.com/

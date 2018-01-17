@@ -8,10 +8,10 @@
  */
 
 import sequelize from '../sequelize';
-import { User, UserLogin, UserClaim, UserProfile } from './User';
+import { User, UserLogin, UserClaim, UserProfile, UserGroup } from './User';
 import { Article, ArticleTag } from './Article';
 import { File, FILETYPE, LINKTO, ROOTID } from './File';
-import { UserGroup } from './UserGroup';
+import { Group } from './Group';
 import Blog from './Blog';
 
 function sync(...args) {
@@ -24,3 +24,4 @@ export { Article, ArticleTag };
 export { File, FILETYPE, LINKTO, ROOTID };
 export { UserGroup };
 export { Blog };
+export { Group };
