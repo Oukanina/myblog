@@ -1,7 +1,7 @@
 import {
-  getUserById, createUser, setUserProfile,
+  getUserById, createUser, deleteUserForever,
   ERR_EMAIL_ALREADY_EXISTS } from '../utils/userUtils';
-import { setUserGroup, createGroup } from '../utils/groupUtils';
+// import { setUserGroup, createGroup } from '../utils/groupUtils';
 import { ERR_TASK_FAILED } from './constants';
 
 const EMAIL = 'test@test.com';
@@ -27,7 +27,9 @@ describe('User utils test: ', () => {
     } catch (err) {
       throw err;
     } finally {
-      if (testUser) await testUser.destroy();
+      if (testUser) {
+        await deleteUserForever(testUser);
+      }
     }
   });
 
@@ -39,7 +41,9 @@ describe('User utils test: ', () => {
     } catch (err) {
       throw err;
     } finally {
-      if (testUser) await testUser.destroy();
+      if (testUser) {
+        await deleteUserForever(testUser);
+      }
     }
   });
 
@@ -54,45 +58,27 @@ describe('User utils test: ', () => {
     } catch (err) {
       if (err !== ERR_EMAIL_ALREADY_EXISTS) throw err;
     } finally {
-      if (testUser) await testUser.destroy();
-    }
-  });
-
-  it('should set testUser displayName to test', async () => {
-    let testUser;
-    try {
-      testUser = await createTestUser();
-      await setUserProfile({
-        id: testUser.get('id'),
-        displayName: 'test',
-      });
-      const theUser = await getUserById(testUser.get('id'));
-      const userProfile = await theUser.getProfile();
-      if (userProfile.get('displayName') !== 'test') throw ERR_TASK_FAILED;
-    } catch (err) {
-      throw err;
-    } finally {
-      if (testUser) await testUser.destroy();
+      if (testUser) {
+        await deleteUserForever(testUser);
+      }
     }
   });
 
   it('should set test user to test group', async () => {
     let testUser;
-    let testGroup;
+    let userGroups;
     try {
-      testGroup = await createGroup('test');
       testUser = await createTestUser();
-      await setUserGroup(testUser, testGroup);
-
-      if (!await testGroup.hasMember(testUser)) {
+      userGroups = await testUser.getGroups();
+      if (userGroups[0].name !== 'test') {
         throw ERR_TASK_FAILED;
       }
-
     } catch (err) {
       throw err;
     } finally {
-      if (testUser) await testUser.destroy();
-      if (testGroup) await testGroup.destroy();
+      if (testUser) {
+        await deleteUserForever(testUser);
+      }
     }
   });
 

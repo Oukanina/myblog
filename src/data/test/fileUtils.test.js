@@ -2,29 +2,17 @@ import is from 'is_js';
 import { FILETYPE, LINKTO, ROOTID } from '../models';
 import { createFile, findOneFileByName, getFileChildren,
   ERR_FILE_ALREADY_EXIST, ERR_FILE_NOT_EXIST } from '../utils/fileUtils';
-import { createUser } from '../utils/userUtils';
+import { createUser, deleteUserForever } from '../utils/userUtils';
 
 const ERR_TASK_FAILED = new Error('Task failed!');
 
 function createTestUser() {
   return createUser({
-    email: 'guo.ke.ke.a.test@gmail.com',
+    name: 'test',
     password: 'test',
+    email: 'guo.ke.ke.a.test@gmail.com',
   });
 }
-
-// function deleteTestUser() {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       await User.delete({
-//         where: { email: 'guo.ke.ke.a.test@gmail.com' },
-//       }).destroy();
-//       resolve();
-//     } catch (err) {
-//       reject(err);
-//     }
-//   });
-// }
 
 describe('File utils test: ', () => {
 
@@ -46,7 +34,7 @@ describe('File utils test: ', () => {
     } catch (err) {
       throw err;
     } finally {
-      if (testUser) await testUser.destroy();
+      if (testUser) await deleteUserForever(testUser);
       if (testFile) await testFile.destroy();
     }
   });
@@ -68,7 +56,7 @@ describe('File utils test: ', () => {
       if (err !== ERR_FILE_ALREADY_EXIST) throw err;
     } finally {
       if (testFile) await testFile.destroy();
-      if (testUser) await testUser.destroy();
+      if (testUser) await deleteUserForever(testUser);
     }
   });
 
@@ -88,7 +76,7 @@ describe('File utils test: ', () => {
     } catch (err) {
       if (err !== ERR_FILE_NOT_EXIST) throw err;
     } finally {
-      if (testUser) await testUser.destroy();
+      if (testUser) await deleteUserForever(testUser);
       if (testFile) await testFile.destroy();
     }
   });
@@ -112,7 +100,7 @@ describe('File utils test: ', () => {
     } catch (err) {
       throw err;
     } finally {
-      if (testUser) await testUser.destroy();
+      if (testUser) await deleteUserForever(testUser);
       if (testFile) await testFile.destroy();
     }
   });
@@ -146,7 +134,7 @@ describe('File utils test: ', () => {
     } catch (err) {
       throw err;
     } finally {
-      if (testUser) await testUser.destroy();
+      if (testUser) await deleteUserForever(testUser);
       if (testFolder) await testFolder.destroy();
     }
   });
@@ -178,7 +166,7 @@ describe('File utils test: ', () => {
     } catch (err) {
       throw err;
     } finally {
-      if (testUser) await testUser.destroy();
+      if (testUser) await deleteUserForever(testUser);
       if (testFile) await testFile.destroy();
       if (testFolder) await testFolder.destroy();
     }
