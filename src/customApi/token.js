@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../data/models';
 import { auth } from '../config';
-
+import { encode } from '../data/utils/userUtils';
 
 export function createToken(email) {
   return jwt.sign({ email }, auth.jwt.secret, {
@@ -34,14 +34,11 @@ export default function token(app) {
       if (!user) {
         action = 'no user';
         status = 'err';
-
         throw new Error(`not found ${username}`);
       }
-
-      if (user.dataValues.password !== password) {
+      if (user.password !== encode(password)) {
         action = 'vaild';
         status = 'err';
-
         throw new Error('wrong password');
       }
 
