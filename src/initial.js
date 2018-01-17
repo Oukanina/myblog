@@ -3,42 +3,52 @@ import { log } from './core/utils';
 import {
   dataDir,
   initialFile,
+  machineName,
   email,
   username,
   password,
 } from './config';
 import {
-  User, UserGroup,
+  User, Group,
   File, ROOTID,
   FILETYPE,
 } from './data/models';
-import { createUser } from './data/utils/userUtils';
+import { createUser, encode } from './data/utils/userUtils';
 
 
-function initialGroup() {
-  return new Promise(async (resolve, reject) => {
-    log('now is initial user group...');
-    try {
-      await UserGroup.create({ name: 'root' });
-      await UserGroup.create({ name: 'user' });
-      resolve(true);
-    } catch (err) {
-      reject(err);
-    }
-  });
+function createRootGroup() {
+  return Group.create({ name: 'root' });
 }
 
 function createRootUser() {
   return new Promise(async (resolve, reject) => {
     log('now is initial root user...');
     try {
+      const group = await createRootGroup();
       const root = await User.create({
+        email: `root@${machineName}.com`,
+        username: 'root',
+        password: encode(password),
+        homePath: '/root',
+      });
+      root.addGroup(group);
+      resolve(root);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+function createCustomUser() {
+  return new Promise(async (resolve, reject) => {
+    log('now is initial custom user...');
+    try {
+      const u = await createUser({
         email,
         username,
         password,
-        homePath: `/${username}`,
       });
-      resolve(root);
+      resolve(u);
     } catch (err) {
       reject(err);
     }
@@ -50,10 +60,10 @@ function createAnonymousUser() {
     log('now is initial anonymous user...');
     try {
       const anonymous = await createUser({
-        email: 'anonymous@example.com',
-        username: 'anonymous',
-        password: 'anonymous',
-        homePath: '/home/anonymous',
+        email: `anonymous@${machineName}.com`,
+        username: 'anon',
+        password: 'anon',
+        homePath: '/home/anon',
       });
       resolve(anonymous);
     } catch (err) {
@@ -66,28 +76,41 @@ function shoudlInitial() {
   return !fs.existsSync(initialFile);
 }
 
-function createRoot(root) {
+function createBase(root) {
   return new Promise(async (resolve, reject) => {
     log('now is initial root folder');
     try {
-      await File.create({
-        id: ROOTID,
-        name: root.username,
-        type: FILETYPE.d,
-        mode: '755',
-        userId: root.id,
-        linkTo: 'none',
-        path: '/',
-      });
-      await File.create({
-        name: root.username,
-        userId: root.id,
-        parentId: ROOTID,
-        type: FILETYPE.d,
-        mode: '755',
-        linkTo: 'none',
-        path: `/${username}`,
-      });
+      await Promise.all([
+        File.create({
+          id: ROOTID,
+          name: 'root',
+          type: FILETYPE.d,
+          mode: '740',
+          userId: root.id,
+          linkTo: 'none',
+          path: '/',
+        }),
+
+        File.create({
+          name: 'root',
+          userId: root.id,
+          parentId: ROOTID,
+          type: FILETYPE.d,
+          mode: '700',
+          linkTo: 'none',
+          path: '/root',
+        }),
+
+        File.create({
+          name: 'home',
+          userId: root.id,
+          parentId: ROOTID,
+          type: FILETYPE.d,
+          mode: '700',
+          linkTo: 'none',
+          path: '/home',
+        }),
+      ]);
       resolve();
     } catch (err) {
       reject(err);
@@ -102,18 +125,22 @@ export function createUploadDataFolder() {
   }
 }
 
-export default async function () {
-  try {
-    if (!await shoudlInitial()) return;
-    createUploadDataFolder();
-    if (!fs.existsSync(initialFile)) {
-      await initialGroup();
-      const root = await createRootUser();
-      await createRoot(root);
-      await createAnonymousUser();
-      fs.closeSync(fs.openSync(initialFile, 'w'));
+export default function () {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (await shoudlInitial()) {
+        createUploadDataFolder();
+        if (!fs.existsSync(initialFile)) {
+          await createBase(await createRootUser());
+          await createCustomUser();
+          await createAnonymousUser();
+          fs.closeSync(fs.openSync(initialFile, 'w'));
+        }
+      }
+      resolve();
+    } catch (err) {
+      console.error(err); // eslint-disable-line no-console
+      reject(err);
     }
-  } catch (err) {
-    console.error(err); // eslint-disable-line no-console
-  }
+  });
 }
