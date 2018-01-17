@@ -1,6 +1,9 @@
-import { User, UserLogin, UserProfile, LINKTO, ROOTID } from '../models';
+import crypto from 'crypto';
+
+import { User, UserLogin, UserProfile, Group, LINKTO } from '../models';
 import { fliterObject } from '../../core/utils';
-import { createFolder } from './fileUtils';
+import { createFolder, findFileByPath } from './fileUtils';
+import { auth } from '../../config';
 
 export const ERR_EMAIL_ALREADY_EXISTS = new Error('this email already exists!');
 export const ERR_USER_NOT_FOUND = new Error('user not found!');
@@ -24,9 +27,15 @@ export function getUserById(id) {
   });
 }
 
+export function encode(data) {
+  return crypto.createHmac('sha256', auth.password.secret)
+    .update(data).digest('hex');
+}
+
 export function createUser({ email, username, password }) {
   return new Promise(async (resolve, reject) => {
     let newUser;
+    let newGroup;
     let userHome;
     try {
       const users = await User.findAll({
@@ -36,38 +45,23 @@ export function createUser({ email, username, password }) {
         },
           onDelete: false },
       });
+
       if (users.length) throw ERR_EMAIL_ALREADY_EXISTS;
+
       newUser = await User.create({
         email,
-        password,
+        password: encode(password),
         username: username || email.split('@')[0],
       });
-      if (newUser.get('username') === 'root') {
-        // userHome = await createFolder({
-        //   name: newUser.get('username'),
-        //   userId: newUser.get('id'),
-        //   parentId: ROOTID,
-        //   force: false,
-        //   mode: '755',
-        //   linkTo: LINKTO.none,
-        //   createIfNotExist: true,
-        // });
-        // newUser.homePath = `/${newUser.get('username')}`;
-        // await newUser.save();
-        // await newUser.update({
-        //   homePath: `/${newUser.get('username')}`,
-        // });
-      } else {
-        // create home folder if not exist
-        const homeFolder = await createFolder({
-          name: 'home',
-          parentId: ROOTID,
-          userId: newUser.get('id'),
-          force: false,
-          mode: '755',
-          linkTo: LINKTO.none,
-          createIfNotExist: true,
-        });
+
+      newGroup = await Group.create({
+        name: username || email.split('@')[0],
+      });
+
+      await newUser.addGroup(newGroup);
+
+      if (newUser.get('username') !== 'root') {
+        const homeFolder = await findFileByPath('/home');
         userHome = await createFolder({
           name: newUser.get('username'),
           parentId: homeFolder.get('id'),
@@ -85,6 +79,7 @@ export function createUser({ email, username, password }) {
     } catch (err) {
       if (newUser) newUser.destroy();
       if (userHome) userHome.destroy();
+      if (newGroup) newGroup.destroy();
       reject(err);
     }
   });
@@ -97,6 +92,22 @@ export function deleteUser(id) {
       await user.update({
         onDelete: true,
       });
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function deleteUserForever(user) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await Promise.all(
+        (await user.getGroups())
+        .map(g => g.destroy()),
+      );
+      await user.setGroups(null);
+      await user.destroy();
       resolve();
     } catch (err) {
       reject(err);

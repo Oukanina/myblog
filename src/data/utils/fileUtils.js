@@ -60,6 +60,7 @@ export function createFile({ id, name, type, parentId, parentFolder, mode,
       }
 
       let parent;
+
       if (parentFolder) {
         parent = parentFolder;
       } else if (parentId) {
@@ -67,11 +68,13 @@ export function createFile({ id, name, type, parentId, parentFolder, mode,
       } else {
         throw ERR_NO_PARAMETER;
       }
+      if (!parent) throw ERR_PARENT_NOT_FOUND;
       if (parent.get('type') === FILETYPE.f) throw ERR_PARENT_SHOULD_BE_A_FOLDER;
 
       const subFiles = await parent.getSubFile({
         where: { name, type },
       });
+
       // file exist
       if (subFiles.length) {
         if (createIfNotExist) {
@@ -93,7 +96,7 @@ export function createFile({ id, name, type, parentId, parentFolder, mode,
       }));
       resolve(newFile);
     } catch (err) {
-      if (newFile) newFile.destroy();
+      if (newFile) await newFile.destroy();
       reject(err);
     }
   });
@@ -111,7 +114,7 @@ export function findFileByPath(path) {
   });
 }
 
-export function createFolder({ id, name, parentId, mode,
+export function createFolder({ id, name, parentId, mode = '664',
   linkTo, createIfNotExist, force, userId }) {
   return new Promise(async (resolve, reject) => {
     let newFolder;
@@ -243,7 +246,7 @@ export function getFolderByPath(path) {
   return getFileByPath(path, FILETYPE.d);
 }
 
-export function mkdir({ name, path, userId }) {
+export function mkdir({ name, path, userId, mode = '664' }) {
   return new Promise(async (resolve, reject) => {
     try {
       let parent;
@@ -258,7 +261,7 @@ export function mkdir({ name, path, userId }) {
       resolve(await createFolder({
         name,
         userId,
-        mode: '755',
+        mode,
         linkTo: LINKTO.none,
         parentId: parent.id,
       }));
