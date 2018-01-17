@@ -51,7 +51,8 @@ const User = Model.define('User', {
 }, {
 
   indexes: [
-    { fields: ['username', 'email'] },
+    { unique: true, fields: ['username', 'homePath'] },
+    { fields: ['email'] },
   ],
 
 });

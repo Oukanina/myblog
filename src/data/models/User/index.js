@@ -3,6 +3,9 @@ import UserLogin from './UserLogin';
 import UserClaim from './UserClaim';
 import UserProfile from './UserProfile';
 import UserActivity from './UserActivity';
+import UserGroup from './UserGroup';
+// eslint-disable-next-line
+import Group from '../Group/Group';
 
 User.hasMany(UserLogin, {
   foreignKey: 'userId',
@@ -30,4 +33,23 @@ User.hasOne(UserProfile, {
   onDelete: 'cascade',
 });
 
-export { User, UserLogin, UserClaim, UserProfile, UserActivity };
+User.belongsToMany(Group, {
+  foreignKey: 'userId',
+  through: {
+    model: UserGroup,
+    unique: false,
+  },
+  constraints: false,
+});
+
+Group.belongsToMany(User, {
+  foreignKey: 'groupId',
+  through: {
+    model: UserGroup,
+    unique: false,
+  },
+  constraints: false,
+});
+
+export { User, UserLogin, UserClaim, UserProfile, UserActivity, UserGroup };
+export default User;

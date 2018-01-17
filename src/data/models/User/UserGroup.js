@@ -9,8 +9,13 @@ const UserGroup = Model.define('UserGroup', {
     primaryKey: true,
   },
 
-  name: {
-    type: DataType.STRING(255),
+  userId: {
+    type: DataType.UUID,
+    allowNull: false,
+  },
+
+  groupId: {
+    type: DataType.UUID,
     allowNull: false,
   },
 
