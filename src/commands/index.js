@@ -82,6 +82,8 @@ export function printError(errors) {
       style: { color: 'red' },
     });
   });
+
+  appState.trigger('historyCommands');
 }
 
 function recardInput(input) {

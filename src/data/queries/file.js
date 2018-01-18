@@ -32,6 +32,10 @@ export const ls = {
     try {
       const file = await findFileByPath(_path.resolve(path));
 
+      if (!file) {
+        throw new Error(`ls: cannot access '${path}': No such file or directory!`);
+      }
+
       return {
         id: file.get('id'),
         name: file.get('name'),

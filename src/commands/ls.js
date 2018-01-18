@@ -29,7 +29,7 @@ export function getFolderChildren(path) {
   });
 }
 
-export function listFile(files) {
+export function listFile(files = []) {
   if (!files.length) return;
 
   const historyCommands = appState.historyCommands;
@@ -69,11 +69,12 @@ export default {
           params[0] || '',
         );
         const json = await getFolderChildren(path);
-        const files = json.data.ls.children;
+        const files = json.data.ls.children || [];
 
         addCurrentCommandToHistory(true);
         appState.update('currentCommand', []);
         appState.update('cursorPosition', 1);
+
         listFile(files);
 
         if (json.errors) {
