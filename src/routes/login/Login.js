@@ -382,6 +382,11 @@ class Login extends React.Component {
     return (
       <div>
         {this.renderText(password, passwordFocus, true)}
+        {
+          password.length === 0
+            ? <span className={s.placeholder}> anon </span>
+            : null
+        }
       </div>
     );
   }
@@ -397,6 +402,11 @@ class Login extends React.Component {
           ref={(u) => { this.usernameInput = u; }}
         >
           { this.renderUsername() }
+          {
+            this.state.username.length === 0
+              ? <span className={s.placeholder}> anon </span>
+              : null
+          }
         </div>
       </div>);
   }
