@@ -10,7 +10,7 @@ import appState from '../../core/state';
 import { AT, TILDE, COLON, DOLLAR } from '../../constants';
 import InputHandler from '../../handlers/InputHandler';
 import InputLine from './InputLine';
-import runCommand, { addCurrentCommandToHistory } from '../../commands';
+import runCommand, { addCurrentCommandToHistory, printError } from '../../commands';
 import { delayUpdate } from '../../core/utils';
 import { getFolderChildren, listFile } from '../../commands/ls';
 
@@ -144,11 +144,20 @@ class LastLine extends Line {
       } else {
         folderPath = _path.resolve(folders.slice(0, folders.length - 1).join('/'));
       }
+    } else if (inputStr.endsWith('/')) {
+      folderPath = _path.resolve(appState.path, inputStr);
     } else {
       folderPath = _path.resolve(appState.path);
     }
 
     const json = await getFolderChildren(folderPath);
+
+    if (!json.data.ls.children) {
+      return;
+    } else if (json.errors && json.errors.length) {
+      printError(json.errors);
+      return;
+    }
 
     for (let i = 0; i < json.data.ls.children.length; i += 1) {
       const file = json.data.ls.children[i];
