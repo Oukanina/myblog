@@ -25,6 +25,71 @@ function finishUpload() {
   appState.update('currentCommand', []);
 }
 
+function startUpload(resolve, files) {
+  const { historyCommands } = appState;
+  const uploadWorker = new UploadWorker();
+  const host = window.location.host;
+  const token = Lockr.get('token');
+  const path = appState.get('path');
+  let isOnUplading = false;
+  let i = 0;
+
+  const doUpload = (file) => {
+    if (file) {
+      uploadWorker.postMessage({ file, host, token, path });
+    } else {
+      finishUpload();
+      uploadWorker.terminate();
+      resolve(false);
+    }
+  };
+
+  appState.update('hideLastLine', true);
+
+  uploadWorker.onmessage = (e2) => {
+    const message = JSON.parse(e2.data);
+
+    if (message.status === 'error') {
+      historyCommands.push({
+        text: message.data,
+      });
+      finishUpload();
+      uploadWorker.terminate();
+      resolve(false);
+      return;
+    }
+
+    if (!isOnUplading) {
+      historyCommands.push({
+        text: `uploading ${message.progress}%`,
+        style: { color: 'green' },
+      });
+    }
+
+    if (message.status === 'finish') {
+      historyCommands[historyCommands.length - 1] = {
+        text: `${message.name} ${message.progress}%`,
+        style: { color: 'green' },
+      };
+      isOnUplading = false;
+
+      doUpload(files[i++]);
+    } else {
+      if (isOnUplading) {
+        historyCommands[historyCommands.length - 1] = {
+          text: `uploading ${message.progress}%`,
+          style: { color: 'green' },
+        };
+      }
+      isOnUplading = true;
+    }
+
+    appState.update('historyCommands', historyCommands);
+  };
+
+  doUpload(files[i++]);
+}
+
 function inputChangeHandler(resolve) {
   return (e) => {
     e.preventDefault();
@@ -38,68 +103,11 @@ function inputChangeHandler(resolve) {
       resolve(false);
     }
 
-    const { historyCommands } = appState;
-    const uploadWorker = new UploadWorker();
-    const host = window.location.host;
-    const token = Lockr.get('token');
-    const path = appState.get('path');
-    let isOnUplading = false;
-    let i = 0;
-
-    const doUpload = (file) => {
-      if (file) {
-        uploadWorker.postMessage({ file, host, token, path });
-      } else {
-        finishUpload();
-        uploadWorker.terminate();
-        resolve(false);
-      }
-    };
-
-    appState.update('hideLastLine', true);
-
-    uploadWorker.onmessage = (e2) => {
-      const message = JSON.parse(e2.data);
-
-      if (message.status === 'error') {
-        historyCommands.push({
-          text: message.data,
-        });
-        finishUpload();
-        uploadWorker.terminate();
-        resolve(false);
-        return;
-      }
-
-      if (!isOnUplading) {
-        historyCommands.push({
-          text: `uploading ${message.progress}%`,
-          style: { color: 'green' },
-        });
-      }
-
-      if (message.status === 'finish') {
-        historyCommands[historyCommands.length - 1] = {
-          text: `${message.name} ${message.progress}%`,
-          style: { color: 'green' },
-        };
-        isOnUplading = false;
-
-        doUpload(files[i++]);
-      } else {
-        if (isOnUplading) {
-          historyCommands[historyCommands.length - 1] = {
-            text: `uploading ${message.progress}%`,
-            style: { color: 'green' },
-          };
-        }
-        isOnUplading = true;
-      }
-
-      appState.update('historyCommands', historyCommands);
-    };
-
-    doUpload(files[i++]);
+    try {
+      startUpload(resolve, files);
+    } catch (err) {
+      throw err;
+    }
   };
 }
 

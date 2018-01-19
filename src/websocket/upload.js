@@ -21,6 +21,7 @@ const FILE_TYPE_LINK_MAP = {
   'text/markdown': LINKTO.article,
   'audio/mp3': LINKTO.music,
   'audio/mpeg': LINKTO.music,
+  'video/mp4': LINKTO.video,
 };
 const ALLOW_FILE_TYPE = [
   'image/jpeg',
@@ -35,7 +36,7 @@ const FILE_SAVE_ERROR = new MyError('FileSaveError', 'File save error!');
 const FILE_SIZEE_RROR = new MyError('FileSizeError',
   `File size too large! max file size is ${MAX_FILE_SIZE/(1 << 20)}mb`);  // eslint-disable-line
 const FILE_TYPE_ERROR = new MyError('FileTypeError',
-`Your can't upload {0} file! you can just upload: ${ALLOW_FILE_TYPE.join(',')}`);
+  `Your can't upload {0} file! you can just upload: ${ALLOW_FILE_TYPE.join(',')}`);
 const NO_TOKEN_ERROR = new MyError('NoTokenError', 'Permission denied!');
 const NO_FILEE_RROR = new MyError('NoFileError', 'Permission denied!');
 
