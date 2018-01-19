@@ -40,16 +40,16 @@ export default function (app) {
           content: content.toString(),
         });
       }
-      if (file.linkTo === LINKTO.image) {
+      if (
+        file.linkTo === LINKTO.image ||
+        file.linkTo === LINKTO.music ||
+        file.linkTo === LINKTO.video
+      ) {
         return res.json({
           redirect: true,
           content: `/${path}`,
         });
       }
-      // if (file.linkTo === LINKTO.music) {
-      // }
-      // if (file.linkTo === LINKTO.video) {
-      // }
 
       return res.json({ content: null });
     });
