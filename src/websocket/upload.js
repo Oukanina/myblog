@@ -28,8 +28,9 @@ const ALLOW_FILE_TYPE = [
   'text/markdown',
   'audio/mp3',
   'audio/mpeg',
+  'video/mp4',
 ];
-const MAX_FILE_SIZE = (1 << 20) * 10; // eslint-disable-line
+const MAX_FILE_SIZE = (1 << 20) * 100; // eslint-disable-line
 const FILE_SAVE_ERROR = new MyError('FileSaveError', 'File save error!');
 const FILE_SIZEE_RROR = new MyError('FileSizeError',
   `File size too large! max file size is ${MAX_FILE_SIZE/(1 << 20)}mb`);  // eslint-disable-line
