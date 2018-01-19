@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-
+import _path from 'path';
 import { File, FILETYPE, ROOTID, LINKTO } from '../models';
 import { getUserById } from './userUtils';
 
@@ -377,10 +377,17 @@ export function rmWithWildcard({ path, recurrence = false }) {
 export function mv({ files = [], target } = {}) {
   return new Promise(async (resolve, reject) => {
     try {
-      const parent = await File.findOne({
+      if (files.length === 0) {
+        throw new Error('mv: ?');
+      }
+      if (!target) {
+        throw new Error(`mv: missing destination file operand after '${files.pop()}'`);
+      }
+
+      const targetFile = await File.findOne({
         where: { path: target },
       });
-      const children = await File.findAll({
+      const sources = await File.findAll({
         where: {
           $or: files.map(f => ({
             path: {
@@ -390,30 +397,88 @@ export function mv({ files = [], target } = {}) {
         },
       });
 
-      if (!parent) {
-        if (children.length === 1) {
-          if (target.endsWith('/') || children.length !== 1) {
-            throw new Error(`mv: target '${target}' is not a directory`);
-          } else {
-            await children[0].update({
-              name: target.split('/').pop(),
-              path: target,
-            });
-          }
-        }
-      } else {
-        const t = [];
-
-        for (const c of children) {
-          t.push(c.update({
-            parentId: parent.id,
-            path: `${parent.path}/${c.name}`,
-          }));
-        }
-
-        await Promise.all(t);
+      if (sources.length === 0) {
+        throw new Error(`mv: cannot stat '${files[0]}': No such file or directory`);
       }
 
+      const t = [];
+
+      if (!targetFile) {
+        if (target.endsWith('/') || files.length !== 1) {
+          throw new Error(`mv: target '${target}' is not a directory`);
+        } else {
+          const targetParent = await File.findOne({
+            where: { path: _path.resolve(target, '..') },
+          });
+
+          if (!targetParent) {
+            throw new Error(`mv: cannot move '${sources[0].name}' to '${target}': No such file or directory`);
+          }
+
+          const children = await File.findAll({
+            where: {
+              path: { $like: `${sources[0].path}%` },
+            },
+          });
+
+          for (const c of children) {
+            t.push(c.update({
+              path: c.path.replace(sources[0].path, target),
+            }));
+          }
+
+          t.push(sources[0].update({
+            parentId: targetParent.id,
+            name: target.split('/').pop(),
+            path: target,
+          }));
+        }
+      } else if (targetFile.type !== 'd') {
+        throw new Error(`mv: target '${target}' is not a directory`);
+      } else {
+        const children = await File.findAll({
+          where: {
+            $or: sources.map(s => ({
+              path: {
+                $like: `${s.path}%`,
+              },
+            })),
+          },
+        });
+
+        const getNewPath = (tar, s) => {
+          let i = 0;
+          const r = [];
+          const tpath = tar.split('/');
+          const spath = s.split('/');
+
+          while (tpath[i] === spath[i]) {
+            r.push(tpath[i]);
+            i += 1;
+          }
+          r.push(tpath[i]);
+          while (i < spath.length) {
+            r.push(spath[i]);
+            i += 1;
+          }
+          return r.join('/');
+        };
+
+        for (const c of children) {
+          if (sources.find(s => s.name === c.name)) {
+            t.push(c.update({
+              parentId: targetFile.id,
+              path: getNewPath(targetFile.path, c.path),
+            }));
+          } else {
+            t.push(c.update({
+              path: getNewPath(targetFile.path, c.path),
+            }));
+          }
+        }
+      }
+
+      await Promise.all(t);
 
       resolve();
     } catch (err) {
