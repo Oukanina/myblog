@@ -398,7 +398,10 @@ export function mv({ files = [], target } = {}) {
       const t = [];
 
       for (const c of children) {
-        t.push(c.update({ parentId: parent.id }));
+        t.push(c.update({
+          parentId: parent.id,
+          path: `${parent.path}/${c.name}`,
+        }));
       }
 
       await Promise.all(t);
