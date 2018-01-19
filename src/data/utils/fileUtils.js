@@ -380,11 +380,6 @@ export function mv({ files = [], target } = {}) {
       const parent = await File.findOne({
         where: { path: target },
       });
-
-      if (!parent) {
-        throw new Error(`not found ${target}`);
-      }
-
       const children = await File.findAll({
         where: {
           $or: files.map(f => ({
@@ -395,16 +390,30 @@ export function mv({ files = [], target } = {}) {
         },
       });
 
-      const t = [];
+      if (!parent) {
+        if (children.length === 1) {
+          if (target.endsWith('/') || children.length !== 1) {
+            throw new Error(`mv: target '${target}' is not a directory`);
+          } else {
+            await children[0].update({
+              name: target.split('/').pop(),
+              path: target,
+            });
+          }
+        }
+      } else {
+        const t = [];
 
-      for (const c of children) {
-        t.push(c.update({
-          parentId: parent.id,
-          path: `${parent.path}/${c.name}`,
-        }));
+        for (const c of children) {
+          t.push(c.update({
+            parentId: parent.id,
+            path: `${parent.path}/${c.name}`,
+          }));
+        }
+
+        await Promise.all(t);
       }
 
-      await Promise.all(t);
 
       resolve();
     } catch (err) {

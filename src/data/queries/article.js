@@ -76,7 +76,7 @@ export const read = {
 
   async resolve(_, { path }) {
     try {
-      if (!path) throw new Error('no path parameter when call article resolve!');
+      if (!path) throw new Error('read: no path parameter when call article resolve!');
 
       const file = await fileUtils.getFileByPath(path);
 
@@ -84,7 +84,7 @@ export const read = {
         throw fileUtils.ERR_FILE_NOT_EXIST;
       }
       if (file.type === FILETYPE.d) {
-        throw new Error(`${file.get('name')} is a directory!`);
+        throw new Error(`read: ${file.get('name')} is a directory!`);
       }
 
       return {
