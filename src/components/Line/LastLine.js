@@ -55,7 +55,6 @@ class LastLine extends Line {
     };
 
     this.historyPointer = -1;
-
     this.updateLimit = 5;
     this.commandCallback = this.commandCallback.bind(this);
     this.stateHandler = this.stateHandler.bind(this);
@@ -169,11 +168,15 @@ class LastLine extends Line {
           ...r[0].path.split(''),
           ...currentCommand.slice(cursorPosition - 1, currentCommand.length),
         ];
-      } else {
+      } else if (r[0].path === `${appState.get('path')}/${r[0].name}`) {
         resultCommand = [
           ...currentCommand.slice(0, cp + 1),
           ...r[0].name.split(''),
-          ...currentCommand.slice(cursorPosition - 1, currentCommand.length),
+        ];
+      } else {
+        resultCommand = [
+          ...currentCommand.slice(0, cp + 1),
+          ...r[0].path.split(''),
         ];
       }
       appState.update('currentCommand', resultCommand);
