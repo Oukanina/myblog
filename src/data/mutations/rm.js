@@ -5,6 +5,7 @@ import {
 } from 'graphql';
 import FileType from '../types/FileType';
 import { rm, rmWithWildcard } from '../utils/fileUtils';
+import { ROOTID } from '../models';
 
 export default {
   type: FileType,
@@ -21,6 +22,12 @@ export default {
   },
   async resolve(_, { path, options = '' }) {
     try {
+      const user = _.request.user;
+
+      if (user.id !== ROOTID) {
+        throw new Error('Only root can delete!');
+      }
+
       const recurrence = options.includes('-r');
       let filePath = path;
 
