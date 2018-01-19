@@ -68,6 +68,7 @@ export default {
           appState.get('path') || '',
           params[0] || '',
         );
+
         const json = await getFolderChildren(path);
         const files = json.data.ls.children || [];
 

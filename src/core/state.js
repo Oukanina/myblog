@@ -32,6 +32,7 @@ const defaultSatte = {
   cursorPosition: 1,
   lastLineHead: '',
   isFetchData: '',
+  lockCommand: false,
 
   screenElement: null,
   containerElement: null,

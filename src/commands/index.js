@@ -93,6 +93,10 @@ function recardInput(input) {
 }
 
 export default async function (command, cb) {
+  if (appState.get('lockCommand')) {
+    return;
+  }
+
   let hit = false;
   let canNewLine = true;
 
@@ -105,6 +109,8 @@ export default async function (command, cb) {
     if (!hit) {
       continue; // eslint-disable-line no-continue
     }
+
+    appState.update('lockCommand', true);
 
     try {
       canNewLine = await myCommands[i].action(command); // eslint-disable-line no-await-in-loop
@@ -123,4 +129,6 @@ export default async function (command, cb) {
   if (cb && cb instanceof Function) {
     cb();
   }
+
+  appState.update('lockCommand', false);
 }
