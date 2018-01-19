@@ -77,7 +77,7 @@ function saveFile({ file, path, token }) {
 
       createUploadDataFolder();
 
-      fs.rename(`/tmp/${name}`, newPath, async (err) => {
+      fs.rename(`/tmp/${file.name}`, newPath, async (err) => {
         if (err) return reject(err);
 
         await newFile.createArticle({
