@@ -127,7 +127,6 @@ class LastLine extends Line {
     if (!currentCommand.length) return;
 
     const r = [];
-
     let inputStr = '';
     let cp = cursorPosition - 2;
 
@@ -136,27 +135,27 @@ class LastLine extends Line {
       cp -= 1;
     }
 
-    let folderPath;
+    const folders = inputStr.split('/');
 
-    if (inputStr.startsWith('/')) {
-      const folders = inputStr.split('/');
-      if (folders.length <= 1) {
-        folderPath = _path.resolve('/');
-      } else {
-        folderPath = _path.resolve(folders.slice(0, folders.length - 1).join('/'));
+    if (folders.length > 1) {
+      if (folders[folders.length - 1]) {
+        folders.pop();
       }
-    } else if (inputStr.endsWith('/')) {
-      folderPath = _path.resolve(appState.path, inputStr);
-    } else {
-      folderPath = _path.resolve(appState.path);
+    }
+    if (folders.length === 1) {
+      if (!(folders[0].endsWith('/') || folders[0].startsWith('..'))) {
+        folders.pop();
+      }
     }
 
+    const folderPath = _path.resolve(appState.path, folders.join('/'));
     const json = await getFolderChildren(folderPath);
 
-    if (!json.data.ls.children) {
-      return;
-    } else if (json.errors && json.errors.length) {
+    if (json.errors && json.errors.length) {
+      addCurrentCommandToHistory(true);
       printError(json.errors);
+      return;
+    } else if (!json.data.ls.children) {
       return;
     }
 
@@ -168,27 +167,37 @@ class LastLine extends Line {
       }
     }
 
-    if (r.length < 1) return;
+    if (r.length < 1) {
+      if (folders.length === 0 && json.data.ls.children.length > 0) {
+        addCurrentCommandToHistory(true);
+        listFile(json.data.ls.children);
+      }
+      return;
+    }
     if (r.length === 1) {
       let resultCommand;
+      const cstart = currentCommand.slice(0, cp + 1);
+      const cpath = r[0].path.split('');
+
       if (r[0].type === 'd') {
         r[0].path += '/';
         resultCommand = [
-          ...currentCommand.slice(0, cp + 1),
-          ...r[0].path.split(''),
+          ...cstart,
+          ...cpath,
           ...currentCommand.slice(cursorPosition - 1, currentCommand.length),
         ];
       } else if (r[0].path === `${appState.get('path')}/${r[0].name}`) {
         resultCommand = [
-          ...currentCommand.slice(0, cp + 1),
+          ...cstart,
           ...r[0].name.split(''),
         ];
       } else {
         resultCommand = [
-          ...currentCommand.slice(0, cp + 1),
-          ...r[0].path.split(''),
+          ...cstart,
+          ...cpath,
         ];
       }
+
       appState.update('currentCommand', resultCommand);
       this.setValue(resultCommand.join(''));
       appState.update('cursorPosition', resultCommand.length + 1);

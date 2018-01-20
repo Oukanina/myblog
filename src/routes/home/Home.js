@@ -25,8 +25,6 @@ class Home extends React.Component {
 
   componentDidMount() {
     this.listen();
-    appState.fetchData();
-    // initial state
     this.listenHandler(appState.get('login'));
   }
 

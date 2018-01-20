@@ -9,6 +9,7 @@
 
 import React, { PropTypes } from 'react';
 import ScrollbarHandler from '../handlers/ScrollbarHandler.js';
+import appState from '../core/state';
 
 const ContextType = {
   // Enables critical path CSS rendering
@@ -53,6 +54,7 @@ class App extends React.PureComponent {
 
   componentDidMount() {
     ScrollbarHandler.on();
+    appState.fetchData();
   }
 
   render() {

@@ -18,9 +18,16 @@ export default {
   },
   async resolve(_, { path }) {
     try {
-      const targetPath = _path.resolve(path);
+      let targetPath = '';
+
+      if (targetPath.includes('~')) {
+        targetPath = path.replace('~', _.request.user.home);
+      } else {
+        targetPath = path;
+      }
+
       const file = await findFileByPath(
-        targetPath,
+        _path.resolve(targetPath),
       );
 
       if (!file) {

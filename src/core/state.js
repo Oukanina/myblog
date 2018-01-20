@@ -181,10 +181,14 @@ class State {
   }
 
   saveOnePropToStorage(stateName, value) {
+    const disabledState = ['isFetchData'];
+
+    if (disabledState.includes(stateName)) return this;
+
     if (
       value instanceof Array ||
-      value instanceof String ||
-      value instanceof Number
+      typeof value === 'string' ||
+      typeof value === 'number'
     ) {
       if (stateName === 'historyCommands') {
         lockr.set(stateName, value.slice(value.length - 200, value.length));

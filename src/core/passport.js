@@ -73,7 +73,7 @@ passport.use(new BearerStrategy({
       email: user.email,
       HOME: user.homePath,
       home: user.homePath,
-      path: user.homePath,
+      // path: user.homePath,
       hostname: machineName || host,
       username: user.username,
       lastLoginIp,
