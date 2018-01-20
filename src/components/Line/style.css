@@ -66,3 +66,7 @@
   height: 13px;
   background: #fafafa;
 }
+
+.lock {
+  opacity: 0.6;
+}

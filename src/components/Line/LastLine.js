@@ -18,7 +18,7 @@ import { getFolderChildren, listFile } from '../../commands/ls';
 const states = [
   'username', 'hostname', 'path',
   'HOME', 'cursorPosition', 'currentCommand',
-  'lastLineHead',
+  'lastLineHead', 'lockCommand',
 ];
 // https://stackoverflow.com/questions/512528/set-keyboard-caret-position-in-html-textbox
 function setCaretPosition(elem, caretPos) {
@@ -52,10 +52,11 @@ class LastLine extends Line {
       HOME: TILDE,
       lastLineHead: '',
       cursorPosition: 1,
+      lockCommand: false,
     };
 
     this.historyPointer = -1;
-    this.updateLimit = 5;
+    this.updateLimit = 0;
     this.commandCallback = this.commandCallback.bind(this);
     this.stateHandler = this.stateHandler.bind(this);
     this.inputHandler = new InputHandler({
@@ -118,6 +119,14 @@ class LastLine extends Line {
     this.lastUpdateTime = 0;
     this.updateTimeout = null;
     this.nextState = {};
+
+    appState.listen('lockCommand', (value) => {
+      if (value) {
+        this.inputHandler.pause();
+      } else {
+        this.inputHandler.resume();
+      }
+    });
   }
 
   async tabHandler() {
@@ -309,13 +318,14 @@ class LastLine extends Line {
     const {
       lastLineHead, currentCommand, HOME,
       hostname, username, path, cursorPosition,
+      lockCommand,
     } = this.state;
 
     const pathString = path === HOME ? '~' : path;
     const text = currentCommand.join ? currentCommand.join('') : currentCommand;
 
     return this.renderLine(
-      <span>
+      <span className={lockCommand ? s.lock : null}>
         {
           hide ? null :
           <div className={s.lineHead}>
