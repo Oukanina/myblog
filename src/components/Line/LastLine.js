@@ -119,14 +119,6 @@ class LastLine extends Line {
     this.lastUpdateTime = 0;
     this.updateTimeout = null;
     this.nextState = {};
-
-    appState.listen('lockCommand', (value) => {
-      if (value) {
-        this.inputHandler.pause();
-      } else {
-        this.inputHandler.resume();
-      }
-    });
   }
 
   async tabHandler() {
@@ -281,6 +273,13 @@ class LastLine extends Line {
     this.setState(Object.assign({}, this.state, {
       [stateName]: newState,
     }));
+    if (stateName === 'lockCommand') {
+      if (newState) {
+        this.inputHandler.pause();
+      } else {
+        this.inputHandler.resume();
+      }
+    }
     return this;
   }
 
