@@ -25,7 +25,7 @@ export default {
           return resolve(true);
         }
 
-        params[0] = _path.resolve(appState.get('path'), params[0]);
+        params[0] = _path.resolve(appState.getPath(), params[0]);
         const res = await api('/graphql', {
           method: 'post',
           headers: {

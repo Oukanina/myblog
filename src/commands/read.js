@@ -12,7 +12,7 @@ export default {
 
   help: '',
 
-  test: /read/,
+  test: /^\s*[read|listen|open|watch].*$/,
 
   action(command) {
     return new Promise(async (resolve, reject) => {
@@ -20,7 +20,10 @@ export default {
         const { params } = getCommandParamters(command);
         const res = await api(`/graphql?query={
           read(path:"${
-            path.resolve(appState.get('path'), params[0])
+            path.resolve(
+              appState.getPath(),
+              params[0],
+            )
           }") {
             id, error
           }

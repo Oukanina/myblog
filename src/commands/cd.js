@@ -26,7 +26,7 @@ export default {
         if (!params[0] || params[0] === '~') {
           json.data.cd.path = appState.get('HOME');
         } else {
-          const path = _path.resolve(appState.get('path'), params[0]);
+          const path = _path.resolve(appState.getPath(), params[0]);
           const headers = new Headers();
 
           headers.append('Content-Type', 'application/json');

@@ -20,7 +20,7 @@ export default {
       try {
         const { params } = getCommandParamters(command);
         const paths = params.map(p => _path.resolve(
-          appState.get('path') || '',
+          appState.getPath(),
           p || '',
         ));
         const res = await api('/graphql', {

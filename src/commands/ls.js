@@ -65,9 +65,7 @@ export default {
       try {
         const { params } = getCommandParamters(command);
         const path = _path.resolve(
-          appState.path === '~'
-            ? appState.HOME
-            : appState.path,
+          appState.getPath(),
           params[0] || '',
         );
 

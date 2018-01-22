@@ -28,7 +28,7 @@ export default {
           }
         }
 
-        const path = appState.get('path');
+        const path = appState.getPath();
         const name = params[0];
 
         await api('/graphql', {

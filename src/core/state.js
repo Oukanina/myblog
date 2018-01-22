@@ -124,7 +124,7 @@ class State {
 
   unListenOne(state, listener) {
     const listeners = this.listenerMap.get(state);
-    // if (!listeners) throw new Error(`no listeners on ${state}`);
+
     if (!listeners) return;
     for (let i = 0; i < listeners.length; i += 1) {
       if (listeners[i] === listener) {
@@ -198,6 +198,13 @@ class State {
     }
 
     return this;
+  }
+
+  getPath() {
+    if (this.path === '~') {
+      return this.HOME;
+    }
+    return this.path;
   }
 
 }

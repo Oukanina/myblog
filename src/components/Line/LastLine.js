@@ -148,7 +148,10 @@ class LastLine extends Line {
       }
     }
 
-    const folderPath = _path.resolve(appState.path, folders.join('/'));
+    const folderPath = _path.resolve(
+      appState.getPath(),
+      folders.join('/'),
+    );
     const json = await getFolderChildren(folderPath);
 
     if (json.errors && json.errors.length) {

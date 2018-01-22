@@ -30,7 +30,7 @@ function startUpload(resolve, files) {
   const uploadWorker = new UploadWorker();
   const host = window.location.host;
   const token = Lockr.get('token');
-  const path = appState.get('path');
+  const path = appState.getPath();
   let isOnUplading = false;
   let i = 0;
 
