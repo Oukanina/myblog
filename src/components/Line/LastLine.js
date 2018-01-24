@@ -148,11 +148,15 @@ class LastLine extends Line {
       }
     }
 
+    appState.update('lockCommand', true);
+
     const folderPath = _path.resolve(
       appState.getPath(),
       folders.join('/'),
     );
     const json = await getFolderChildren(folderPath);
+
+    appState.update('lockCommand', false);
 
     if (json.errors && json.errors.length) {
       addCurrentCommandToHistory(true);

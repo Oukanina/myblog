@@ -98,7 +98,7 @@ export default async function (command, cb) {
   }
 
   let hit = false;
-  let canNewLine = true;
+  let shouldCreateNewLine = true;
 
   for (let i = 0; i < myCommands.length; i += 1) {
     if (is.function(myCommands[i].test)) {
@@ -113,22 +113,24 @@ export default async function (command, cb) {
     appState.update('lockCommand', true);
 
     try {
-      canNewLine = await myCommands[i].action(command); // eslint-disable-line no-await-in-loop
+      // eslint-disable-next-line no-await-in-loop
+      shouldCreateNewLine = await myCommands[i].action(command);
     } catch (err) {
       console.error(err); //eslint-disable-line
     }
     break;
   }
 
-  if (!hit || canNewLine) {
+  if (!hit || shouldCreateNewLine) {
     createNewLine(true);
   }
 
   recardInput(command);
 
-  if (cb && cb instanceof Function) {
-    cb();
-  }
-
-  appState.update('lockCommand', false);
+  setTimeout(() => {
+    if (cb && cb instanceof Function) {
+      cb();
+    }
+    appState.update('lockCommand', false);
+  }, 0);
 }
