@@ -349,6 +349,7 @@ class LastLine extends Line {
     this.listenState();
     this.inputHandler.on();
     appState.updateAll();
+    this.setValue(appState.get('currentCommand').join(''));
   }
 
   componentWillUnmount() {
