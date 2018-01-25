@@ -116,7 +116,7 @@ class LastLine extends Line {
     });
 
     // use shouldUpdate limit
-    this.lastUpdateTime = 0;
+    this.lastUpdateTime = 16;
     this.updateTimeout = null;
     this.nextState = {};
   }
@@ -331,9 +331,14 @@ class LastLine extends Line {
   render() {
     const { hide } = this.props;
     const {
-      lastLineHead, currentCommand, HOME,
-      hostname, username, path, cursorPosition,
+      path,
+      HOME,
+      hostname,
+      username,
       lockCommand,
+      lastLineHead,
+      currentCommand,
+      cursorPosition,
     } = this.state;
 
     const pathString = path === HOME ? '~' : path;
@@ -342,13 +347,14 @@ class LastLine extends Line {
     return this.renderLine(
       <span className={lockCommand ? s.lock : null}>
         {
-          hide ? null :
-          <div className={s.lineHead}>
-            {
-              lastLineHead ||
-              `${username}${AT}${hostname}${COLON}${pathString}${DOLLAR}`
-            }
-          </div>
+          hide
+            ? null
+            : <div className={s.lineHead}>
+              {
+                lastLineHead ||
+                `${username}${AT}${hostname}${COLON}${pathString}${DOLLAR}`
+              }
+            </div>
         }
         <InputLine
           text={text}

@@ -14,6 +14,7 @@ class CommandLine extends BaseComponent {
 
     this.state = {
       historyCommands: [],
+      currentCommand: [],
       hideLastLine: false,
       lastLoginTime: '...',
       lastLoginIp: '...',
@@ -24,6 +25,7 @@ class CommandLine extends BaseComponent {
       this.internalState.push(p);
     }
     this.stateListener = this.stateListener.bind(this);
+    this.updateLimit = 0;
   }
 
   didUpdate() { // eslint-disable-line class-methods-use-this

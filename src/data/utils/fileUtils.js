@@ -271,23 +271,30 @@ export function mkdir({ name, path, userId, mode = '664' }) {
   });
 }
 
-async function rmFile({ file, recurrence = false }) {
-  if (file.type === FILETYPE.d && recurrence) {
-    await File.destroy({
-      where: {
-        $or: {
-          parentId: file.get('id'),
-          id: file.get('id'),
-        },
-      },
-    });
-  } else if (file.type === FILETYPE.f) {
-    await file.destroy();
-  } else if (file.type === FILETYPE.d && !recurrence) {
-    throw new Error(`can not remove directory ${file.name} without -r`);
-  } else {
-    throw new Error(`remove ${file.name} failed!`);
-  }
+function rmFile({ file, recurrence = false }) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (file.type === FILETYPE.d && recurrence) {
+        await File.destroy({
+          where: {
+            $or: {
+              parentId: file.get('id'),
+              id: file.get('id'),
+            },
+          },
+        });
+      } else if (file.type === FILETYPE.f) {
+        await file.destroy();
+      } else if (file.type === FILETYPE.d && !recurrence) {
+        throw new Error(`can not remove directory ${file.name} without -r`);
+      } else {
+        throw new Error(`remove ${file.name} failed!`);
+      }
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
 }
 
 export function rm({ path, recurrence = false }) {
@@ -297,10 +304,10 @@ export function rm({ path, recurrence = false }) {
 
       if (!file) {
         throw ERR_FILE_NOT_EXIST;
-      } else {
-        rmFile({ file, recurrence });
-        resolve(file);
       }
+
+      await rmFile({ file, recurrence });
+      resolve(file);
     } catch (err) {
       reject(err);
     }
@@ -340,7 +347,6 @@ function convertWildcard(path) {
         }
         i += 1;
       }
-    // } else if (path.charAt(i) === '{') {
     } else if (path.charAt(i) === '*') {
       tmp += '%';
     } else {
