@@ -233,11 +233,13 @@ class LastLine extends Line {
       appState.update('cursorPosition', resultCommand.length + 1);
       setCaretPosition(resultCommand.length + 1);
     } else {
-      addCurrentCommandToHistory(true);
-      appState.update('currentCommand', [
+      const resultCommand = [
         ...cstart,
         ...getSameFilenameStarts(r.map(a => a.name)),
-      ]);
+      ];
+      addCurrentCommandToHistory(true);
+      appState.update('currentCommand', resultCommand);
+      this.setValue(resultCommand.join(''));
       appState.update('cursorPosition', appState.currentCommand.length + 1);
       listFile(r);
     }
