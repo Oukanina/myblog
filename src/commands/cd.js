@@ -60,9 +60,12 @@ export default {
         }
 
         resolve(false);
-        appState.update('currentCommand', []);
-        appState.trigger('historyCommands');
-        appState.update('cursorPosition', 1);
+
+        setTimeout(() => {
+          appState.update('currentCommand', []);
+          appState.trigger('historyCommands');
+          appState.update('cursorPosition', 1);
+        }, 0);
       } catch (err) {
         reject(err);
       }

@@ -20,6 +20,7 @@ const states = [
   'HOME', 'cursorPosition', 'currentCommand',
   'lastLineHead', 'lockCommand',
 ];
+
 // https://stackoverflow.com/questions/512528/set-keyboard-caret-position-in-html-textbox
 function setCaretPosition(elem, caretPos) {
   if (elem !== null) {
@@ -32,6 +33,26 @@ function setCaretPosition(elem, caretPos) {
       elem.setSelectionRange(caretPos, caretPos);
     } else if (elem.focus instanceof Function) {
       elem.focus();
+    }
+  }
+}
+
+function getSameFilenameStarts(files, startPosition = 0) {
+  let i = startPosition;
+  const r = [];
+
+  // eslint-disable-next-line
+  while (true) {
+    let hit = false;
+    for (let l = 0; l < files.length - 1; l += 1) {
+      hit = files[l][i] === files[l + 1][i];
+      if (!hit) break;
+    }
+    if (hit) {
+      r.push(files[0][i]);
+      i += 1;
+    } else {
+      return r;
     }
   }
 }
@@ -181,10 +202,12 @@ class LastLine extends Line {
       }
       return;
     }
+
+    const cstart = currentCommand.slice(0, cp + 1);
+    const cpath = r[0].path.split('');
+
     if (r.length === 1) {
       let resultCommand;
-      const cstart = currentCommand.slice(0, cp + 1);
-      const cpath = r[0].path.split('');
 
       if (r[0].type === 'd') {
         r[0].path += '/';
@@ -211,6 +234,10 @@ class LastLine extends Line {
       setCaretPosition(resultCommand.length + 1);
     } else {
       addCurrentCommandToHistory(true);
+      appState.update('currentCommand', [
+        ...cstart,
+        ...getSameFilenameStarts(r.map(a => a.name)),
+      ]);
       appState.update('cursorPosition', appState.currentCommand.length + 1);
       listFile(r);
     }
