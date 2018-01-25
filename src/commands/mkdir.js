@@ -1,7 +1,5 @@
 import appState from '../core/state';
 import api from '../core/api';
-// import fetch from '../core/fetch';
-// import { addCurrentCommandToHistory } from './index';
 
 export default {
 
@@ -14,16 +12,14 @@ export default {
   action(command) {
     return new Promise(async (resolve, reject) => {
       try {
-        const inputs = command.match(/-?\w+/gm);
+        const inputs = command.match(/-?([^\x00-\xff]+|\w+)+/gm);
         const options = [];
         const params = [];
 
         for (let i = 1; i < inputs.length; i += 1) {
           if (inputs[i].charAt(0) === '-') {
-            // option
             options.push(inputs[i]);
           } else {
-            // params
             params.push(inputs[i]);
           }
         }
