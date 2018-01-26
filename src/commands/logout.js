@@ -20,9 +20,11 @@ export default {
         addCurrentCommandToHistory(true);
 
         Lockr.set('token', null);
-        appState.update('currentCommand', []);
         appState.trigger('wheel');
 
+        setTimeout(() => {
+          appState.update('currentCommand', []);
+        }, 0);
         setTimeout(() => {
           appState.update('login', false);
           history.push('/login');
