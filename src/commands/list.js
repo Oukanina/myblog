@@ -6,7 +6,7 @@ export default {
 
   help: 'list articles',
 
-  test: /^\s*list.*$/,
+  test: /^\s*list\s+?$/,
 
   action() {
     return new Promise((resolve, reject) => {
