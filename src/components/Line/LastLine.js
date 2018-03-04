@@ -45,11 +45,11 @@ function getSameFilenameStarts(files, startPosition = 0) {
   while (true) {
     let hit = false;
     for (let l = 0; l < files.length - 1; l += 1) {
-      hit = files[l][i] === files[l + 1][i];
+      hit = files[l].charAt(i) === files[l + 1].charAt(i);
       if (!hit) break;
     }
     if (hit) {
-      r.push(files[0][i]);
+      r.push(files[0].charAt(i));
       i += 1;
     } else {
       return r;
@@ -204,9 +204,9 @@ class LastLine extends Line {
     }
 
     const cstart = currentCommand.slice(0, cp + 1);
-    const cpath = r[0].path.split('');
 
     if (r.length === 1) {
+      const cpath = r[0].path.split('');
       let resultCommand;
 
       if (r[0].type === 'd') {
@@ -233,9 +233,10 @@ class LastLine extends Line {
       appState.update('cursorPosition', resultCommand.length + 1);
       setCaretPosition(resultCommand.length + 1);
     } else {
+      const cpath = currentCommand.slice(cp + 1, currentCommand.length);
       const resultCommand = [
         ...cstart,
-        ...getSameFilenameStarts(r.map(a => a.name)),
+        ...[...cpath, ...getSameFilenameStarts(r.map(a => a.name))],
       ];
       addCurrentCommandToHistory(true);
       appState.update('currentCommand', resultCommand);

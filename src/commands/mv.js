@@ -11,7 +11,7 @@ export default {
 
   name: 'mv',
 
-  help: '',
+  help: 'Move file, rename file...',
 
   test: /^\s*mv.*$/,
 

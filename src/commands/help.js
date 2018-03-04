@@ -9,7 +9,7 @@ export default {
 
   name: 'help',
 
-  help: '',
+  help: 'Just this...',
 
   test: /^\s*help.*$/,
 
@@ -20,12 +20,13 @@ export default {
         const historyCommands = appState.get('historyCommands');
 
         for (let i = 0; i < myCommands.length; i += 1) {
-          let commandName = myCommands[i].name;
-          while (commandName.length < 10) {
-            commandName += ' ';
-          }
+          const commandName = myCommands[i].name;
+
           historyCommands.push({
-            text: `  ${commandName}   ${myCommands[i].help || ''}`,
+            text: `  ${commandName}:`,
+          });
+          historyCommands.push({
+            text: `    ${myCommands[i].help || ''}`,
           });
         }
 

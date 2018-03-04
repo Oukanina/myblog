@@ -7,7 +7,7 @@ export default {
 
   name: 'logout',
 
-  help: 'Logout',
+  help: 'Just logout',
 
   test: /^\s*logout|exit\s*$/,
 

@@ -5,7 +5,7 @@ export default {
 
   name: 'mkdir',
 
-  help: '',
+  help: 'Create a folder',
 
   test: /^\s*mkdir.*$/,
 

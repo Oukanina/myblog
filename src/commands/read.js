@@ -8,11 +8,11 @@ import {
 
 export default {
 
-  name: 'read',
+  name: 'open',
 
-  help: '',
+  help: 'Open a file',
 
-  test: /^\s*[read|listen|open|watch].*$/,
+  test: /^\s*[open|read|listen|open|watch].*$/,
 
   action(command) {
     return new Promise(async (resolve, reject) => {

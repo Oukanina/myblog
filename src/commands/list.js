@@ -4,7 +4,7 @@ export default {
 
   name: 'list',
 
-  help: 'list articles',
+  help: 'List my articles, emmm..., maybe nothing...',
 
   test: /^\s*list\s+?$/,
 

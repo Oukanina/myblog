@@ -56,7 +56,7 @@ export default {
 
   name: 'ls',
 
-  help: '',
+  help: 'List folder files',
 
   test: /^\s*ls.*$/,
 

@@ -4,7 +4,7 @@ export default {
 
   name: 'clear',
 
-  help: '',
+  help: 'balababaal..',
 
   test: /^\s*clear\s*$/,
 

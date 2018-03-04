@@ -8,7 +8,7 @@ export default {
 
   name: 'rm',
 
-  help: '',
+  help: 'You know...',
 
   test: /^\s*rm.*$/,
 
