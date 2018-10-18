@@ -12,7 +12,7 @@
    * Typography
    * ======================================================================== */
 
-  --font-family-base: 'Segoe UI', 'HelveticaNeue-Light', sans-serif;
+  --font-family-base: 'Hack', 'Segoe UI', 'HelveticaNeue-Light', sans-serif;
 
   /*
    * Layout
@@ -30,8 +30,12 @@
   --screen-lg-min: 1200px; /* Large screen / wide desktop */
 
   --z-index-background: 1;
+
   --z-index-1: 10;
+
   --z-index-2: 20;
+
   --z-index-3: 30;
+
   --z-index-4: 40;
 }
